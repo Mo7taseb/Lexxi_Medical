@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Mic, Upload, FileText, Stethoscope, AlertCircle, CheckCircle, Play, Pause, Square, Download, Copy } from 'lucide-react';
-import VoiceRecorder from '@/components/VoiceRecorder';
-import TranscriptionViewer from '@/components/TranscriptionViewer';
-import NoteTypeSelector from '@/components/NoteTypeSelector';
-import MedicalNoteViewer from '@/components/MedicalNoteViewer';
+import React, { useState, lazy, Suspense } from 'react';
+import { Mic, Upload, FileText, Stethoscope, AlertCircle, CheckCircle } from 'lucide-react';
+import { FastLoadingSpinner } from '@/components/LoadingOptimization';
+
+// Lazy load components to reduce initial bundle size
+const VoiceRecorder = lazy(() => import('@/components/VoiceRecorder'));
+const TranscriptionViewer = lazy(() => import('@/components/TranscriptionViewer'));
+const NoteTypeSelector = lazy(() => import('@/components/NoteTypeSelector'));
+const MedicalNoteViewer = lazy(() => import('@/components/MedicalNoteViewer'));
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -72,6 +75,9 @@ export default function Home() {
     setGeneratedNote('');
     setPatientConsent(false);
   };
+
+  // Loading component for better UX
+  const LoadingSpinner = () => <FastLoadingSpinner />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100" dir="rtl">
@@ -195,41 +201,49 @@ export default function Home() {
           {/* Step 2: Record Audio */}
           {currentStep === 2 && (
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <VoiceRecorder onComplete={handleAudioComplete} />
+              <Suspense fallback={<LoadingSpinner />}>
+                <VoiceRecorder onComplete={handleAudioComplete} />
+              </Suspense>
             </div>
           )}
 
           {/* Step 3: Review Transcript */}
           {currentStep === 3 && audioFile && (
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <TranscriptionViewer
-                audioFile={audioFile}
-                onComplete={handleTranscriptionComplete}
-              />
+              <Suspense fallback={<LoadingSpinner />}>
+                <TranscriptionViewer
+                  audioFile={audioFile}
+                  onComplete={handleTranscriptionComplete}
+                />
+              </Suspense>
             </div>
           )}
 
           {/* Step 4: Select Note Type */}
           {currentStep === 4 && (
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <NoteTypeSelector
-                selectedType={noteType}
-                onSelect={handleNoteTypeSelect}
-              />
+              <Suspense fallback={<LoadingSpinner />}>
+                <NoteTypeSelector
+                  selectedType={noteType}
+                  onSelect={handleNoteTypeSelect}
+                />
+              </Suspense>
             </div>
           )}
 
           {/* Step 5: Review Generated Note */}
           {currentStep === 5 && (
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <MedicalNoteViewer
-                transcript={transcript}
-                noteType={noteType}
-                generatedNote={generatedNote}
-                isProcessing={isProcessing}
-                onGenerate={handleGenerateNote}
-                onReset={resetApp}
-              />
+              <Suspense fallback={<LoadingSpinner />}>
+                <MedicalNoteViewer
+                  transcript={transcript}
+                  noteType={noteType}
+                  generatedNote={generatedNote}
+                  isProcessing={isProcessing}
+                  onGenerate={handleGenerateNote}
+                  onReset={resetApp}
+                />
+              </Suspense>
             </div>
           )}
         </div>

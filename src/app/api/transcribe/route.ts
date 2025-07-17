@@ -40,53 +40,34 @@ export async function POST(request: NextRequest) {
 
 async function runWhisperTranscription(filePath: string, language: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const scriptPath = join(process.cwd(), 'transcribe_simple.py');
-    const backupScriptPath = join(process.cwd(), 'transcribe_backup.py');
+    const scriptPath = join(process.cwd(), 'whisper_transcribe.py');
     
-    const tryTranscription = (script: string) => {
-      return new Promise<string>((resolveInner, rejectInner) => {
-        const pythonProcess = spawn('python', [script, filePath, language], {
-          env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
-          stdio: ['pipe', 'pipe', 'pipe']
-        });
-        
-        let stdout = '';
-        let stderr = '';
-        
-        pythonProcess.stdout.on('data', (data) => {
-          stdout += data.toString('utf8');
-        });
-        
-        pythonProcess.stderr.on('data', (data) => {
-          stderr += data.toString('utf8');
-        });
-        
-        pythonProcess.on('close', (code) => {
-          if (code !== 0) {
-            rejectInner(new Error(`Python script failed: ${stderr}`));
-          } else {
-            resolveInner(stdout.trim());
-          }
-        });
-        
-        pythonProcess.on('error', (error) => {
-          rejectInner(error);
-        });
-      });
-    };
+    const pythonProcess = spawn('python', [scriptPath, filePath, '--language', language, '--model', 'base'], {
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
     
-    try {
-      // Try main script first
-      const result = await tryTranscription(scriptPath);
-      resolve(result);
-    } catch (error) {
-      try {
-        // Try backup script
-        const result = await tryTranscription(backupScriptPath);
-        resolve(result);
-      } catch (backupError) {
-        reject(new Error(`Both transcription methods failed. Main: ${error}, Backup: ${backupError}`));
+    let stdout = '';
+    let stderr = '';
+    
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString('utf8');
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString('utf8');
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Enhanced transcription failed: ${stderr}`));
+      } else {
+        resolve(stdout.trim());
       }
-    }
+    });
+    
+    pythonProcess.on('error', (error) => {
+      reject(error);
+    });
   });
 }
