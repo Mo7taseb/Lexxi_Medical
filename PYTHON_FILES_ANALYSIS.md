@@ -1,11 +1,13 @@
 # Python Transcription Files Analysis - Lexxi Medical App
 
 ## Overview
+
 Your project contains **6 Python files** related to transcription and setup. Here's what each one does:
 
 ## 📁 Transcription Files (4 files)
 
 ### 1. **`whisper_transcribe.py`** - **Main Enhanced Transcription Script**
+
 - **Purpose**: Primary transcription script with advanced features
 - **Features**:
   - ✅ **UTF-8 encoding** for Arabic text handling
@@ -16,12 +18,14 @@ Your project contains **6 Python files** related to transcription and setup. Her
   - ✅ **Multiple language support** (Arabic, English)
   - ✅ **Multiple model sizes** (base, small, medium, large)
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python whisper_transcribe.py audio.mp3 --language ar --model base
 ```
 
 ### 2. **`transcribe_simple.py`** - **Simple API-Compatible Script**
+
 - **Purpose**: Lightweight version for API calls
 - **Features**:
   - ✅ **Minimal dependencies**
@@ -31,12 +35,14 @@ python whisper_transcribe.py audio.mp3 --language ar --model base
   - ❌ No advanced formatting
   - ❌ No medical-specific features
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python transcribe_simple.py audio.mp3 ar
 ```
 
 ### 3. **`transcribe_backup.py`** - **Backup Script**
+
 - **Purpose**: Fallback transcription with original logic
 - **Features**:
   - ✅ **UTF-8 encoding**
@@ -46,12 +52,14 @@ python transcribe_simple.py audio.mp3 ar
   - ❌ Limited medical features
   - ❌ No command-line arguments
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python transcribe_backup.py audio.mp3 ar
 ```
 
 ### 4. **`transcribe.py`** - **Original Development Script**
+
 - **Purpose**: Original test script (hardcoded for r1.m4a)
 - **Features**:
   - ✅ **Basic Whisper integration**
@@ -61,7 +69,8 @@ python transcribe_backup.py audio.mp3 ar
   - ❌ No command-line interface
   - ❌ No UTF-8 encoding fixes
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python transcribe.py  # Only works with r1.m4a file
 ```
@@ -71,6 +80,7 @@ python transcribe.py  # Only works with r1.m4a file
 ## 🔧 Setup/Utility Files (2 files)
 
 ### 5. **`setup-python.py`** - **Environment Setup Script**
+
 - **Purpose**: Installs Python dependencies
 - **Features**:
   - ✅ **Automatic dependency installation**
@@ -78,12 +88,14 @@ python transcribe.py  # Only works with r1.m4a file
   - ✅ **Error handling**
   - ✅ **Progress indicators**
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python setup-python.py
 ```
 
 ### 6. **`test-setup.py`** - **Installation Verification Script**
+
 - **Purpose**: Tests if Whisper is properly installed
 - **Features**:
   - ✅ **Whisper installation check**
@@ -91,7 +103,8 @@ python setup-python.py
   - ✅ **Dependency verification**
   - ✅ **System diagnostics**
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python test-setup.py
 ```
@@ -101,13 +114,16 @@ python test-setup.py
 ## 🎯 Which Script Does Your App Use?
 
 ### **Current API Integration**:
+
 Your Next.js app (`/api/transcribe`) uses **`transcribe_simple.py`** because:
+
 - ✅ **Lightweight** for API calls
 - ✅ **UTF-8 encoding** for Arabic support
 - ✅ **Simple command-line interface**
 - ✅ **Reliable error handling**
 
 ### **File Evolution History**:
+
 ```
 transcribe.py (original, hardcoded)
     ↓
@@ -123,21 +139,27 @@ whisper_transcribe.py (full-featured version)
 ## 🚀 Recommendations
 
 ### **For Production Use**:
+
 1. **Primary**: Use `whisper_transcribe.py` for best features
 2. **Fallback**: Keep `transcribe_simple.py` for API reliability
 3. **Remove**: `transcribe.py` (outdated, hardcoded)
 
 ### **API Route Update**:
+
 Update your `/api/transcribe` route to use the enhanced version:
+
 ```typescript
 // Current
-const result = await exec('python transcribe_simple.py ...');
+const result = await exec("python transcribe_simple.py ...");
 
-// Recommended  
-const result = await exec('python whisper_transcribe.py ... --language ar --model base');
+// Recommended
+const result = await exec(
+  "python whisper_transcribe.py ... --language ar --model base"
+);
 ```
 
 ### **File Cleanup**:
+
 - ✅ **Keep**: `whisper_transcribe.py`, `transcribe_simple.py`
 - ✅ **Keep**: `setup-python.py`, `test-setup.py`
 - ❌ **Remove**: `transcribe.py` (outdated)
@@ -147,20 +169,21 @@ const result = await exec('python whisper_transcribe.py ... --language ar --mode
 
 ## 📊 Feature Comparison
 
-| Feature | transcribe.py | transcribe_backup.py | transcribe_simple.py | whisper_transcribe.py |
-|---------|--------------|---------------------|---------------------|---------------------|
-| **UTF-8 Support** | ❌ | ✅ | ✅ | ✅ |
-| **Command Line** | ❌ | ✅ | ✅ | ✅ |
-| **Medical Formatting** | ❌ | ✅ | ❌ | ✅ |
-| **Error Handling** | ❌ | ✅ | ✅ | ✅ |
-| **Multiple Languages** | ❌ | ❌ | ✅ | ✅ |
-| **Model Selection** | ❌ | ❌ | ❌ | ✅ |
-| **API Ready** | ❌ | ✅ | ✅ | ✅ |
-| **Production Ready** | ❌ | ❌ | ✅ | ✅ |
+| Feature                | transcribe.py | transcribe_backup.py | transcribe_simple.py | whisper_transcribe.py |
+| ---------------------- | ------------- | -------------------- | -------------------- | --------------------- |
+| **UTF-8 Support**      | ❌            | ✅                   | ✅                   | ✅                    |
+| **Command Line**       | ❌            | ✅                   | ✅                   | ✅                    |
+| **Medical Formatting** | ❌            | ✅                   | ❌                   | ✅                    |
+| **Error Handling**     | ❌            | ✅                   | ✅                   | ✅                    |
+| **Multiple Languages** | ❌            | ❌                   | ✅                   | ✅                    |
+| **Model Selection**    | ❌            | ❌                   | ❌                   | ✅                    |
+| **API Ready**          | ❌            | ✅                   | ✅                   | ✅                    |
+| **Production Ready**   | ❌            | ❌                   | ✅                   | ✅                    |
 
 ## 💡 Summary
 
 You have **multiple versions** of transcription scripts created during development:
+
 - **`whisper_transcribe.py`**: Most advanced, recommended for production
 - **`transcribe_simple.py`**: Currently used by your API, reliable
 - **`transcribe_backup.py`**: Intermediate version, can be removed

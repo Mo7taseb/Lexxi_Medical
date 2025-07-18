@@ -40,34 +40,86 @@ export async function POST(request: NextRequest) {
 
 async function runWhisperTranscription(filePath: string, language: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const scriptPath = join(process.cwd(), 'whisper_transcribe.py');
+    const gpuScriptPath = join(process.cwd(), 'whisper_transcribe_gpu.py');
+    const fallbackScriptPath = join(process.cwd(), 'whisper_transcribe.py');
     
-    const pythonProcess = spawn('python', [scriptPath, filePath, '--language', language, '--model', 'base'], {
-      env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
+    const tryGPUTranscription = () => {
+      return new Promise<string>((resolveGPU, rejectGPU) => {
+        const pythonProcess = spawn('python', [gpuScriptPath, filePath, '--language', language, '--model', 'base'], {
+          env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
+        
+        let stdout = '';
+        let stderr = '';
+        
+        pythonProcess.stdout.on('data', (data) => {
+          stdout += data.toString('utf8');
+        });
+        
+        pythonProcess.stderr.on('data', (data) => {
+          stderr += data.toString('utf8');
+        });
+        
+        pythonProcess.on('close', (code) => {
+          if (code !== 0) {
+            rejectGPU(new Error(`GPU transcription failed: ${stderr}`));
+          } else {
+            resolveGPU(stdout.trim());
+          }
+        });
+        
+        pythonProcess.on('error', (error) => {
+          rejectGPU(error);
+        });
+      });
+    };
     
-    let stdout = '';
-    let stderr = '';
+    const tryCPUTranscription = () => {
+      return new Promise<string>((resolveCPU, rejectCPU) => {
+        const pythonProcess = spawn('python', [fallbackScriptPath, filePath, '--language', language, '--model', 'base'], {
+          env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
+        
+        let stdout = '';
+        let stderr = '';
+        
+        pythonProcess.stdout.on('data', (data) => {
+          stdout += data.toString('utf8');
+        });
+        
+        pythonProcess.stderr.on('data', (data) => {
+          stderr += data.toString('utf8');
+        });
+        
+        pythonProcess.on('close', (code) => {
+          if (code !== 0) {
+            rejectCPU(new Error(`CPU transcription failed: ${stderr}`));
+          } else {
+            resolveCPU(stdout.trim());
+          }
+        });
+        
+        pythonProcess.on('error', (error) => {
+          rejectCPU(error);
+        });
+      });
+    };
     
-    pythonProcess.stdout.on('data', (data) => {
-      stdout += data.toString('utf8');
-    });
-    
-    pythonProcess.stderr.on('data', (data) => {
-      stderr += data.toString('utf8');
-    });
-    
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Enhanced transcription failed: ${stderr}`));
-      } else {
-        resolve(stdout.trim());
+    try {
+      // Try GPU transcription first
+      const result = await tryGPUTranscription();
+      resolve(result);
+    } catch (error) {
+      console.log('GPU transcription failed, falling back to CPU...', error);
+      try {
+        // Fallback to CPU transcription
+        const result = await tryCPUTranscription();
+        resolve(result);
+      } catch (fallbackError) {
+        reject(new Error(`Both GPU and CPU transcription failed. GPU: ${error}, CPU: ${fallbackError}`));
       }
-    });
-    
-    pythonProcess.on('error', (error) => {
-      reject(error);
-    });
+    }
   });
 }
