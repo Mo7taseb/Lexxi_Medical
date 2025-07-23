@@ -1,14 +1,15 @@
-// Simple LLM router that prioritizes working solutions
+// Groq-Only LLM Router - Powerful 70B Models for Medical AI
 export class SimpleLLMRouter {
-  private ollamaUrl = 'http://localhost:11434';
   private groqApiKey = process.env.GROQ_API_KEY;
+  private primaryModel = 'llama-3.3-70b-versatile'; // Your best available model
+  private fallbackModel = 'llama-3.1-8b-instant'; // Fast fallback
 
   async enhanceTranscription(transcript: string, language: 'ar' | 'en', enableEnhancement = true): Promise<{
     text: string;
     source: string;
     confidence: number;
   }> {
-    console.log(`🔄 Enhancing transcription (${language}): ${transcript.substring(0, 100)}...`);
+    console.log(`� Enhancing transcription with Groq 70B (${language}): ${transcript.substring(0, 100)}...`);
 
     // Option to skip enhancement completely
     if (!enableEnhancement) {
@@ -16,38 +17,35 @@ export class SimpleLLMRouter {
       return { text: transcript, source: 'original', confidence: 1.0 };
     }
 
-    // Quick quality check - if text seems good, skip enhancement
-    const words = transcript.split(/\s+/).filter(w => w.trim());
-    if (words.length > 15 && transcript.length > 100 && !transcript.includes('???')) {
-      console.log('📝 Text seems coherent, skipping enhancement');
-      return { text: transcript, source: 'original', confidence: 0.95 };
+    // Always try Groq enhancement for maximum quality
+    if (!this.groqApiKey || this.groqApiKey === 'your_new_groq_api_key_here') {
+      console.log('❌ No valid Groq API key found');
+      return { text: transcript, source: 'original', confidence: 0.5 };
     }
 
-    // Try local Ollama first (most reliable)
+    // Try primary 70B model first
     try {
-      const enhanced = await this.enhanceWithOllama(transcript, language);
-      console.log('✅ Enhanced with local Ollama');
-      return { text: enhanced, source: 'local', confidence: 0.9 };
+      const enhanced = await this.enhanceWithGroq(transcript, language, this.primaryModel);
+      console.log('✅ Enhanced with Groq 70B model');
+      return { text: enhanced, source: 'groq-70b', confidence: 0.98 };
     } catch (error) {
-      console.log('❌ Local Ollama failed:', error);
+      console.log('⚠️ Primary model failed, trying fallback:', error);
     }
 
-    // Try Groq with simpler request
-    if (this.groqApiKey && this.groqApiKey !== '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') {
-      try {
-        const enhanced = await this.enhanceWithGroqSimple(transcript, language);
-        console.log('✅ Enhanced with Groq');
-        return { text: enhanced, source: 'groq', confidence: 0.95 };
-      } catch (error) {
-        console.log('❌ Groq failed:', error);
-      }
+    // Try fallback 8B model
+    try {
+      const enhanced = await this.enhanceWithGroq(transcript, language, this.fallbackModel);
+      console.log('✅ Enhanced with Groq 8B fallback');
+      return { text: enhanced, source: 'groq-8b', confidence: 0.90 };
+    } catch (error) {
+      console.log('❌ All Groq models failed:', error);
     }
 
-    // Template fallback
-    console.log('⚠️ Using template enhancement');
+    // Return original if Groq fails
+    console.log('⚠️ Groq unavailable, returning original text');
     return { 
-      text: this.templateEnhancement(transcript, language), 
-      source: 'template', 
+      text: transcript, 
+      source: 'original', 
       confidence: 0.7 
     };
   }
@@ -56,34 +54,35 @@ export class SimpleLLMRouter {
     note: string;
     source: string;
   }> {
-    console.log(`🏥 Generating ${noteType} note (${language}): ${transcript.substring(0, 100)}...`);
+    console.log(`🏥 Generating ${noteType} note with Groq 70B (${language}): ${transcript.substring(0, 100)}...`);
 
-    // TEMPORARILY SKIP AI - Use template generation for reliability
-    console.log('⚠️ Temporarily using template note generation for reliability');
-    const { generateEnhancedFallbackNote } = await import('./simpleFallbackGenerator');
-    const note = generateEnhancedFallbackNote({ transcript, noteType, language });
-    return { note, source: 'template' };
-
-    // AI Note generation is disabled until we fix hallucination issues
-    /*
-    // Try local Ollama first
-    try {
-      const note = await this.generateNoteWithOllama(transcript, noteType, language);
-      console.log('✅ Note generated with local Ollama');
-      return { note, source: 'local' };
-    } catch (error) {
-      console.log('❌ Local Ollama note generation failed:', error);
+    if (!this.groqApiKey || this.groqApiKey === 'your_new_groq_api_key_here') {
+      console.log('❌ No valid Groq API key found, using template');
+      const { generateEnhancedFallbackNote } = await import('./simpleFallbackGenerator');
+      const note = generateEnhancedFallbackNote({ transcript, noteType, language });
+      return { note, source: 'template' };
     }
 
-    // Try Groq
-    if (this.groqApiKey && this.groqApiKey !== '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') {
-      try {
-        const note = await this.generateNoteWithGroqSimple(transcript, noteType, language);
-        console.log('✅ Note generated with Groq');
-        return { note, source: 'groq' };
-      } catch (error) {
-        console.log('❌ Groq note generation failed:', error);
+    // Try primary 70B model for note generation
+    try {
+      const note = await this.generateNoteWithGroq(transcript, noteType, language, this.primaryModel);
+      if (this.validateMedicalNote(note, transcript)) {
+        console.log('✅ Medical note generated with Groq 70B');
+        return { note, source: 'groq-70b' };
       }
+    } catch (error) {
+      console.log('⚠️ Primary model failed for note generation:', error);
+    }
+
+    // Try fallback 8B model
+    try {
+      const note = await this.generateNoteWithGroq(transcript, noteType, language, this.fallbackModel);
+      if (this.validateMedicalNote(note, transcript)) {
+        console.log('✅ Medical note generated with Groq 8B fallback');
+        return { note, source: 'groq-8b' };
+      }
+    } catch (error) {
+      console.log('❌ All Groq models failed for note generation:', error);
     }
 
     // Template fallback
@@ -91,139 +90,169 @@ export class SimpleLLMRouter {
     const { generateEnhancedFallbackNote } = await import('./simpleFallbackGenerator');
     const note = generateEnhancedFallbackNote({ transcript, noteType, language });
     return { note, source: 'template' };
-    */
   }
 
-  private async enhanceWithOllama(transcript: string, language: string): Promise<string> {
-    let prompt: string;
-    
+  private async enhanceWithGroq(transcript: string, language: string, model: string): Promise<string> {
+    let systemPrompt: string;
+    let userPrompt: string;
+
     if (language === 'ar') {
-      prompt = `أنت مدقق نصوص طبية عربية. صحح الأخطاء الإملائية والنحوية فقط:
+      systemPrompt = "أنت خبير في تصحيح النصوص الطبية العربية. مهمتك تحسين دقة النص المنقول من الصوت للكتابة.";
+      userPrompt = `صحح وحسن هذا النص الطبي العربي المنقول من الصوت:
 
-النص الأصلي: "${transcript}"
+"${transcript}"
 
-المطلوب:
-- صحح الأخطاء الإملائية فقط
-- اتركh النص كما هو إذا كان واضحاً
-- لا تضيف كلمات جديدة
-- حافظ على نفس الطول تقريباً
-- لا تترجم أو تفسر
+متطلبات التحسين:
+- صحح الأخطاء الإملائية والنحوية
+- حسن المصطلحات الطبية العربية
+- اجعل النص أكثر وضوحاً ومهنية
+- حافظ على المعنى والسياق الأصلي
+- لا تضيف معلومات طبية جديدة
+- لا تحذف أي معلومات مهمة
 
-النص المُصحح:`;
+النص المُحسن:`;
     } else {
-      prompt = `Fix only obvious spelling errors in this text. Do not change content or meaning:
+      systemPrompt = "You are an expert medical text correction specialist. Your task is to improve transcribed medical text accuracy.";
+      userPrompt = `Correct and improve this medical transcription:
 
-Text: "${transcript}"
+"${transcript}"
 
-Strict rules:
-- If text is understandable, return as-is
-- Fix only obvious spelling mistakes
-- Do not rewrite any sentences
-- Do not add or remove information
-- Keep same words and order
-- If unsure, return original text
+Enhancement requirements:
+- Fix spelling and grammar errors
+- Improve medical terminology accuracy
+- Make text clearer and more professional
+- Preserve original meaning and context
+- Do not add new medical information
+- Do not remove important information
 
-Corrected text:`;
+Enhanced text:`;
     }
 
-    const response = await fetch(`${this.ollamaUrl}/api/generate`, {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${this.groqApiKey}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        model: 'phi3:mini',
-        prompt,
-        stream: false,
-        options: {
-          temperature: 0.05,
-          num_predict: Math.max(transcript.length + 50, 200),
-          top_p: 0.8,
-          repeat_penalty: 1.2,
-          stop: ["\n\n", "النص:", "Text:"]
-        }
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.1,
+        max_tokens: Math.max(transcript.length * 2, 500),
+        top_p: 0.9,
+        stop: null
       })
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    const enhanced = data.response || transcript;
+    const enhanced = data.choices?.[0]?.message?.content?.trim() || transcript;
     
-    // More lenient safety checks with better logging
+    // Quality validation
     const originalWords = transcript.split(/\s+/).length;
     const enhancedWords = enhanced.split(/\s+/).length;
     
-    console.log(`📊 Enhancement check - Original: ${transcript.length} chars, ${originalWords} words`);
-    console.log(`📊 Enhancement check - Enhanced: ${enhanced.length} chars, ${enhancedWords} words`);
+    console.log(`📊 Groq Enhancement - Original: ${transcript.length} chars, ${originalWords} words`);
+    console.log(`📊 Groq Enhancement - Enhanced: ${enhanced.length} chars, ${enhancedWords} words`);
     
-    if (enhanced.length > transcript.length * 3 || 
-        enhanced.length < transcript.length * 0.3 ||
-        enhancedWords > originalWords * 2 ||
-        enhancedWords < originalWords * 0.3) {
-      console.log('⚠️ Ollama response too different, using original text');
-      console.log(`❌ Rejected: ${enhanced.substring(0, 100)}...`);
+    // Allow more flexibility for 70B model improvements
+    if (enhanced.length > transcript.length * 4 || 
+        enhanced.length < transcript.length * 0.2 ||
+        enhancedWords > originalWords * 3 ||
+        enhancedWords < originalWords * 0.2) {
+      console.log('⚠️ Groq response too different, using original text');
       return transcript;
     }
     
-    console.log(`✅ Enhancement accepted: ${enhanced.substring(0, 100)}...`);
-    return enhanced.trim();
+    console.log(`✅ Groq enhancement accepted: ${enhanced.substring(0, 100)}...`);
+    return enhanced;
   }
 
-  private async generateNoteWithOllama(transcript: string, noteType: string, language: string): Promise<string> {
-    let prompt: string;
+  private async generateNoteWithGroq(transcript: string, noteType: string, language: string, model: string): Promise<string> {
+    let systemPrompt: string;
+    let userPrompt: string;
     
     if (language === 'ar') {
-      prompt = `اكتب تقرير طبي بسيط باللغة العربية من كلام المريض هذا فقط:
+      systemPrompt = "أنت طبيب خبير متخصص في كتابة التقارير الطبية الاحترافية باللغة العربية. تتميز بالدقة والوضوح والالتزام بالمعايير الطبية.";
+      
+      const noteTypeArabic = {
+        'consultation': 'استشارة طبية',
+        'examination': 'فحص طبي',
+        'diagnosis': 'تشخيص',
+        'treatment': 'خطة علاج',
+        'follow-up': 'متابعة',
+        'general': 'تقرير عام'
+      }[noteType] || 'تقرير طبي';
+
+      userPrompt = `اكتب ${noteTypeArabic} احترافي مفصل بناءً على هذه المحادثة الطبية:
 
 "${transcript}"
 
-قواعد مهمة جداً:
-- اكتب فقط ما قاله المريض
-- لا تخترع أي معلومات طبية
-- لا تضيف تشخيص أو علاج
-- اكتب ملخص بسيط لشكوى المريض فقط
-- إذا كان النص غير مكتمل، اذكر ذلك
+متطلبات التقرير:
+- اكتب تقرير طبي شامل ومنظم
+- استخدم المصطلحات الطبية العربية المناسبة
+- قسم التقرير إلى أقسام واضحة (الشكوى الرئيسية، التاريخ المرضي، الفحص، إلخ)
+- اذكر كل التفاصيل المهمة من المحادثة
+- استخدم لغة طبية احترافية
+- تأكد من الدقة والوضوح
+- لا تضيف معلومات غير موجودة في النص
 
-التقرير:`;
+التقرير الطبي:`;
     } else {
-      prompt = `Write a simple medical note in English from this patient's words only:
+      systemPrompt = "You are an expert physician specialized in writing professional medical reports. You are known for accuracy, clarity, and adherence to medical standards.";
+      
+      userPrompt = `Write a comprehensive professional ${noteType} report based on this medical conversation:
 
 "${transcript}"
 
-Very important rules:
-- Write ONLY what the patient said
-- Do NOT invent medical information
-- Do NOT add diagnosis or treatment
-- Write simple summary of patient complaint only
-- If text is incomplete, mention that
+Report requirements:
+- Write a thorough and organized medical report
+- Use appropriate medical terminology
+- Structure the report with clear sections (Chief Complaint, History, Examination, etc.)
+- Include all important details from the conversation
+- Use professional medical language
+- Ensure accuracy and clarity
+- Do not add information not present in the text
 
-Note:`;
+Medical Report:`;
     }
 
-    const response = await fetch(`${this.ollamaUrl}/api/generate`, {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${this.groqApiKey}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        model: 'phi3:mini',
-        prompt,
-        stream: false,
-        options: {
-          temperature: 0.1,
-          num_predict: Math.min(transcript.length * 2, 400),
-          top_p: 0.8,
-          repeat_penalty: 1.3,
-          stop: ["\n\nالتقرير:", "\n\nNote:", "تشخيص:", "علاج:", "diagnosis:", "treatment:"]
-        }
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.1,
+        max_tokens: Math.min(transcript.length * 3, 1500),
+        top_p: 0.9,
+        stop: null
       })
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    return data.response;
+    const note = data.choices?.[0]?.message?.content?.trim() || '';
+    
+    console.log(`📄 Generated note (${model}): ${note.substring(0, 150)}...`);
+    return note;
   }
 
   private async enhanceWithGroqSimple(transcript: string, language: string): Promise<string> {
@@ -420,4 +449,43 @@ Rules:
     
     return enhanced;
   }
+
+  private validateMedicalNote(note: string, originalTranscript: string): boolean {
+    // Basic validation checks for medical note quality
+    if (!note || note.length < 50) {
+      console.log('❌ Note too short');
+      return false;
+    }
+    
+    if (note.length > originalTranscript.length * 5) {
+      console.log('❌ Note too long compared to transcript');
+      return false;
+    }
+    
+    // Check for common hallucination indicators (only if not in original)
+    const suspiciousPatterns = [
+      /patient.*denies.*drug.*use/i,
+      /no.*known.*allergies/i,
+      /vital.*signs.*stable/i,
+      /further.*evaluation.*needed/i,
+      /follow.*up.*in.*clinic/i,
+      /تم.*الفحص.*السريري/i,
+      /العلامات.*الحيوية.*مستقرة/i
+    ];
+    
+    const hasHallucination = suspiciousPatterns.some(pattern => 
+      pattern.test(note) && !pattern.test(originalTranscript)
+    );
+    
+    if (hasHallucination) {
+      console.log('❌ Potential hallucination detected in note');
+      return false;
+    }
+    
+    console.log('✅ Medical note passed validation');
+    return true;
+  }
 }
+
+// Export a singleton instance
+export const llmRouter = new SimpleLLMRouter();

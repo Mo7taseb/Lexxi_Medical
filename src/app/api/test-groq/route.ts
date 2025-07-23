@@ -5,10 +5,10 @@ export async function GET() {
     // Test Groq API connectivity
     const groqApiKey = process.env.GROQ_API_KEY;
     
-    if (!groqApiKey || groqApiKey === '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') {
+    if (!groqApiKey || groqApiKey === 'your_new_groq_api_key_here' || groqApiKey.length < 10) {
       return NextResponse.json({ 
         error: 'No valid Groq API key found',
-        suggestion: 'Set GROQ_API_KEY in your environment variables'
+        suggestion: 'Set GROQ_API_KEY in your environment variables with a real API key from https://console.groq.com/'
       });
     }
 
