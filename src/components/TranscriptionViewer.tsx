@@ -10,6 +10,9 @@ interface TranscriptionViewerProps {
 
 const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, onComplete }) => {
     const [transcript, setTranscript] = useState<string>('');
+    const [originalTranscript, setOriginalTranscript] = useState<string>('');
+    const [enhancement, setEnhancement] = useState<any>(null);
+    const [showComparison, setShowComparison] = useState(false);
     const [isTranscribing, setIsTranscribing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -62,9 +65,16 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                 throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
             }
 
+            // Set enhanced transcript as primary
             setTranscript(data.transcript);
             setEditedTranscript(data.transcript);
-            console.log('Transcription completed successfully');
+
+            // Store original and enhancement info
+            setOriginalTranscript(data.originalTranscript || data.transcript);
+            setEnhancement(data.enhancement || null);
+
+            console.log('Transcription completed successfully with LLM enhancement:', data.enhancement?.source);
+            console.log('Enhancement improved:', data.enhancement?.improved);
 
         } catch (err) {
             setHasTranscribed(false); // Reset flag on error so user can retry
@@ -133,16 +143,50 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
     };
 
     const formatTranscript = (text: string) => {
-        // Split by sentences and add line breaks for better readability
-        const sentences = text.split(/[.!?؟।]/).filter(sentence => sentence.trim());
-        return sentences.map((sentence, index) => (
-            <div key={index} className="mb-2">
-                <span className="inline-block w-8 text-xs text-gray-400">
-                    {index + 1}.
+        // Clean and format the text properly
+        const cleanText = text.trim();
+
+        // For Arabic text with better formatting
+        if (language === 'ar') {
+            // Split by Arabic punctuation and periods
+            const sentences = cleanText.split(/[.!?؟।]/).filter(sentence => sentence.trim());
+            if (sentences.length > 1) {
+                return sentences.map((sentence, index) => (
+                    <div key={index} className="mb-3 leading-relaxed">
+                        <span className="inline-block w-6 text-xs text-gray-500 ml-2">
+                            {index + 1}.
+                        </span>
+                        <span className="text-gray-800 text-lg leading-relaxed">
+                            {sentence.trim()}
+                        </span>
+                    </div>
+                ));
+            }
+        } else {
+            // English formatting
+            const sentences = cleanText.split(/[.!?]/).filter(sentence => sentence.trim());
+            if (sentences.length > 1) {
+                return sentences.map((sentence, index) => (
+                    <div key={index} className="mb-3 leading-relaxed">
+                        <span className="inline-block w-6 text-xs text-gray-500 mr-2">
+                            {index + 1}.
+                        </span>
+                        <span className="text-gray-800 text-lg leading-relaxed">
+                            {sentence.trim()}
+                        </span>
+                    </div>
+                ));
+            }
+        }
+
+        // Single paragraph for short text
+        return (
+            <div className="leading-relaxed">
+                <span className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">
+                    {cleanText}
                 </span>
-                <span className="text-gray-800">{sentence.trim()}</span>
             </div>
-        ));
+        );
     };
 
     return (
@@ -263,6 +307,85 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                 </div>
             )}
 
+            {/* Enhancement Results */}
+            {enhancement && transcript && !isTranscribing && (
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <h4 className="text-md font-semibold text-green-800">
+                                🤖 تم تحسين النص بواسطة الذكاء الاصطناعي
+                            </h4>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${enhancement.source === 'groq' ? 'bg-green-100 text-green-800' :
+                                enhancement.source === 'local' ? 'bg-blue-100 text-blue-800' :
+                                    enhancement.source === 'huggingface' ? 'bg-purple-100 text-purple-800' :
+                                        'bg-gray-100 text-gray-800'
+                                }`}>
+                                {enhancement.source === 'groq' ? '☁️ Groq' :
+                                    enhancement.source === 'local' ? '🏠 Local' :
+                                        enhancement.source === 'huggingface' ? '🤗 HuggingFace' :
+                                            '📝 Template'}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                                جودة: {(enhancement.confidence * 100).toFixed(0)}%
+                            </span>
+                        </div>
+                    </div>
+
+                    {enhancement.improved && (
+                        <div className="mb-3">
+                            <div className="text-sm text-green-700 mb-2">التحسينات المطبقة:</div>
+                            <ul className="list-disc list-inside text-xs text-green-600 space-y-1">
+                                {enhancement.corrections?.map((correction: string, index: number) => (
+                                    <li key={index}>{correction}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {originalTranscript !== transcript && (
+                        <button
+                            onClick={() => setShowComparison(!showComparison)}
+                            className="text-sm text-blue-600 hover:text-blue-800 underline"
+                        >
+                            {showComparison ? '🔼 إخفاء المقارنة' : '🔍 مقارنة مع النص الأصلي'}
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Original vs Enhanced Comparison */}
+            {showComparison && originalTranscript !== transcript && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-5">
+                        <h5 className="font-medium text-red-800 mb-3 flex items-center gap-2">
+                            📝 النص الأصلي (Whisper)
+                        </h5>
+                        <div
+                            className="text-red-700 leading-relaxed text-lg bg-white p-4 rounded border"
+                            dir={language === 'ar' ? 'rtl' : 'ltr'}
+                            style={{ fontFamily: language === 'ar' ? 'Cairo, sans-serif' : 'Inter, sans-serif' }}
+                        >
+                            {originalTranscript}
+                        </div>
+                    </div>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-5">
+                        <h5 className="font-medium text-green-800 mb-3 flex items-center gap-2">
+                            ✨ النص المحسن (AI)
+                        </h5>
+                        <div
+                            className="text-green-700 leading-relaxed text-lg bg-white p-4 rounded border"
+                            dir={language === 'ar' ? 'rtl' : 'ltr'}
+                            style={{ fontFamily: language === 'ar' ? 'Cairo, sans-serif' : 'Inter, sans-serif' }}
+                        >
+                            {transcript}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Transcript Display */}
             {transcript && !isTranscribing && (
                 <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
@@ -288,9 +411,16 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                             <textarea
                                 value={editedTranscript}
                                 onChange={(e) => setEditedTranscript(e.target.value)}
-                                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white"
                                 placeholder="قم بتحرير النص هنا..."
                                 dir={language === 'ar' ? 'rtl' : 'ltr'}
+                                style={{
+                                    scrollBehavior: 'smooth',
+                                    color: '#1f2937',
+                                    fontSize: '16px',
+                                    lineHeight: '1.6',
+                                    fontFamily: language === 'ar' ? 'Cairo, sans-serif' : 'Inter, sans-serif'
+                                }}
                             />
 
                             <div className="flex justify-end gap-2 mt-4">
@@ -312,18 +442,23 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                         </div>
                     ) : (
                         <div
-                            className="bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto text-right"
+                            className="bg-gray-50 p-6 rounded-lg max-h-96 overflow-y-auto text-right border border-gray-200"
                             dir={language === 'ar' ? 'rtl' : 'ltr'}
+                            style={{
+                                scrollBehavior: 'smooth',
+                                fontFamily: language === 'ar' ? 'Cairo, sans-serif' : 'Inter, sans-serif',
+                                lineHeight: '1.8'
+                            }}
                         >
-                            <div className="whitespace-pre-wrap leading-relaxed">
+                            <div className="whitespace-pre-wrap leading-relaxed text-gray-800 text-lg">
                                 {formatTranscript(transcript)}
                             </div>
                         </div>
                     )}
 
                     {/* Transcript Statistics */}
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                        <div className="flex justify-between text-sm text-gray-600">
+                    <div className="mt-4 p-3 bg-gray-100 rounded-lg border">
+                        <div className="flex justify-between text-sm text-gray-700 font-medium">
                             <span>عدد الكلمات: {transcript.split(/\s+/).filter(word => word.trim()).length}</span>
                             <span>عدد الأحرف: {transcript.length}</span>
                         </div>

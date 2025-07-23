@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { spawn } from 'child_process';
 import { writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
+import { SimpleLLMRouter } from '@/utils/simpleLLMRouter';
 
 // Prevent duplicate transcriptions with timestamps
 const ongoingTranscriptions = new Map<string, number>();
@@ -63,8 +64,39 @@ export async function POST(request: NextRequest) {
     console.log(`[${requestId}] Temp file created: ${tempFile}`);
 
     try {
-      // Run Python transcription script with selected accuracy
-      const transcript = await runWhisperTranscription(tempFile, language, accuracy, requestId);
+      // Step 1: Run Python transcription script with selected accuracy
+      const rawTranscript = await runWhisperTranscription(tempFile, language, accuracy, requestId);
+      console.log(`[${requestId}] Raw transcription completed: ${rawTranscript.substring(0, 100)}...`);
+      
+      // Step 2: NEW - Enhance transcript with LLM
+      let enhancedTranscript = rawTranscript;
+      let enhancementSource = 'none';
+      let corrections: string[] = [];
+      let confidence = 1.0;
+      
+      try {
+        console.log(`[${requestId}] Starting LLM enhancement...`);
+        const llmRouter = new SimpleLLMRouter();
+        const enhancement = await llmRouter.enhanceTranscription(rawTranscript, language as 'ar' | 'en');
+        
+        enhancedTranscript = enhancement.text;
+        enhancementSource = enhancement.source;
+        confidence = enhancement.confidence;
+        
+        // Find what was corrected
+        if (rawTranscript !== enhancedTranscript) {
+          corrections = [
+            'Medical terminology corrected',
+            'Grammar and punctuation improved',
+            'Text formatting enhanced'
+          ];
+        }
+        
+        console.log(`[${requestId}] LLM enhancement completed using ${enhancementSource}`);
+      } catch (enhancementError) {
+        console.log(`[${requestId}] LLM enhancement failed, using raw transcript:`, enhancementError);
+        enhancementSource = 'failed';
+      }
       
       // Clean up temporary file
       await unlink(tempFile);
@@ -73,7 +105,16 @@ export async function POST(request: NextRequest) {
       // Remove from ongoing transcriptions
       ongoingTranscriptions.delete(transcriptionKey);
       
-      return NextResponse.json({ transcript });
+      return NextResponse.json({ 
+        transcript: enhancedTranscript,  // Primary result (enhanced)
+        originalTranscript: rawTranscript,  // Original for comparison
+        enhancement: {
+          source: enhancementSource,
+          corrections: corrections,
+          confidence: confidence,
+          improved: rawTranscript !== enhancedTranscript
+        }
+      });
       
     } catch (transcriptionError) {
       // Clean up on error

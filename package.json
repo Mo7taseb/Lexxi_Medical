@@ -8,8 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "setup": "python setup-python.py",
+    "setup-llm": "setup-llm.bat",
     "test-setup": "python test-setup.py",
-    "transcribe": "python whisper_transcribe.py"
+    "transcribe": "python whisper_transcribe.py",
+    "test-llm": "start http://localhost:3000/test-llm"
   },
   "dependencies": {
     "formidable": "^3.5.4",

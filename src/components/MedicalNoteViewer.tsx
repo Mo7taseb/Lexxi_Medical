@@ -142,8 +142,8 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                             <button
                                 onClick={handleCopy}
                                 className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${copySuccess
-                                        ? 'bg-green-600 text-white'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
                                 <Copy className="h-4 w-4" />
@@ -165,9 +165,15 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                             <textarea
                                 value={editedNote}
                                 onChange={(e) => setEditedNote(e.target.value)}
-                                className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-right"
+                                className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-right bg-white"
                                 placeholder="قم بتحرير التقرير هنا..."
                                 dir="rtl"
+                                style={{
+                                    color: '#1f2937',
+                                    fontSize: '16px',
+                                    lineHeight: '1.6',
+                                    fontFamily: 'Cairo, sans-serif'
+                                }}
                             />
 
                             <div className="flex justify-end gap-2 mt-4">

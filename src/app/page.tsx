@@ -84,6 +84,25 @@ export default function Home() {
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
 
+      {/* Header with Test Link */}
+      <div className="relative bg-white/80 backdrop-blur-sm border-b border-gray-200 mb-8">
+        <div className="container mx-auto px-4 py-4 max-w-6xl">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Stethoscope className="h-8 w-8 text-blue-600" />
+              <h1 className="text-2xl font-bold text-gray-800">Lexxi Medical</h1>
+            </div>
+            <a
+              href="/test-llm"
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+              dir="ltr"
+            >
+              🧪 Test LLM Integration
+            </a>
+          </div>
+        </div>
+      </div>
+
       <div className="relative container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -119,8 +138,8 @@ export default function Home() {
                   <div className={`flex flex-col items-center flex-1 md:flex-initial ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-400'
                     }`}>
                     <div className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-2 md:mb-3 transition-all duration-300 ${currentStep >= step.id
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105'
+                      : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}>
                       {currentStep > step.id ? (
                         <CheckCircle className="h-6 w-6 md:h-7 md:w-7" />
@@ -139,8 +158,8 @@ export default function Home() {
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`hidden md:flex flex-1 h-1 mx-6 rounded-full transition-all duration-500 ${currentStep > step.id
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600'
-                        : 'bg-gray-200'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+                      : 'bg-gray-200'
                       }`} />
                   )}
                 </div>
@@ -164,15 +183,15 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div
                   className={`group relative p-6 md:p-8 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${inputMode === 'conversation'
-                      ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-500/20 scale-105'
-                      : 'border-gray-200 hover:border-blue-300 hover:shadow-lg hover:scale-102 bg-white'
+                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-500/20 scale-105'
+                    : 'border-gray-200 hover:border-blue-300 hover:shadow-lg hover:scale-102 bg-white'
                     }`}
                   onClick={() => setInputMode('conversation')}
                 >
                   <div className="text-center">
                     <div className={`w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-full flex items-center justify-center transition-all duration-300 ${inputMode === 'conversation'
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25'
-                        : 'bg-blue-100 text-blue-600 group-hover:bg-blue-200'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25'
+                      : 'bg-blue-100 text-blue-600 group-hover:bg-blue-200'
                       }`}>
                       <Mic className="h-8 w-8 md:h-10 md:w-10" />
                     </div>
@@ -195,15 +214,15 @@ export default function Home() {
 
                 <div
                   className={`group relative p-6 md:p-8 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${inputMode === 'summary'
-                      ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 shadow-lg shadow-green-500/20 scale-105'
-                      : 'border-gray-200 hover:border-green-300 hover:shadow-lg hover:scale-102 bg-white'
+                    ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 shadow-lg shadow-green-500/20 scale-105'
+                    : 'border-gray-200 hover:border-green-300 hover:shadow-lg hover:scale-102 bg-white'
                     }`}
                   onClick={() => setInputMode('summary')}
                 >
                   <div className="text-center">
                     <div className={`w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-full flex items-center justify-center transition-all duration-300 ${inputMode === 'summary'
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/25'
-                        : 'bg-green-100 text-green-600 group-hover:bg-green-200'
+                      ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/25'
+                      : 'bg-green-100 text-green-600 group-hover:bg-green-200'
                       }`}>
                       <FileText className="h-8 w-8 md:h-10 md:w-10" />
                     </div>
@@ -261,8 +280,8 @@ export default function Home() {
                   onClick={() => setCurrentStep(2)}
                   disabled={inputMode === null || (inputMode === 'conversation' && !patientConsent)}
                   className={`relative px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${inputMode === null || (inputMode === 'conversation' && !patientConsent)
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105'
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105'
                     }`}
                 >
                   <span className="flex items-center gap-2">

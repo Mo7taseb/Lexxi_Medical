@@ -2,11 +2,12 @@
 export interface NoteData {
   transcript: string;
   noteType: string;
+  language?: string;
 }
 
 export function generateEnhancedFallbackNote(data: NoteData): string {
-  const { transcript, noteType } = data;
-  const timestamp = new Date().toLocaleString('ar-EG');
+  const { transcript, noteType, language = 'ar' } = data;
+  const timestamp = new Date().toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US');
   
   // Extract key medical terms and symptoms from transcript
   const medicalTerms = extractMedicalTerms(transcript);
@@ -14,16 +15,16 @@ export function generateEnhancedFallbackNote(data: NoteData): string {
   
   switch (noteType) {
     case 'soap':
-      return generateSOAPNote(transcript, medicalTerms, symptoms, timestamp);
+      return generateSOAPNote(transcript, medicalTerms, symptoms, timestamp, language);
     case 'progress':
-      return generateProgressNote(transcript, medicalTerms, symptoms, timestamp);
+      return generateProgressNote(transcript, medicalTerms, symptoms, timestamp, language);
     case 'consultation':
-      return generateConsultationNote(transcript, medicalTerms, symptoms, timestamp);
+      return generateConsultationNote(transcript, medicalTerms, symptoms, timestamp, language);
     case 'discharge':
-      return generateDischargeNote(transcript, medicalTerms, symptoms, timestamp);
+      return generateDischargeNote(transcript, medicalTerms, symptoms, timestamp, language);
     case 'freeform':
     default:
-      return generateFreeformNote(transcript, medicalTerms, symptoms, timestamp);
+      return generateFreeformNote(transcript, medicalTerms, symptoms, timestamp, language);
   }
 }
 
@@ -92,7 +93,41 @@ function extractSymptoms(transcript: string): string[] {
   return symptoms;
 }
 
-function generateSOAPNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string): string {
+function generateSOAPNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string = 'ar'): string {
+  if (language === 'en') {
+    return `SOAP Report - ${timestamp}
+
+**SUBJECTIVE (S):**
+${symptoms.length > 0 ? 
+  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
+  `• ${transcript.split('\n')[0] || 'Patient presents with various symptoms'}`
+}
+
+**OBJECTIVE (O):**
+• Vital signs: Need to be measured
+• Physical examination: ${medicalTerms.length > 0 ? 
+  `Examination of areas related to: ${medicalTerms.slice(0, 5).join(', ')}` : 
+  'Comprehensive examination needed'
+}
+• Laboratory tests: As indicated
+
+**ASSESSMENT (A):**
+• Primary diagnosis: Requires specialized medical evaluation
+• Differential diagnosis: Needs symptom and test review
+• Condition severity: Requires assessment
+
+**PLAN (P):**
+• Medication therapy: According to diagnosis
+• Patient instructions: Rest and follow-up
+• Follow-up appointments: As needed
+
+**Original Text:**
+${transcript}
+
+**Note:** This report was generated automatically and requires specialized medical review.`;
+  }
+
+  // Arabic version (default)
   return `تقرير SOAP - ${timestamp}
 
 **الأعراض الذاتية (S - Subjective):**
@@ -125,7 +160,36 @@ ${transcript}
 **ملاحظة:** هذا التقرير تم إنشاؤه تلقائياً ويحتاج لمراجعة طبية متخصصة.`;
 }
 
-function generateProgressNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string): string {
+function generateProgressNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string = 'ar'): string {
+  if (language === 'en') {
+    return `Progress Note - ${timestamp}
+
+**Current Status:**
+${symptoms.length > 0 ? 
+  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
+  `• ${transcript.split('\n')[0] || 'General improvement in condition'}`
+}
+
+**Progress Since Last Visit:**
+• Symptoms: ${medicalTerms.length > 0 ? 
+  `Progress in: ${medicalTerms.slice(0, 3).join(', ')}` : 
+  'Gradual improvement'
+}
+• Treatment response: Needs assessment
+• New symptoms: As per evaluation
+
+**Updated Plan:**
+• Medication adjustment: As needed
+• New instructions: Regular follow-up
+• Next follow-up: As per condition
+
+**Original Text:**
+${transcript}
+
+**Note:** This report was generated automatically and requires specialized medical review.`;
+  }
+
+  // Arabic version (default)
   return `تقرير متابعة - ${timestamp}
 
 **الحالة الحالية:**
@@ -153,7 +217,34 @@ ${transcript}
 **ملاحظة:** هذا التقرير تم إنشاؤه تلقائياً ويحتاج لمراجعة طبية متخصصة.`;
 }
 
-function generateConsultationNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string): string {
+function generateConsultationNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string = 'ar'): string {
+  if (language === 'en') {
+    return `Consultation Report - ${timestamp}
+
+**Reason for Consultation:**
+• Referral: ${symptoms.length > 0 ? symptoms[0] : 'General medical consultation'}
+• Question posed: Evaluate condition and provide recommendations
+
+**Assessment:**
+• Symptom review: ${medicalTerms.length > 0 ? 
+  medicalTerms.slice(0, 4).join(', ') : 
+  'Various symptoms'
+}
+• Examination: Needs specialized examination
+• Medical history: According to available information
+
+**Recommendations:**
+• Medical opinion: Needs specialized evaluation
+• Proposed plan: According to evaluation results
+• Follow-up: As needed
+
+**Original Text:**
+${transcript}
+
+**Note:** This report was generated automatically and requires specialized medical review.`;
+  }
+
+  // Arabic version (default)
   return `تقرير استشارة - ${timestamp}
 
 **سبب الاستشارة:**
@@ -179,7 +270,41 @@ ${transcript}
 **ملاحظة:** هذا التقرير تم إنشاؤه تلقائياً ويحتاج لمراجعة طبية متخصصة.`;
 }
 
-function generateDischargeNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string): string {
+function generateDischargeNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string = 'ar'): string {
+  if (language === 'en') {
+    return `Discharge Summary - ${timestamp}
+
+**Hospital Stay Summary:**
+• Admission reason: ${symptoms.length > 0 ? symptoms[0] : 'Medical condition requiring care'}
+• Length of stay: According to medical record
+• Treatment provided: ${medicalTerms.length > 0 ? 
+  `Treatment related to: ${medicalTerms.slice(0, 3).join(', ')}` : 
+  'Comprehensive treatment'
+}
+
+**Final Diagnosis:**
+• Primary diagnosis: Needs determination by physician
+• Secondary diagnoses: According to condition
+
+**Patient Condition at Discharge:**
+• General condition: Stable
+• Symptoms: ${medicalTerms.length > 0 ? 
+  `Improvement in: ${medicalTerms.slice(0, 2).join(', ')}` : 
+  'General improvement'
+}
+
+**Instructions and Follow-up:**
+• Medications: According to prescription
+• Follow-up appointments: As recommended
+• Instructions: Rest and treatment compliance
+
+**Original Text:**
+${transcript}
+
+**Note:** This report was generated automatically and requires specialized medical review.`;
+  }
+
+  // Arabic version (default)
   return `تقرير خروج - ${timestamp}
 
 **ملخص الإقامة:**
@@ -212,7 +337,39 @@ ${transcript}
 **ملاحظة:** هذا التقرير تم إنشاؤه تلقائياً ويحتاج لمراجعة طبية متخصصة.`;
 }
 
-function generateFreeformNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string): string {
+function generateFreeformNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string = 'ar'): string {
+  if (language === 'en') {
+    return `Medical Report - ${timestamp}
+
+**Case Summary:**
+${transcript}
+
+**Identified Symptoms:**
+${symptoms.length > 0 ? 
+  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
+  '• Symptoms need to be identified'
+}
+
+**Mentioned Medical Terms:**
+${medicalTerms.length > 0 ? 
+  medicalTerms.map(term => `• ${term}`).join('\n') : 
+  '• No specific medical terms identified'
+}
+
+**Medical Assessment:**
+• Initial impression: Needs specialized medical evaluation
+• Possible diagnosis: According to symptoms and examination
+• Plan: Determine appropriate treatment
+
+**Recommendations:**
+• Regular medical follow-up
+• Compliance with medical instructions
+• Consult physician if symptoms change
+
+**Note:** This report was generated automatically and requires specialized medical review.`;
+  }
+
+  // Arabic version (default)
   return `تقرير طبي - ${timestamp}
 
 **ملخص الحالة:**
