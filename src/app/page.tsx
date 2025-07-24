@@ -95,7 +95,7 @@ export default function Home() {
                 <div className="absolute inset-0 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"
                    />
                   <Image
-                    src="/Logo.png"
+                    src="/logo.png"
                     alt="Lexxi Medical Logo"
                     width={230}
                     height={30}
