@@ -195,10 +195,12 @@ Enhanced text:`;
 
 "${transcript}"
 
+${this.getArabicNoteStructure(noteType)}
+
 متطلبات التقرير:
 - اكتب تقرير طبي شامل ومنظم
 - استخدم المصطلحات الطبية العربية المناسبة
-- قسم التقرير إلى أقسام واضحة (الشكوى الرئيسية، التاريخ المرضي، الفحص، إلخ)
+- اتبع الهيكل المحدد بدقة
 - اذكر كل التفاصيل المهمة من المحادثة
 - استخدم لغة طبية احترافية
 - تأكد من الدقة والوضوح
@@ -212,10 +214,12 @@ Enhanced text:`;
 
 "${transcript}"
 
+${this.getEnglishNoteStructure(noteType)}
+
 Report requirements:
 - Write a thorough and organized medical report
 - Use appropriate medical terminology
-- Structure the report with clear sections (Chief Complaint, History, Examination, etc.)
+- Follow the specified structure exactly
 - Include all important details from the conversation
 - Use professional medical language
 - Ensure accuracy and clarity
@@ -448,6 +452,242 @@ Rules:
     }
     
     return enhanced;
+  }
+
+  private getEnglishNoteStructure(noteType: string): string {
+    switch (noteType) {
+      case 'consultation':
+        return `Please follow this EXACT structure:
+
+**Date of consult:**
+[Current date and time]
+
+**Reason of consult:**
+- Primary reason for consultation
+- Referral indication
+
+**Patient identification:**
+- Patient demographics and identifiers
+- Age, gender, relevant identifiers
+
+**Past medical history:**
+- Previous medical conditions
+- Surgical history
+- Significant medical events
+
+**Home medications:**
+- Current medications
+- Dosages and frequencies
+- Recent medication changes
+
+**Allergies:**
+- Known drug allergies
+- Food or environmental allergies
+- Allergy reactions
+
+**Social history:**
+- Smoking, alcohol, drug use
+- Occupation and lifestyle factors
+- Family history if relevant
+
+**History of presenting illness:**
+- Detailed description of current problem
+- Timeline and progression
+- Associated symptoms
+
+**Physical examination:**
+- Vital signs
+- Systematic physical findings
+- Relevant examination results
+
+**Investigation:**
+**Lab work:**
+- Laboratory test results
+- Pending lab work
+
+**Imaging:**
+- Radiology results
+- Imaging studies ordered
+
+**Microbiology:**
+- Culture results
+- Microbiology findings
+
+**Others:**
+- Additional diagnostic tests
+- Specialized investigations
+
+**Assessment:**
+- Clinical impression
+- Differential diagnosis
+- Problem prioritization
+
+**Plan:**
+- Treatment recommendations
+- Follow-up arrangements
+- Further investigations needed`;
+
+      case 'progress':
+        return `Please follow this EXACT structure:
+
+**Date of assessment:**
+[Current date and time]
+
+**Patient identification:**
+- Patient demographics and identifiers
+- Age, gender, relevant identifiers
+
+**Brief hospital course:**
+- Summary of hospital stay
+- Key events and interventions
+- Treatment provided
+
+**Interval history:**
+- Changes since last assessment
+- New symptoms or concerns
+- Patient-reported improvements or deterioration
+
+**Physical examination:**
+- Current vital signs
+- Focused physical examination
+- Changes from previous examination
+
+**Investigations:**
+- Recent test results
+- Pending investigations
+- Trending of laboratory values
+
+**Assessment:**
+- Current clinical status
+- Response to treatment
+- Updated problem list
+
+**Plan:**
+- Ongoing treatment modifications
+- New interventions
+- Discharge planning considerations`;
+
+      default:
+        return 'Structure the report with clear sections (Chief Complaint, History, Examination, Assessment, Plan).';
+    }
+  }
+
+  private getArabicNoteStructure(noteType: string): string {
+    switch (noteType) {
+      case 'consultation':
+        return `يرجى اتباع هذا الهيكل بالضبط:
+
+**تاريخ الاستشارة:**
+[التاريخ والوقت الحالي]
+
+**سبب الاستشارة:**
+- السبب الأساسي للاستشارة
+- مؤشر الإحالة
+
+**تعريف المريض:**
+- البيانات الديموغرافية للمريض والمعرفات
+- العمر والجنس والمعرفات ذات الصلة
+
+**التاريخ المرضي السابق:**
+- الحالات الطبية السابقة
+- التاريخ الجراحي
+- الأحداث الطبية المهمة
+
+**أدوية المنزل:**
+- الأدوية الحالية
+- الجرعات والتكرار
+- التغييرات الحديثة في الأدوية
+
+**الحساسية:**
+- حساسية الأدوية المعروفة
+- حساسية الطعام أو البيئة
+- ردود فعل الحساسية
+
+**التاريخ الاجتماعي:**
+- التدخين والكحول وتعاطي المخدرات
+- المهنة وعوامل نمط الحياة
+- التاريخ العائلي إذا كان ذا صلة
+
+**تاريخ المرض الحالي:**
+- وصف تفصيلي للمشكلة الحالية
+- الجدول الزمني والتطور
+- الأعراض المصاحبة
+
+**الفحص البدني:**
+- العلامات الحيوية
+- النتائج البدنية المنتظمة
+- نتائج الفحص ذات الصلة
+
+**الفحوصات:**
+**الفحوصات المخبرية:**
+- نتائج الفحوصات المخبرية
+- الأعمال المخبرية المعلقة
+
+**التصوير:**
+- نتائج الأشعة
+- دراسات التصوير المطلوبة
+
+**علم الأحياء الدقيقة:**
+- نتائج الزراعة
+- نتائج علم الأحياء الدقيقة
+
+**أخرى:**
+- فحوصات تشخيصية إضافية
+- تحقيقات متخصصة
+
+**التقييم:**
+- الانطباع السريري
+- التشخيص التفريقي
+- ترتيب أولويات المشكلة
+
+**الخطة:**
+- توصيات العلاج
+- ترتيبات المتابعة
+- التحقيقات الأخرى المطلوبة`;
+
+      case 'progress':
+        return `يرجى اتباع هذا الهيكل بالضبط:
+
+**تاريخ التقييم:**
+[التاريخ والوقت الحالي]
+
+**تعريف المريض:**
+- البيانات الديموغرافية للمريض والمعرفات
+- العمر والجنس والمعرفات ذات الصلة
+
+**مسار المستشفى المختصر:**
+- ملخص إقامة المستشفى
+- الأحداث والتدخلات الرئيسية
+- العلاج المقدم
+
+**التاريخ الفاصل:**
+- التغييرات منذ التقييم الأخير
+- أعراض أو مخاوف جديدة
+- التحسينات أو التدهور المبلغ عنها من المريض
+
+**الفحص البدني:**
+- العلامات الحيوية الحالية
+- الفحص البدني المركز
+- التغييرات من الفحص السابق
+
+**الفحوصات:**
+- نتائج الاختبار الأخيرة
+- التحقيقات المعلقة
+- اتجاه القيم المخبرية
+
+**التقييم:**
+- الحالة السريرية الحالية
+- الاستجابة للعلاج
+- قائمة المشاكل المحدثة
+
+**الخطة:**
+- تعديلات العلاج المستمرة
+- تدخلات جديدة
+- اعتبارات تخطيط الخروج`;
+
+      default:
+        return 'قم بتنظيم التقرير بأقسام واضحة (الشكوى الرئيسية، التاريخ المرضي، الفحص، التقييم، الخطة).';
+    }
   }
 
   private validateMedicalNote(note: string, originalTranscript: string): boolean {

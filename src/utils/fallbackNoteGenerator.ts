@@ -164,24 +164,48 @@ function generateProgressNote(transcript: string, medicalTerms: string[], sympto
   if (language === 'en') {
     return `Progress Note - ${timestamp}
 
-**Current Status:**
+**Date of assessment:**
+${timestamp}
+
+**Patient identification:**
+• Patient requires proper identification
+• Age, gender, and relevant identifiers needed
+
+**Brief hospital course:**
+• Hospital stay details: Requires medical record review
+• Key events: As documented in medical records
+• Treatment provided: ${medicalTerms.length > 0 ? `Related to ${medicalTerms.slice(0, 3).join(', ')}` : 'Comprehensive care provided'}
+
+**Interval history:**
 ${symptoms.length > 0 ? 
-  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
-  `• ${transcript.split('\n')[0] || 'General improvement in condition'}`
+  symptoms.map(symptom => `• Changes noted: ${symptom}`).join('\n') : 
+  `• ${transcript.split('\n')[0] || 'Patient reports interval changes'}`
 }
+• New concerns: As per patient report
+• Patient-reported status: Requires evaluation
 
-**Progress Since Last Visit:**
-• Symptoms: ${medicalTerms.length > 0 ? 
-  `Progress in: ${medicalTerms.slice(0, 3).join(', ')}` : 
-  'Gradual improvement'
+**Physical examination:**
+• Current vital signs: Need to be measured
+• Focused examination: ${medicalTerms.length > 0 ? 
+  `Areas of focus: ${medicalTerms.slice(0, 3).join(', ')}` : 
+  'Comprehensive examination needed'
 }
-• Treatment response: Needs assessment
-• New symptoms: As per evaluation
+• Changes from previous: Requires comparison
 
-**Updated Plan:**
-• Medication adjustment: As needed
-• New instructions: Regular follow-up
-• Next follow-up: As per condition
+**Investigations:**
+• Recent test results: Pending review
+• Trending values: Need laboratory correlation
+• Additional studies: As clinically indicated
+
+**Assessment:**
+• Current clinical status: Requires medical evaluation
+• Treatment response: Ongoing assessment needed
+• Updated problem list: To be reviewed
+
+**Plan:**
+• Treatment modifications: As per clinical assessment
+• New interventions: Based on current status
+• Discharge considerations: Ongoing evaluation
 
 **Original Text:**
 ${transcript}
@@ -192,24 +216,48 @@ ${transcript}
   // Arabic version (default)
   return `تقرير متابعة - ${timestamp}
 
-**الحالة الحالية:**
+**تاريخ التقييم:**
+${timestamp}
+
+**تعريف المريض:**
+• المريض يحتاج للتعريف المناسب
+• العمر والجنس والمعرفات ذات الصلة مطلوبة
+
+**مسار المستشفى المختصر:**
+• تفاصيل الإقامة في المستشفى: تحتاج لمراجعة السجل الطبي
+• الأحداث الرئيسية: كما هو موثق في السجلات الطبية
+• العلاج المقدم: ${medicalTerms.length > 0 ? `متعلق بـ ${medicalTerms.slice(0, 3).join('، ')}` : 'تم تقديم رعاية شاملة'}
+
+**التاريخ الفاصل:**
 ${symptoms.length > 0 ? 
-  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
-  `• ${transcript.split('\n')[0] || 'تحسن عام في الحالة'}`
+  symptoms.map(symptom => `• التغييرات المسجلة: ${symptom}`).join('\n') : 
+  `• ${transcript.split('\n')[0] || 'المريض يبلغ عن تغييرات فترة'}`
 }
+• مخاوف جديدة: كما ورد في تقرير المريض
+• الحالة المبلغ عنها من المريض: تحتاج للتقييم
 
-**التطور منذ الزيارة الأخيرة:**
-• الأعراض: ${medicalTerms.length > 0 ? 
-  `تطور في: ${medicalTerms.slice(0, 3).join('، ')}` : 
-  'تحسن تدريجي'
+**الفحص البدني:**
+• العلامات الحيوية الحالية: تحتاج للقياس
+• الفحص المركز: ${medicalTerms.length > 0 ? 
+  `مناطق التركيز: ${medicalTerms.slice(0, 3).join('، ')}` : 
+  'يحتاج لفحص شامل'
 }
-• الاستجابة للعلاج: تحتاج لتقييم
-• أعراض جديدة: حسب التقييم
+• التغييرات من السابق: تحتاج للمقارنة
 
-**الخطة المحدثة:**
-• تعديل الأدوية: حسب الحاجة
-• تعليمات جديدة: المتابعة المنتظمة
-• المتابعة القادمة: حسب الحالة
+**الفحوصات:**
+• نتائج الفحوصات الأخيرة: في انتظار المراجعة
+• القيم الاتجاهية: تحتاج لارتباط مخبري
+• دراسات إضافية: كما هو مبين سريرياً
+
+**التقييم:**
+• الحالة السريرية الحالية: تحتاج للتقييم الطبي
+• الاستجابة للعلاج: التقييم المستمر مطلوب
+• قائمة المشاكل المحدثة: للمراجعة
+
+**الخطة:**
+• تعديلات العلاج: كما هو مطلوب في التقييم السريري
+• تدخلات جديدة: بناءً على الحالة الحالية
+• اعتبارات الخروج: التقييم المستمر
 
 **النص الأصلي:**
 ${transcript}
@@ -221,22 +269,76 @@ function generateConsultationNote(transcript: string, medicalTerms: string[], sy
   if (language === 'en') {
     return `Consultation Report - ${timestamp}
 
-**Reason for Consultation:**
-• Referral: ${symptoms.length > 0 ? symptoms[0] : 'General medical consultation'}
-• Question posed: Evaluate condition and provide recommendations
+**Date of consult:**
+${timestamp}
+
+**Reason of consult:**
+• Primary reason: ${symptoms.length > 0 ? symptoms[0] : 'General medical consultation'}
+• Referral indication: Requires medical evaluation
+
+**Patient identification:**
+• Patient requires proper identification
+• Age, gender, and relevant identifiers needed
+
+**Past medical history:**
+• Previous conditions: Requires medical record review
+• Surgical history: As documented
+• Significant events: From available information
+
+**Home medications:**
+• Current medications: Requires medication reconciliation
+• Dosages and frequencies: Need verification
+• Recent changes: To be documented
+
+**Allergies:**
+• Known allergies: Requires patient interview
+• Drug allergies: Need verification
+• Environmental allergies: To be assessed
+
+**Social history:**
+• Lifestyle factors: Requires assessment
+• Occupational history: To be documented
+• Family history: If relevant
+
+**History of presenting illness:**
+${symptoms.length > 0 ? 
+  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
+  `• ${transcript.split('\n')[0] || 'Patient presents with current concerns'}`
+}
+
+**Physical examination:**
+• Vital signs: Need to be measured
+• Systematic examination: ${medicalTerms.length > 0 ? 
+  `Focus on: ${medicalTerms.slice(0, 4).join(', ')}` : 
+  'Comprehensive examination required'
+}
+
+**Investigation:**
+**Lab work:**
+• Laboratory results: Pending or to be ordered
+• Additional tests: As clinically indicated
+
+**Imaging:**
+• Radiology studies: As needed
+• Specialized imaging: Based on clinical assessment
+
+**Microbiology:**
+• Culture results: If applicable
+• Sensitivity testing: As indicated
+
+**Others:**
+• Specialized tests: As required
+• Additional investigations: Based on presentation
 
 **Assessment:**
-• Symptom review: ${medicalTerms.length > 0 ? 
-  medicalTerms.slice(0, 4).join(', ') : 
-  'Various symptoms'
-}
-• Examination: Needs specialized examination
-• Medical history: According to available information
+• Clinical impression: Requires specialized evaluation
+• Differential diagnosis: Based on findings
+• Priority assessment: To be determined
 
-**Recommendations:**
-• Medical opinion: Needs specialized evaluation
-• Proposed plan: According to evaluation results
-• Follow-up: As needed
+**Plan:**
+• Treatment recommendations: Based on assessment
+• Follow-up arrangements: As needed
+• Additional investigations: If required
 
 **Original Text:**
 ${transcript}
@@ -247,22 +349,76 @@ ${transcript}
   // Arabic version (default)
   return `تقرير استشارة - ${timestamp}
 
+**تاريخ الاستشارة:**
+${timestamp}
+
 **سبب الاستشارة:**
-• الإحالة: ${symptoms.length > 0 ? symptoms[0] : 'استشارة طبية عامة'}
-• السؤال المطروح: تقييم الحالة وإعطاء التوصيات
+• السبب الأساسي: ${symptoms.length > 0 ? symptoms[0] : 'استشارة طبية عامة'}
+• مؤشر الإحالة: يتطلب تقييماً طبياً
+
+**تعريف المريض:**
+• المريض يتطلب التعريف المناسب
+• العمر والجنس والمعرفات ذات الصلة مطلوبة
+
+**التاريخ المرضي السابق:**
+• الحالات السابقة: تتطلب مراجعة السجل الطبي
+• التاريخ الجراحي: كما هو موثق
+• الأحداث المهمة: من المعلومات المتاحة
+
+**أدوية المنزل:**
+• الأدوية الحالية: تتطلب توفيق الأدوية
+• الجرعات والتكرار: تحتاج للتحقق
+• التغييرات الأخيرة: ليتم توثيقها
+
+**الحساسية:**
+• الحساسيات المعروفة: تتطلب مقابلة المريض
+• حساسية الأدوية: تحتاج للتحقق
+• الحساسيات البيئية: ليتم تقييمها
+
+**التاريخ الاجتماعي:**
+• عوامل نمط الحياة: تتطلب التقييم
+• التاريخ المهني: ليتم توثيقه
+• التاريخ العائلي: إذا كان ذا صلة
+
+**تاريخ المرض الحالي:**
+${symptoms.length > 0 ? 
+  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
+  `• ${transcript.split('\n')[0] || 'المريض يحضر بمخاوف حالية'}`
+}
+
+**الفحص البدني:**
+• العلامات الحيوية: تحتاج للقياس
+• الفحص المنتظم: ${medicalTerms.length > 0 ? 
+  `التركيز على: ${medicalTerms.slice(0, 4).join('، ')}` : 
+  'فحص شامل مطلوب'
+}
+
+**الفحوصات:**
+**الفحوصات المخبرية:**
+• نتائج المختبر: معلقة أو ليتم طلبها
+• اختبارات إضافية: كما هو مبين سريرياً
+
+**التصوير:**
+• دراسات الأشعة: حسب الحاجة
+• التصوير المتخصص: بناءً على التقييم السريري
+
+**علم الأحياء الدقيقة:**
+• نتائج الزراعة: إذا كان قابلاً للتطبيق
+• اختبار الحساسية: كما هو مبين
+
+**أخرى:**
+• اختبارات متخصصة: كما هو مطلوب
+• تحقيقات إضافية: بناءً على العرض
 
 **التقييم:**
-• مراجعة الأعراض: ${medicalTerms.length > 0 ? 
-  medicalTerms.slice(0, 4).join('، ') : 
-  'أعراض متنوعة'
-}
-• الفحص: يحتاج لفحص متخصص
-• التاريخ المرضي: حسب المعلومات المتاحة
+• الانطباع السريري: يتطلب تقييماً متخصصاً
+• التشخيص التفريقي: بناءً على النتائج
+• تقييم الأولوية: ليتم تحديده
 
-**التوصيات:**
-• الرأي الطبي: يحتاج لتقييم متخصص
-• الخطة المقترحة: حسب نتائج التقييم
-• المتابعة: حسب الحاجة
+**الخطة:**
+• توصيات العلاج: بناءً على التقييم
+• ترتيبات المتابعة: حسب الحاجة
+• تحقيقات إضافية: إذا لزم الأمر
 
 **النص الأصلي:**
 ${transcript}
