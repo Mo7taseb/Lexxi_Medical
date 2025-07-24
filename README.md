@@ -14,7 +14,8 @@
   - Discharge Summaries
   - Free-form Notes
 - **AI-Powered**: Uses OpenAI GPT for intelligent note generation
-- **Whisper Integration**: Self-hosted Whisper for accurate transcription
+- **Cloud Transcription**: Ultra-fast Groq Whisper API for accurate transcription (5-15 seconds)
+- **Medical Term Corrections**: Specialized Arabic medical terminology correction
 - **RTL Support**: Full Arabic language support with proper text direction
 - **Professional UI**: Clean, medical-focused interface
 
@@ -22,7 +23,7 @@
 
 - **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes
-- **Transcription**: OpenAI Whisper (self-hosted)
+- **Transcription**: Groq Whisper API (cloud-based)
 - **AI**: OpenAI GPT-3.5/4 for note generation
 - **Icons**: Lucide React
 - **Styling**: Tailwind CSS with RTL support
@@ -32,7 +33,7 @@
 ### Prerequisites
 
 1. **Node.js** (v18 or higher)
-2. **Python** (v3.8 or higher)
+2. **Groq API Key** (for transcription)
 3. **OpenAI API Key** (for note generation)
 
 ### Setup Instructions
@@ -44,27 +45,22 @@
    npm install
    ```
 
-2. **Install Python dependencies**:
-
-   ```bash
-   pip install openai-whisper
-   ```
-
-3. **Environment Configuration**:
+2. **Environment Configuration**:
 
    - Copy `.env.local` file
-   - Add your OpenAI API key:
+   - Add your API keys:
      ```
      OPENAI_API_KEY=your_openai_api_key_here
+     GROQ_API_KEY=your_groq_api_key_here
      ```
 
-4. **Run the development server**:
+3. **Run the development server**:
 
    ```bash
    npm run dev
    ```
 
-5. **Open the app**:
+4. **Open the app**:
    Navigate to `http://localhost:3000`
 
 ## 🎯 Usage Guide
@@ -82,7 +78,9 @@
 
 ### Step 3: Review Transcript
 
-- The system will automatically transcribe your audio
+- The system will automatically transcribe your audio using Groq Whisper API
+- Transcription happens in the cloud for ultra-fast processing (5-15 seconds)
+- Medical terminology is automatically corrected for Arabic
 - Edit the transcript if needed
 - Choose between Arabic and English transcription
 
@@ -103,14 +101,14 @@
 
 ## 🔧 Configuration
 
-### Whisper Model Selection
+### Groq Whisper API
 
-You can choose different Whisper models for transcription:
+The app uses Groq's ultra-fast Whisper API for transcription:
 
-- `base`: Fast, good quality (default)
-- `small`: Smaller, faster
-- `medium`: Better accuracy
-- `large`: Best accuracy, slower
+- **Speed**: 5-15 seconds for most audio files
+- **Languages**: Supports Arabic and English
+- **Medical Corrections**: Automatic Arabic medical term correction
+- **Quality**: High accuracy with medical terminology
 
 ### OpenAI Configuration
 
@@ -135,12 +133,13 @@ lexxi-medical-app/
 │   │   │   └── generate-note/
 │   │   ├── globals.css
 │   │   └── page.tsx
-│   └── components/
-│       ├── VoiceRecorder.tsx
-│       ├── TranscriptionViewer.tsx
-│       ├── NoteTypeSelector.tsx
-│       └── MedicalNoteViewer.tsx
-├── whisper_transcribe.py
+│   ├── components/
+│   │   ├── VoiceRecorder.tsx
+│   │   ├── TranscriptionViewer.tsx
+│   │   ├── NoteTypeSelector.tsx
+│   │   └── MedicalNoteViewer.tsx
+│   └── utils/
+│       └── groqWhisper.ts
 ├── .env.local
 └── README.md
 ```
@@ -149,10 +148,10 @@ lexxi-medical-app/
 
 ### POST /api/transcribe
 
-Transcribe audio file to text
+Transcribe audio file to text using Groq Whisper API
 
 - **Body**: FormData with audio file and language
-- **Response**: `{ transcript: string }`
+- **Response**: `{ transcript: string, transcriptionSource: string, enhancement?: object }`
 
 ### POST /api/generate-note
 
@@ -165,7 +164,7 @@ Generate medical note from transcript
 
 - **No Data Storage**: Audio and transcripts are processed but not stored
 - **Client-side Processing**: Voice recording happens entirely in the browser
-- **Temporary Files**: Server-side audio files are automatically deleted
+- **Cloud Processing**: Transcription processed securely via Groq API
 - **Patient Consent**: Built-in consent checkbox for full conversations
 
 ## 🚀 Deployment
@@ -205,9 +204,9 @@ This project is for educational and prototype purposes. Please ensure compliance
 For issues and questions:
 
 1. Check the console for error messages
-2. Verify your OpenAI API key is set correctly
-3. Ensure Python and Whisper are installed properly
-4. Check that audio file formats are supported
+2. Verify your API keys (OpenAI and Groq) are set correctly
+3. Ensure your Groq API key has transcription access
+4. Check that audio file formats are supported (MP3, WAV, M4A, etc.)
 
 ## 🔮 Future Enhancements
 

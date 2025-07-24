@@ -20,7 +20,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
     const [language, setLanguage] = useState<'ar' | 'en'>('ar');
     const [hasTranscribed, setHasTranscribed] = useState(false);
     const [processedAudioFile, setProcessedAudioFile] = useState<File | null>(null);
-    const [accuracyMode, setAccuracyMode] = useState<'fast' | 'accurate' | 'medical'>('medical');
+    const [transcriptionSource, setTranscriptionSource] = useState<string>('');
     const isTranscribingRef = useRef(false);
 
     const transcribeAudio = useCallback(async () => {
@@ -39,7 +39,6 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
             const formData = new FormData();
             formData.append('audio', audioFile);
             formData.append('language', language);
-            formData.append('accuracy', accuracyMode);
 
             console.log('Sending transcription request...');
             const response = await fetch('/api/transcribe', {
@@ -72,9 +71,12 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
             // Store original and enhancement info
             setOriginalTranscript(data.originalTranscript || data.transcript);
             setEnhancement(data.enhancement || null);
+            setTranscriptionSource(data.transcriptionSource || 'unknown');
 
-            console.log('Transcription completed successfully with LLM enhancement:', data.enhancement?.source);
-            console.log('Enhancement improved:', data.enhancement?.improved);
+            console.log('Transcription completed successfully:');
+            console.log('- Source:', data.transcriptionSource);
+            console.log('- Enhancement:', data.enhancement?.source);
+            console.log('- Improved:', data.enhancement?.improved);
 
         } catch (err) {
             setHasTranscribed(false); // Reset flag on error so user can retry
@@ -222,48 +224,15 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                 </div>
             </div>
 
-            {/* Accuracy Mode Selection */}
-            <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    اختر مستوى الدقة
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                    <button
-                        onClick={() => setAccuracyMode('fast')}
-                        className={`p-3 rounded-lg font-medium transition-colors text-center ${accuracyMode === 'fast'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        <div className="text-sm font-semibold">سريع</div>
-                        <div className="text-xs opacity-75">7-15 ثانية</div>
-                    </button>
-                    <button
-                        onClick={() => setAccuracyMode('accurate')}
-                        className={`p-3 rounded-lg font-medium transition-colors text-center ${accuracyMode === 'accurate'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        <div className="text-sm font-semibold">دقيق</div>
-                        <div className="text-xs opacity-75">30-60 ثانية</div>
-                    </button>
-                    <button
-                        onClick={() => setAccuracyMode('medical')}
-                        className={`p-3 rounded-lg font-medium transition-colors text-center ${accuracyMode === 'medical'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        <div className="text-sm font-semibold">طبي</div>
-                        <div className="text-xs opacity-75">1-3 دقائق</div>
-                    </button>
+            {/* Transcription Info */}
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                    <span className="text-blue-600 text-lg">☁️</span>
+                    <div>
+                        <p className="text-sm font-medium text-blue-800">تفريغ سحابي بتقنية Groq Whisper</p>
+                        <p className="text-xs text-blue-600">سرعة فائقة (5-15 ثانية) مع تصحيح المصطلحات الطبية العربية</p>
+                    </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                    {accuracyMode === 'fast' && '⚡ سرعة عالية - دقة جيدة للمحادثات العامة'}
-                    {accuracyMode === 'accurate' && '🎯 دقة عالية - أفضل للنصوص المهمة'}
-                    {accuracyMode === 'medical' && '🏥 دقة طبية - متخصص في المصطلحات الطبية العربية'}
-                </p>
             </div>
 
             {/* Audio Info */}
@@ -318,6 +287,17 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                             </h4>
                         </div>
                         <div className="flex items-center gap-2">
+                            {/* Transcription Source Badge */}
+                            {transcriptionSource && (
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${transcriptionSource.includes('groq') ? 'bg-blue-100 text-blue-800' :
+                                    transcriptionSource.includes('local') ? 'bg-gray-100 text-gray-800' :
+                                        'bg-gray-100 text-gray-800'
+                                    }`}>
+                                    {transcriptionSource.includes('groq') ? '☁️ Groq' :
+                                        transcriptionSource.includes('local') ? '🖥️ Local' : transcriptionSource}
+                                </span>
+                            )}
+                            {/* Enhancement Source Badge */}
                             <span className={`px-2 py-1 rounded text-xs font-medium ${enhancement.source === 'groq' ? 'bg-green-100 text-green-800' :
                                 enhancement.source === 'local' ? 'bg-blue-100 text-blue-800' :
                                     enhancement.source === 'huggingface' ? 'bg-purple-100 text-purple-800' :

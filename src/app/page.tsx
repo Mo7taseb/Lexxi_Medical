@@ -3,6 +3,7 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Mic, Upload, FileText, Stethoscope, AlertCircle, CheckCircle } from 'lucide-react';
 import { FastLoadingSpinner } from '@/components/LoadingOptimization';
+import Image from 'next/image';
 
 // Lazy load components to reduce initial bundle size
 const VoiceRecorder = lazy(() => import('@/components/VoiceRecorder'));
@@ -84,49 +85,68 @@ export default function Home() {
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
 
-      {/* Header with Test Link */}
-      <div className="relative bg-white/80 backdrop-blur-sm border-b border-gray-200 mb-8">
-        <div className="container mx-auto px-4 py-4 max-w-6xl">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <Stethoscope className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-800">Lexxi Medical</h1>
+      {/* Modern Header with Logo */}
+      <div className="relative bg-white/90 backdrop-blur-md border-b border-white/30 mb-8">
+        <div className="container mx-auto px-4 py-6 max-w-6xl">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-6">
+              {/* Logo */}
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"
+                   />
+                  <Image
+                    src="/logo.png"
+                    alt="Lexxi Medical Logo"
+                    width={230}
+                    height={30}
+                    className="rounded-xl object-contain bg-transparent drop-shadow-md"
+                    priority
+                  />
+                
+              </div>
+
+              {/* Brand Text */}
+              <div className="text-center">
+                <h1 className="text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent mb-1"
+                  style={{ backgroundImage: `linear-gradient(to right, #0f3143, #3e74c9, #276192)` }}>
+                  Lexxi Medical
+                </h1>
+                <div className="flex items-center justify-center gap-2 text-sm" style={{ color: '#276192' }}>
+                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#85cef7' }} />
+                  <span className="font-medium">Medical AI Assistant</span>
+                </div>
+              </div>
             </div>
-            <a
-              href="/test-llm"
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-              dir="ltr"
-            >
-              🧪 Test LLM Integration
-            </a>
           </div>
         </div>
       </div>
 
       <div className="relative container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
+        {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl" />
-              <div className="relative bg-white p-3 rounded-full shadow-lg border border-blue-100">
-                <Stethoscope className="h-10 w-10 text-blue-600" />
-              </div>
+          <div className="mb-8">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#0f3143' }}>
+              تحويل الأصوات الطبية إلى تقارير احترافية
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              نظام ذكي متطور يحول محادثاتك الطبية إلى تقارير منظمة ودقيقة باستخدام أحدث تقنيات الذكاء الاصطناعي
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#85cef7' }}></div>
+              <span>Arabic Support</span>
             </div>
-            <div className="text-right">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 bg-clip-text text-transparent">
-                Lexxi Medical
-              </h1>
-              <div className="h-1 w-32 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mx-auto mt-2" />
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#3e74c9' }}></div>
+              <span>HIPAA Compliant</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#6cb7e8' }}></div>
+              <span>Real-time Processing</span>
             </div>
           </div>
-          <p className="text-gray-700 text-xl font-medium mb-2">
-            نظام ذكي لتحويل الأصوات الطبية إلى تقارير منظمة
-          </p>
-          <p className="text-gray-500 text-base flex items-center justify-center gap-2">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            AI-Powered Voice-to-Medical-Note System
-          </p>
         </div>
 
         {/* Progress Steps */}
@@ -138,29 +158,37 @@ export default function Home() {
                   <div className={`flex flex-col items-center flex-1 md:flex-initial ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-400'
                     }`}>
                     <div className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-2 md:mb-3 transition-all duration-300 ${currentStep >= step.id
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105'
+                      ? 'text-white shadow-lg scale-105'
                       : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}>
+                      }`}
+                      style={currentStep >= step.id ? {
+                        background: `linear-gradient(to right, #3e74c9, #6cb7e8)`,
+                        boxShadow: '0 10px 15px -3px rgba(62, 116, 201, 0.25), 0 4px 6px -2px rgba(62, 116, 201, 0.1)'
+                      } : {}}>
                       {currentStep > step.id ? (
                         <CheckCircle className="h-6 w-6 md:h-7 md:w-7" />
                       ) : (
                         <step.icon className="h-6 w-6 md:h-7 md:w-7" />
                       )}
                       {currentStep >= step.id && (
-                        <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
+                        <div className="absolute inset-0 rounded-full animate-ping" style={{ backgroundColor: 'rgba(62, 116, 201, 0.2)' }} />
                       )}
                     </div>
-                    <span className={`text-xs md:text-sm font-semibold text-center mb-1 ${currentStep >= step.id ? 'text-blue-700' : 'text-gray-500'
-                      }`}>
+                    <span className={`text-xs md:text-sm font-semibold text-center mb-1 ${currentStep >= step.id ? '' : 'text-gray-500'
+                      }`}
+                      style={currentStep >= step.id ? { color: '#276192' } : {}}>
                       {step.title}
                     </span>
                     <span className="text-xs text-gray-400 text-center hidden md:block">{step.titleEn}</span>
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`hidden md:flex flex-1 h-1 mx-6 rounded-full transition-all duration-500 ${currentStep > step.id
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+                      ? ''
                       : 'bg-gray-200'
-                      }`} />
+                      }`}
+                      style={currentStep > step.id ? {
+                        backgroundImage: `linear-gradient(to right, #3e74c9, #6cb7e8)`
+                      } : {}} />
                   )}
                 </div>
               ))}
@@ -183,20 +211,32 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div
                   className={`group relative p-6 md:p-8 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${inputMode === 'conversation'
-                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-500/20 scale-105'
-                    : 'border-gray-200 hover:border-blue-300 hover:shadow-lg hover:scale-102 bg-white'
+                    ? 'shadow-lg scale-105'
+                    : 'border-gray-200 hover:shadow-lg hover:scale-102 bg-white'
                     }`}
+                  style={inputMode === 'conversation' ? {
+                    borderColor: '#3e74c9',
+                    background: `linear-gradient(to bottom right, #b3e1f8, #85cef7)`,
+                    boxShadow: '0 20px 25px -5px rgba(62, 116, 201, 0.2), 0 10px 10px -5px rgba(62, 116, 201, 0.04)'
+                  } : {}}
                   onClick={() => setInputMode('conversation')}
                 >
                   <div className="text-center">
                     <div className={`w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-full flex items-center justify-center transition-all duration-300 ${inputMode === 'conversation'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25'
-                      : 'bg-blue-100 text-blue-600 group-hover:bg-blue-200'
-                      }`}>
+                      ? 'text-white shadow-lg'
+                      : 'text-white'
+                      }`}
+                      style={inputMode === 'conversation' ? {
+                        background: `linear-gradient(to right, #0f3143, #3e74c9)`,
+                        boxShadow: '0 10px 15px -3px rgba(62, 116, 201, 0.25), 0 4px 6px -2px rgba(62, 116, 201, 0.1)'
+                      } : {
+                        backgroundColor: '#85cef7'
+                      }}>
                       <Mic className="h-8 w-8 md:h-10 md:w-10" />
                     </div>
-                    <h3 className={`text-lg md:text-xl font-bold mb-2 md:mb-3 ${inputMode === 'conversation' ? 'text-blue-700' : 'text-gray-800'
-                      }`}>
+                    <h3 className={`text-lg md:text-xl font-bold mb-2 md:mb-3 ${inputMode === 'conversation' ? '' : 'text-gray-800'
+                      }`}
+                      style={inputMode === 'conversation' ? { color: '#0f3143' } : {}}>
                       محادثة كاملة
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
@@ -207,27 +247,39 @@ export default function Home() {
                   </div>
                   {inputMode === 'conversation' && (
                     <div className="absolute top-3 md:top-4 right-3 md:right-4">
-                      <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
+                      <CheckCircle className="h-5 w-5 md:h-6 md:w-6" style={{ color: '#276192' }} />
                     </div>
                   )}
                 </div>
 
                 <div
                   className={`group relative p-6 md:p-8 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${inputMode === 'summary'
-                    ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 shadow-lg shadow-green-500/20 scale-105'
-                    : 'border-gray-200 hover:border-green-300 hover:shadow-lg hover:scale-102 bg-white'
+                    ? 'shadow-lg scale-105'
+                    : 'border-gray-200 hover:shadow-lg hover:scale-102 bg-white'
                     }`}
+                  style={inputMode === 'summary' ? {
+                    borderColor: '#276192',
+                    background: `linear-gradient(to bottom right, #b3e1f8, #85cef7)`,
+                    boxShadow: '0 20px 25px -5px rgba(39, 97, 146, 0.2), 0 10px 10px -5px rgba(39, 97, 146, 0.04)'
+                  } : {}}
                   onClick={() => setInputMode('summary')}
                 >
                   <div className="text-center">
                     <div className={`w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-full flex items-center justify-center transition-all duration-300 ${inputMode === 'summary'
-                      ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/25'
-                      : 'bg-green-100 text-green-600 group-hover:bg-green-200'
-                      }`}>
+                      ? 'text-white shadow-lg'
+                      : 'text-white'
+                      }`}
+                      style={inputMode === 'summary' ? {
+                        background: `linear-gradient(to right, #0f3143, #276192)`,
+                        boxShadow: '0 10px 15px -3px rgba(39, 97, 146, 0.25), 0 4px 6px -2px rgba(39, 97, 146, 0.1)'
+                      } : {
+                        backgroundColor: '#6cb7e8'
+                      }}>
                       <FileText className="h-8 w-8 md:h-10 md:w-10" />
                     </div>
-                    <h3 className={`text-lg md:text-xl font-bold mb-2 md:mb-3 ${inputMode === 'summary' ? 'text-green-700' : 'text-gray-800'
-                      }`}>
+                    <h3 className={`text-lg md:text-xl font-bold mb-2 md:mb-3 ${inputMode === 'summary' ? '' : 'text-gray-800'
+                      }`}
+                      style={inputMode === 'summary' ? { color: '#0f3143' } : {}}>
                       ملخص الطبيب
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
@@ -238,7 +290,7 @@ export default function Home() {
                   </div>
                   {inputMode === 'summary' && (
                     <div className="absolute top-3 md:top-4 right-3 md:right-4">
-                      <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-600" />
+                      <CheckCircle className="h-5 w-5 md:h-6 md:w-6" style={{ color: '#276192' }} />
                     </div>
                   )}
                 </div>
@@ -281,8 +333,12 @@ export default function Home() {
                   disabled={inputMode === null || (inputMode === 'conversation' && !patientConsent)}
                   className={`relative px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${inputMode === null || (inputMode === 'conversation' && !patientConsent)
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105'
+                    : 'text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                     }`}
+                  style={!(inputMode === null || (inputMode === 'conversation' && !patientConsent)) ? {
+                    background: `linear-gradient(to right, #3e74c9, #6cb7e8)`,
+                    boxShadow: '0 10px 15px -3px rgba(62, 116, 201, 0.25), 0 4px 6px -2px rgba(62, 116, 201, 0.1)'
+                  } : {}}
                 >
                   <span className="flex items-center gap-2">
                     متابعة إلى التسجيل
