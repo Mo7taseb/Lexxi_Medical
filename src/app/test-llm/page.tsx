@@ -13,7 +13,7 @@ export default function TestPage() {
                             <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-2xl blur-md scale-105 opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <div className="relative bg-white/40 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-white/50">
                                 <Image
-                                    src="/logo.png"
+                                    src="/Logo.png"
                                     alt="Lexxi Medical Logo"
                                     width={160}
                                     height={160}
