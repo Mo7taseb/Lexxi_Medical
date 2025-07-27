@@ -93,16 +93,16 @@ export default function Home() {
               {/* Logo */}
               <div className="relative group">
                 <div className="absolute inset-0 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"
-                   />
-                  <Image
-                    src="/Logo.png"
-                    alt="Lexxi Medical Logo"
-                    width={230}
-                    height={30}
-                    className="rounded-xl object-contain bg-transparent drop-shadow-md"
-                    priority
-                  />
-                
+                />
+                <Image
+                  src="/Logo.png"
+                  alt="Lexxi Medical Logo"
+                  width={230}
+                  height={30}
+                  className="rounded-xl object-contain bg-transparent drop-shadow-md"
+                  priority
+                />
+
               </div>
 
               {/* Brand Text */}
