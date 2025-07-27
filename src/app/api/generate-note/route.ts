@@ -7,6 +7,137 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Function to clean unwanted prefixes from generated notes
+function cleanNoteContent(content: string, language: string): string {
+  if (!content) return content;
+
+  console.log(`🧹 Starting cleaning process for ${language.toUpperCase()}`);
+  console.log(`🧹 Original content (first 300 chars): "${content.substring(0, 300)}..."`);
+
+  const englishPrefixes = [
+    'Here is the enhanced medical transcription:',
+    'Here is the enhanced medical transcription',
+    'Here is the medical transcription:',
+    'Here is the medical transcription',
+    'Enhanced medical transcription:',
+    'Medical transcription:',
+    'Here is the structured medical report:',
+    'Here is the structured medical report',
+    'Structured medical report:',
+    'Here is the medical report:',
+    'Here is the medical report',
+    'Medical report:',
+    'Here is the consultation report:',
+    'Here is the consultation report',
+    'Consultation report:',
+    'Here is the SOAP note:',
+    'Here is the SOAP note',
+    'SOAP note:',
+    'Here is the progress note:',
+    'Here is the progress note',
+    'Progress note:',
+    'Here is the discharge summary:',
+    'Here is the discharge summary',
+    'Discharge summary:',
+    'Here is your',
+    'Here is the',
+    'The following is',
+    'Below is the',
+    'This is the',
+    'Based on the transcript',
+    'From the transcript',
+    'Here\'s the',
+    'Here\'s your'
+  ];
+
+  const arabicPrefixes = [
+    'إليك النسخة المحسنة من النص الطبي:',
+    'إليك النسخة المحسنة من النص الطبي',
+    'النسخة المحسنة من النص الطبي:',
+    'النسخة المحسنة من النص الطبي',
+    'إليك التقرير الطبي:',
+    'إليك التقرير الطبي',
+    'التقرير الطبي:',
+    'التقرير الطبي',
+    'إليك تقرير الاستشارة:',
+    'إليك تقرير الاستشارة',
+    'تقرير الاستشارة:',
+    'إليك تقرير SOAP:',
+    'إليك تقرير SOAP',
+    'تقرير SOAP:',
+    'إليك تقرير المتابعة:',
+    'إليك تقرير المتابعة',
+    'تقرير المتابعة:',
+    'إليك تقرير الخروج:',
+    'إليك تقرير الخروج',
+    'تقرير الخروج:',
+    'فيما يلي',
+    'إليك',
+    'هذا هو',
+    'بناءً على النص'
+  ];
+
+  let cleaned = content.trim();
+  const prefixes = language === 'en' ? englishPrefixes : arabicPrefixes;
+
+  // Remove any matching prefixes (case insensitive) - multiple passes
+  let hasChanged = true;
+  let iterations = 0;
+  const maxIterations = 10;
+  
+  while (hasChanged && iterations < maxIterations) {
+    hasChanged = false;
+    iterations++;
+    console.log(`🧹 Cleaning iteration ${iterations}`);
+    
+    for (const prefix of prefixes) {
+      const regex = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'i');
+      const beforeLength = cleaned.length;
+      cleaned = cleaned.replace(regex, '');
+      if (cleaned.length !== beforeLength) {
+        hasChanged = true;
+        console.log(`🧹 Removed prefix: "${prefix}"`);
+      }
+    }
+    
+    // Remove any leading colons, dashes, or whitespace that might be left
+    const beforeLength = cleaned.length;
+    cleaned = cleaned.replace(/^[:\-\s\n\r]+/, '');
+    if (cleaned.length !== beforeLength) {
+      hasChanged = true;
+      console.log(`🧹 Removed leading punctuation/whitespace`);
+    }
+  }
+
+  // Additional aggressive cleaning for stubborn cases
+  cleaned = cleaned.replace(/^["\'\`]*\s*/, ''); // Remove leading quotes and spaces
+  cleaned = cleaned.replace(/^\d+\.\s*/, ''); // Remove numbered list prefixes
+  
+  // Remove any remaining common AI prefixes that might have been missed
+  const additionalPatterns = [
+    /^Here\s+is\s+.*?:\s*/gi,
+    /^The\s+following\s+is\s+.*?:\s*/gi,
+    /^Below\s+is\s+.*?:\s*/gi,
+    /^This\s+is\s+.*?:\s*/gi,
+    /^إليك\s+.*?:\s*/gi,
+    /^فيما\s+يلي\s+.*?:\s*/gi
+  ];
+  
+  for (const pattern of additionalPatterns) {
+    const beforeLength = cleaned.length;
+    cleaned = cleaned.replace(pattern, '');
+    if (cleaned.length !== beforeLength) {
+      console.log(`🧹 Removed pattern match`);
+    }
+  }
+
+  const finalCleaned = cleaned.trim();
+  console.log(`🧹 Final cleaned content (first 300 chars): "${finalCleaned.substring(0, 300)}..."`);
+  console.log(`🧹 Cleaning complete. Original length: ${content.length}, Final length: ${finalCleaned.length}`);
+  
+  return finalCleaned;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { transcript, noteType, language = 'ar' } = await request.json();
@@ -15,27 +146,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing transcript or note type' }, { status: 400 });
     }
 
-    console.log(`🏥 Generating ${noteType} note (${language}): ${transcript.substring(0, 100)}...`);
+    console.log(`🏥 Generating ${noteType} note in ${language.toUpperCase()}: ${transcript.substring(0, 100)}...`);
 
     // Try Smart LLM Router first (free cloud + local options)
     const router = new SimpleLLMRouter();
     
     try {
+      console.log(`🤖 Attempting note generation with SimpleLLMRouter (${language})`);
       const noteResult = await router.generateMedicalNote(transcript, noteType, language as 'ar' | 'en');
-      console.log(`✅ Note generated using ${noteResult.source}`);
+      console.log(`🔍 Raw SimpleLLMRouter response (first 200 chars): "${noteResult.note.substring(0, 200)}..."`);
+      const cleanedNote = cleanNoteContent(noteResult.note, language);
+      console.log(`🧹 Cleaned note (first 200 chars): "${cleanedNote.substring(0, 200)}..."`);
+      console.log(`✅ Note generated using ${noteResult.source} in ${language.toUpperCase()}`);
 
       return NextResponse.json({
-        note: noteResult.note,
+        note: cleanedNote,
         source: noteResult.source,
-        confidence: 0.9
+        confidence: 0.9,
+        language: language
       });
     } catch (routerError) {
-      console.log('Smart LLM Router failed, trying OpenAI...', routerError);
+      console.log(`⚠️ Smart LLM Router failed (${language}), trying OpenAI...`, routerError);
     }
 
     // Fallback to OpenAI if available
     if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here') {
-      console.log('Using OpenAI as fallback...');
+      console.log(`🤖 Using OpenAI as fallback for ${language.toUpperCase()} note generation...`);
       
       const prompt = generatePrompt(transcript, noteType, language);
       
@@ -45,8 +181,8 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content: language === 'ar' ? 
-              "أنت مساعد طبي ذكي متخصص في إنشاء التقارير الطبية المنظمة من المحادثات المفرغة. تفهم المصطلحات الطبية العربية والإنجليزية. قم بالرد باللغة العربية ما لم يُطلب خلاف ذلك." :
-              "You are a medical AI assistant specialized in creating structured medical notes from transcribed conversations. You understand both Arabic and English medical terminology."
+              "أنت مساعد طبي ذكي متخصص في إنشاء التقارير الطبية المنظمة من المحادثات المفرغة. تفهم المصطلحات الطبية العربية والإنجليزية. قم بالرد باللغة العربية ما لم يُطلب خلاف ذلك. ابدأ مباشرة بالتقرير الطبي بدون أي مقدمات أو عبارات تمهيدية مثل 'إليك التقرير' أو 'فيما يلي'." :
+              "You are an expert medical AI assistant specialized in creating structured, professional medical documentation from transcribed conversations. You have comprehensive knowledge of medical terminology, clinical workflows, and healthcare documentation standards. Generate clear, concise, and clinically accurate medical notes following established medical documentation practices. Use appropriate medical terminology and maintain professional formatting throughout. START DIRECTLY with the medical report content without any introductory phrases like 'Here is the', 'The following is', or similar prefixes."
           },
           {
             role: "user",
@@ -57,16 +193,30 @@ export async function POST(request: NextRequest) {
         temperature: 0.3,
       });
 
-      const note = completion.choices[0]?.message?.content || '';
-      console.log('✅ Note generated with OpenAI');
+      const rawNote = completion.choices[0]?.message?.content || '';
+      console.log(`🔍 Raw OpenAI response (first 200 chars): "${rawNote.substring(0, 200)}..."`);
+      const cleanedNote = cleanNoteContent(rawNote, language);
+      console.log(`🧹 Cleaned note (first 200 chars): "${cleanedNote.substring(0, 200)}..."`);
+      console.log(`✅ Note generated with OpenAI in ${language.toUpperCase()}`);
       
-      return NextResponse.json({ note, source: 'openai', confidence: 0.95 });
+      return NextResponse.json({ 
+        note: cleanedNote, 
+        source: 'openai', 
+        confidence: 0.95,
+        language: language
+      });
     }
 
     // Final fallback to enhanced note generation
-    console.log('Using enhanced fallback note generator...');
+    console.log(`📝 Using enhanced fallback note generator for ${language.toUpperCase()}...`);
     const fallbackNote = generateEnhancedFallbackNote({ transcript, noteType, language });
-    return NextResponse.json({ note: fallbackNote, source: 'fallback', confidence: 0.3 });
+    const cleanedFallbackNote = cleanNoteContent(fallbackNote, language);
+    return NextResponse.json({ 
+      note: cleanedFallbackNote, 
+      source: 'fallback', 
+      confidence: 0.3,
+      language: language
+    });
     
   } catch (error) {
     console.error('Note generation error:', error);
@@ -88,196 +238,292 @@ export async function POST(request: NextRequest) {
     
     // Final fallback
     const fallbackNote = generateEnhancedFallbackNote({ transcript, noteType, language });
-    return NextResponse.json({ note: fallbackNote, source: 'error-fallback', confidence: 0.1 });
+    const cleanedErrorFallbackNote = cleanNoteContent(fallbackNote, language);
+    return NextResponse.json({ note: cleanedErrorFallbackNote, source: 'error-fallback', confidence: 0.1 });
   }
 }
 
 function generatePrompt(transcript: string, noteType: string, language: string = 'ar'): string {
   if (language === 'en') {
-    const basePrompt = `Please convert the following transcript into a structured, professional medical report:
+    const basePrompt = `Convert the following transcript into a structured, professional medical report. START DIRECTLY with the report content without any introductory phrases.
 
 Transcript:
 "${transcript}"
 
-`;
+Generate the report immediately in the requested format:`;
 
     const englishTypePrompts = {
-      soap: `Create a SOAP note in English with the following format:
+      soap: `Create a comprehensive SOAP note in English following medical documentation standards:
 
 **SUBJECTIVE (S):**
-- Patient complaints and symptoms
-- Current illness history
-- Associated symptoms
+- Chief complaint (CC): Primary reason for the visit
+- History of present illness (HPI): Detailed symptom description, onset, location, duration, characteristics, aggravating/alleviating factors, radiation, timing, severity
+- Review of systems (ROS): Pertinent positive and negative findings
+- Past medical history (PMH): Relevant medical conditions
+- Medications: Current prescriptions and over-the-counter medications
+- Allergies: Drug allergies and reactions
+- Social history: Smoking, alcohol, occupation as relevant
 
 **OBJECTIVE (O):**
-- Vital signs
-- Physical examination results
-- Laboratory tests (if any)
+- Vital signs: Temperature, blood pressure, heart rate, respiratory rate, oxygen saturation, weight
+- Physical examination: Systematic examination findings organized by body systems
+- Laboratory results: Recent lab values if available
+- Imaging studies: Radiology findings if applicable
+- Other diagnostic tests: EKG, procedures, etc.
 
 **ASSESSMENT (A):**
-- Primary diagnosis
-- Differential diagnosis
-- Severity assessment
+- Primary diagnosis with ICD-10 code if known
+- Differential diagnoses ranked by likelihood
+- Problem list: Active medical problems
+- Clinical reasoning: Assessment of findings and diagnostic thinking
 
 **PLAN (P):**
-- Medication therapy
-- Patient instructions
-- Follow-up appointments`,
+- Diagnostic plan: Additional tests or studies needed
+- Therapeutic plan: Medications, dosages, and instructions
+- Patient education: Information provided to patient
+- Follow-up: Return visit timing and conditions
+- Monitoring: Parameters to track
+- Referrals: Specialist consultations if needed`,
 
-      progress: `Create a Progress Note in English with the following format:
+      progress: `Create a comprehensive Progress Note in English following medical documentation standards:
 
-**Date of assessment:**
-[Current date and time]
+**DATE OF ASSESSMENT:**
+${new Date().toLocaleDateString('en-US', { 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+})}
 
-**Patient identification:**
-- Patient demographics and identifiers
-- Age, gender, relevant identifiers
+**PATIENT IDENTIFICATION:**
+- Patient demographics and identifiers required
+- Age, gender, and relevant medical record identifiers
 
-**Brief hospital course:**
-- Summary of hospital stay
-- Key events and interventions
-- Treatment provided
+**BRIEF HOSPITAL COURSE:**
+- Summary of hospital stay and significant events
+- Key interventions and treatments provided
+- Response to therapy and clinical milestones
 
-**Interval history:**
+**INTERVAL HISTORY:**
 - Changes since last assessment
-- New symptoms or concerns
+- New symptoms, concerns, or complications
 - Patient-reported improvements or deterioration
+- Current functional status
 
-**Physical examination:**
-- Current vital signs
-- Focused physical examination
+**PHYSICAL EXAMINATION:**
+- Current vital signs and trends
+- Focused physical examination relevant to conditions
 - Changes from previous examination
+- Neurological status if applicable
 
-**Investigations:**
-- Recent test results
-- Pending investigations
-- Trending of laboratory values
+**INVESTIGATIONS:**
+- Recent laboratory results and trends
+- Pending investigations and studies
+- Imaging findings and interpretations
+- Diagnostic test results
 
-**Assessment:**
-- Current clinical status
-- Response to treatment
-- Updated problem list
+**ASSESSMENT:**
+- Current clinical status and stability
+- Response to ongoing treatments
+- Updated problem list with priorities
+- Risk assessment and prognosis
 
-**Plan:**
-- Ongoing treatment modifications
-- New interventions
-- Discharge planning considerations`,
+**PLAN:**
+- Ongoing treatment modifications and adjustments
+- New therapeutic interventions
+- Monitoring parameters and frequency
+- Discharge planning considerations
+- Follow-up arrangements and timing`,
 
-      consultation: `Create a Consultation Note in English with the following format:
+      consultation: `Create a comprehensive Consultation Note in English following medical documentation standards:
 
-**Date of consult:**
-[Current date and time]
+**DATE OF CONSULTATION:**
+${new Date().toLocaleDateString('en-US', { 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+})}
 
-**Reason of consult:**
-- Primary reason for consultation
-- Referral indication
+**REASON FOR CONSULTATION:**
+- Primary indication for specialist consultation
+- Referring physician and specific questions
+- Urgency level and clinical context
 
-**Patient identification:**
-- Patient demographics and identifiers
-- Age, gender, relevant identifiers
+**PATIENT IDENTIFICATION:**
+- Complete patient demographics
+- Medical record number and identifiers
+- Age, gender, and contact information
 
-**Past medical history:**
-- Previous medical conditions
-- Surgical history
-- Significant medical events
+**PAST MEDICAL HISTORY:**
+- Significant previous medical conditions
+- Surgical history with dates and complications
+- Hospitalizations and major medical events
+- Relevant family history
 
-**Home medications:**
-- Current medications
-- Dosages and frequencies
-- Recent medication changes
+**CURRENT MEDICATIONS:**
+- Complete medication list with dosages
+- Recent changes or adjustments
+- Over-the-counter medications and supplements
+- Medication adherence assessment
 
-**Allergies:**
-- Known drug allergies
-- Food or environmental allergies
-- Allergy reactions
+**ALLERGIES:**
+- Known drug allergies with specific reactions
+- Food allergies and environmental sensitivities
+- Previous adverse drug reactions
+- Allergy severity and management
 
-**Social history:**
-- Smoking, alcohol, drug use
-- Occupation and lifestyle factors
-- Family history if relevant
+**SOCIAL HISTORY:**
+- Tobacco, alcohol, and substance use
+- Occupational exposures and risks
+- Social support system and living situation
+- Relevant lifestyle factors
 
-**History of presenting illness:**
-- Detailed description of current problem
-- Timeline and progression
-- Associated symptoms
+**HISTORY OF PRESENT ILLNESS:**
+- Detailed chronological symptom progression
+- Onset, duration, and character of symptoms
+- Aggravating and alleviating factors
+- Previous treatments and responses
+- Impact on daily activities and quality of life
 
-**Physical examination:**
-- Vital signs
-- Systematic physical findings
-- Relevant examination results
+**PHYSICAL EXAMINATION:**
+- Complete vital signs and anthropometrics
+- Systematic physical examination by systems
+- Focused examination relevant to consultation
+- Abnormal findings and clinical significance
 
-**Investigation:**
-**Lab work:**
-- Laboratory test results
-- Pending lab work
+**DIAGNOSTIC STUDIES:**
+**Laboratory Studies:**
+- Recent laboratory results with reference ranges
+- Trending of abnormal values
+- Pending laboratory investigations
 
-**Imaging:**
-- Radiology results
-- Imaging studies ordered
+**Imaging Studies:**
+- Radiology reports and interpretations
+- Previous imaging for comparison
+- Recommended additional imaging
 
-**Microbiology:**
-- Culture results
-- Microbiology findings
+**Other Studies:**
+- Electrocardiogram and cardiac studies
+- Pulmonary function tests
+- Specialized diagnostic procedures
 
-**Others:**
-- Additional diagnostic tests
-- Specialized investigations
+**CLINICAL ASSESSMENT:**
+- Primary diagnosis with supporting evidence
+- Differential diagnosis with likelihood ranking
+- Severity assessment and risk stratification
+- Prognosis and expected outcomes
 
-**Assessment:**
-- Clinical impression
-- Differential diagnosis
-- Problem prioritization
+**RECOMMENDATIONS:**
+- Specific treatment recommendations with rationale
+- Medication management and monitoring
+- Lifestyle modifications and patient education
+- Follow-up scheduling and monitoring parameters
+- Coordination with other specialists if needed`,
 
-**Plan:**
-- Treatment recommendations
-- Follow-up arrangements
-- Further investigations needed`,
+      discharge: `Create a comprehensive Discharge Summary in English following medical documentation standards:
 
-      discharge: `Create a Discharge Summary in English with the following format:
+**DISCHARGE SUMMARY**
+Date of Admission: [To be completed]
+Date of Discharge: ${new Date().toLocaleDateString('en-US', { 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric'
+})}
 
-**Hospital Stay Summary:**
-- Admission reason
-- Length of stay
-- Treatment provided
+**ADMISSION DIAGNOSIS:**
+- Primary reason for hospitalization
+- Secondary diagnoses present on admission
 
-**Final Diagnosis:**
-- Primary diagnosis
-- Secondary diagnoses
+**DISCHARGE DIAGNOSIS:**
+- Primary diagnosis with ICD-10 codes
+- Secondary diagnoses and complications
+- Procedures performed during stay
 
-**Patient Condition at Discharge:**
-- Symptom improvement
-- General condition
+**HOSPITAL COURSE:**
+- Detailed summary of clinical progression
+- Significant events and complications
+- Response to treatments and interventions
+- Consultations obtained and recommendations
 
-**Instructions and Follow-up:**
-- Required medications
-- Follow-up appointments
-- Patient instructions`,
+**PROCEDURES PERFORMED:**
+- Surgical procedures with dates and outcomes
+- Diagnostic procedures and results
+- Therapeutic interventions
 
-      freeform: `Create a detailed medical report in English including:
+**DISCHARGE MEDICATIONS:**
+- Complete medication list with dosages
+- New medications started during admission
+- Discontinued medications with reasons
+- Medication reconciliation completed
 
-**Case Summary:**
-- Comprehensive description of patient condition
-- Symptoms and signs
+**DISCHARGE INSTRUCTIONS:**
+- Activity restrictions and limitations
+- Dietary modifications and restrictions
+- Wound care and medical device management
+- Signs and symptoms requiring immediate attention
 
-**Medical Assessment:**
-- Medical impression
-- Probable diagnosis
+**FOLLOW-UP CARE:**
+- Scheduled appointments with primary care
+- Specialist follow-up arrangements
+- Laboratory or imaging studies needed
+- Rehabilitation services if applicable
 
-**Recommendations:**
-- Proposed treatment
-- Required follow-up`
+**PATIENT CONDITION AT DISCHARGE:**
+- Overall clinical stability
+- Functional status and mobility
+- Mental status and cognitive function
+- Discharge disposition and support needs`,
+
+      freeform: `Create a comprehensive medical report in English following clinical documentation standards:
+
+**CLINICAL SUMMARY**
+Date: ${new Date().toLocaleDateString('en-US', { 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric'
+})}
+
+**PATIENT PRESENTATION:**
+- Chief complaint and presenting symptoms
+- Duration and progression of symptoms
+- Functional impact and severity assessment
+
+**CLINICAL FINDINGS:**
+- Relevant physical examination findings
+- Vital signs and clinical measurements
+- Objective observations and assessments
+
+**DIAGNOSTIC CONSIDERATIONS:**
+- Primary diagnostic impression
+- Differential diagnoses considered
+- Clinical reasoning and evidence basis
+
+**MANAGEMENT RECOMMENDATIONS:**
+- Therapeutic interventions recommended
+- Monitoring parameters and follow-up care
+- Patient education and counseling provided
+- Coordination with other healthcare providers
+
+**CLINICAL ASSESSMENT:**
+- Overall patient condition and prognosis
+- Risk factors and preventive measures
+- Quality of life considerations
+- Long-term management planning`
     };
 
     return basePrompt + (englishTypePrompts[noteType as keyof typeof englishTypePrompts] || englishTypePrompts.freeform);
   }
 
   // Arabic version (default)
-  const basePrompt = `من فضلك قم بتحويل النص المفرغ التالي إلى تقرير طبي منظم ومهني:
+  const basePrompt = `قم بتحويل النص المفرغ التالي إلى تقرير طبي منظم ومهني. ابدأ مباشرة بالتقرير بدون أي مقدمات.
 
 النص المفرغ:
 "${transcript}"
 
-`;
+أنشئ التقرير مباشرة بالتنسيق المطلوب:`;
 
   const typeSpecificPrompts = {
     soap: `أنشئ تقرير SOAP باللغة العربية مع التنسيق التالي:

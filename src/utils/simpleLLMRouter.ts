@@ -4,6 +4,137 @@ export class SimpleLLMRouter {
   private primaryModel = 'llama-3.3-70b-versatile'; // Your best available model
   private fallbackModel = 'llama-3.1-8b-instant'; // Fast fallback
 
+  // Function to clean unwanted prefixes from generated notes
+  private cleanNoteContent(content: string, language: string): string {
+    if (!content) return content;
+
+    console.log(`🧹 [SimpleLLMRouter] Starting cleaning process for ${language.toUpperCase()}`);
+    console.log(`🧹 [SimpleLLMRouter] Original content (first 300 chars): "${content.substring(0, 300)}..."`);
+
+    const englishPrefixes = [
+      'Here is the enhanced medical transcription:',
+      'Here is the enhanced medical transcription',
+      'Here is the medical transcription:',
+      'Here is the medical transcription',
+      'Enhanced medical transcription:',
+      'Medical transcription:',
+      'Here is the structured medical report:',
+      'Here is the structured medical report',
+      'Structured medical report:',
+      'Here is the medical report:',
+      'Here is the medical report',
+      'Medical report:',
+      'Here is the consultation report:',
+      'Here is the consultation report',
+      'Consultation report:',
+      'Here is the SOAP note:',
+      'Here is the SOAP note',
+      'SOAP note:',
+      'Here is the progress note:',
+      'Here is the progress note',
+      'Progress note:',
+      'Here is the discharge summary:',
+      'Here is the discharge summary',
+      'Discharge summary:',
+      'Here is your',
+      'Here is the',
+      'The following is',
+      'Below is the',
+      'This is the',
+      'Based on the transcript',
+      'From the transcript',
+      'Here\'s the',
+      'Here\'s your'
+    ];
+
+    const arabicPrefixes = [
+      'إليك النسخة المحسنة من النص الطبي:',
+      'إليك النسخة المحسنة من النص الطبي',
+      'النسخة المحسنة من النص الطبي:',
+      'النسخة المحسنة من النص الطبي',
+      'إليك التقرير الطبي:',
+      'إليك التقرير الطبي',
+      'التقرير الطبي:',
+      'التقرير الطبي',
+      'إليك تقرير الاستشارة:',
+      'إليك تقرير الاستشارة',
+      'تقرير الاستشارة:',
+      'إليك تقرير SOAP:',
+      'إليك تقرير SOAP',
+      'تقرير SOAP:',
+      'إليك تقرير المتابعة:',
+      'إليك تقرير المتابعة',
+      'تقرير المتابعة:',
+      'إليك تقرير الخروج:',
+      'إليك تقرير الخروج',
+      'تقرير الخروج:',
+      'فيما يلي',
+      'إليك',
+      'هذا هو',
+      'بناءً على النص'
+    ];
+
+    let cleaned = content.trim();
+    const prefixes = language === 'en' ? englishPrefixes : arabicPrefixes;
+
+    // Remove any matching prefixes (case insensitive) - multiple passes
+    let hasChanged = true;
+    let iterations = 0;
+    const maxIterations = 10;
+    
+    while (hasChanged && iterations < maxIterations) {
+      hasChanged = false;
+      iterations++;
+      console.log(`🧹 [SimpleLLMRouter] Cleaning iteration ${iterations}`);
+      
+      for (const prefix of prefixes) {
+        const regex = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'i');
+        const beforeLength = cleaned.length;
+        cleaned = cleaned.replace(regex, '');
+        if (cleaned.length !== beforeLength) {
+          hasChanged = true;
+          console.log(`🧹 [SimpleLLMRouter] Removed prefix: "${prefix}"`);
+        }
+      }
+      
+      // Remove any leading colons, dashes, or whitespace that might be left
+      const beforeLength = cleaned.length;
+      cleaned = cleaned.replace(/^[:\-\s\n\r]+/, '');
+      if (cleaned.length !== beforeLength) {
+        hasChanged = true;
+        console.log(`🧹 [SimpleLLMRouter] Removed leading punctuation/whitespace`);
+      }
+    }
+
+    // Additional aggressive cleaning for stubborn cases
+    cleaned = cleaned.replace(/^["\'\`]*\s*/, ''); // Remove leading quotes and spaces
+    cleaned = cleaned.replace(/^\d+\.\s*/, ''); // Remove numbered list prefixes
+    
+    // Remove any remaining common AI prefixes that might have been missed
+    const additionalPatterns = [
+      /^Here\s+is\s+.*?:\s*/gi,
+      /^The\s+following\s+is\s+.*?:\s*/gi,
+      /^Below\s+is\s+.*?:\s*/gi,
+      /^This\s+is\s+.*?:\s*/gi,
+      /^إليك\s+.*?:\s*/gi,
+      /^فيما\s+يلي\s+.*?:\s*/gi
+    ];
+    
+    for (const pattern of additionalPatterns) {
+      const beforeLength = cleaned.length;
+      cleaned = cleaned.replace(pattern, '');
+      if (cleaned.length !== beforeLength) {
+        console.log(`🧹 [SimpleLLMRouter] Removed pattern match`);
+      }
+    }
+
+    const finalCleaned = cleaned.trim();
+    console.log(`🧹 [SimpleLLMRouter] Final cleaned content (first 300 chars): "${finalCleaned.substring(0, 300)}..."`);
+    console.log(`🧹 [SimpleLLMRouter] Cleaning complete. Original length: ${content.length}, Final length: ${finalCleaned.length}`);
+    
+    return finalCleaned;
+  }
+
   async enhanceTranscription(transcript: string, language: 'ar' | 'en', enableEnhancement = true): Promise<{
     text: string;
     source: string;
@@ -66,9 +197,10 @@ export class SimpleLLMRouter {
     // Try primary 70B model for note generation
     try {
       const note = await this.generateNoteWithGroq(transcript, noteType, language, this.primaryModel);
-      if (this.validateMedicalNote(note, transcript)) {
+      const cleanedNote = this.cleanNoteContent(note, language);
+      if (this.validateMedicalNote(cleanedNote, transcript)) {
         console.log('✅ Medical note generated with Groq 70B');
-        return { note, source: 'groq-70b' };
+        return { note: cleanedNote, source: 'groq-70b' };
       }
     } catch (error) {
       console.log('⚠️ Primary model failed for note generation:', error);
@@ -77,9 +209,10 @@ export class SimpleLLMRouter {
     // Try fallback 8B model
     try {
       const note = await this.generateNoteWithGroq(transcript, noteType, language, this.fallbackModel);
-      if (this.validateMedicalNote(note, transcript)) {
+      const cleanedNote = this.cleanNoteContent(note, language);
+      if (this.validateMedicalNote(cleanedNote, transcript)) {
         console.log('✅ Medical note generated with Groq 8B fallback');
-        return { note, source: 'groq-8b' };
+        return { note: cleanedNote, source: 'groq-8b' };
       }
     } catch (error) {
       console.log('❌ All Groq models failed for note generation:', error);
@@ -97,35 +230,33 @@ export class SimpleLLMRouter {
     let userPrompt: string;
 
     if (language === 'ar') {
-      systemPrompt = "أنت خبير في تصحيح النصوص الطبية العربية. مهمتك تحسين دقة النص المنقول من الصوت للكتابة.";
-      userPrompt = `صحح وحسن هذا النص الطبي العربي المنقول من الصوت:
+      systemPrompt = "أنت خبير في تصحيح النصوص الطبية العربية. مهمتك تحسين دقة النص المنقول من الصوت للكتابة. ارجع النص المحسن مباشرة بدون أي مقدمات.";
+      userPrompt = `صحح وحسن هذا النص الطبي العربي المنقول من الصوت. ارجع النص المحسن مباشرة:
 
 "${transcript}"
 
 متطلبات التحسين:
+- ارجع النص المحسن مباشرة بدون مقدمات مثل "إليك النص المحسن" أو "فيما يلي"
 - صحح الأخطاء الإملائية والنحوية
 - حسن المصطلحات الطبية العربية
-- اجعل النص أكثر وضوحاً ومهنية
-- حافظ على المعنى والسياق الأصلي
-- لا تضيف معلومات طبية جديدة
-- لا تحذف أي معلومات مهمة
-
-النص المُحسن:`;
+- اجعل النص أوضح وأكثر احترافية
+- احتفظ بالمعنى والسياق الأصلي
+- لا تضف معلومات طبية جديدة
+- لا تحذف معلومات مهمة`;
     } else {
-      systemPrompt = "You are an expert medical text correction specialist. Your task is to improve transcribed medical text accuracy.";
-      userPrompt = `Correct and improve this medical transcription:
+      systemPrompt = "You are an expert medical text correction specialist. Your task is to improve transcribed medical text accuracy. Return the enhanced text directly without any introductory phrases.";
+      userPrompt = `Correct and improve this medical transcription. Return the enhanced text directly:
 
 "${transcript}"
 
 Enhancement requirements:
+- Return the enhanced text directly without introductory phrases like "Here is the enhanced" or "The following is"
 - Fix spelling and grammar errors
 - Improve medical terminology accuracy
 - Make text clearer and more professional
 - Preserve original meaning and context
 - Do not add new medical information
-- Do not remove important information
-
-Enhanced text:`;
+- Do not remove important information`;
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -153,7 +284,10 @@ Enhanced text:`;
     }
 
     const data = await response.json();
-    const enhanced = data.choices?.[0]?.message?.content?.trim() || transcript;
+    const rawEnhanced = data.choices?.[0]?.message?.content?.trim() || transcript;
+    
+    // Clean the enhanced transcription to remove unwanted prefixes
+    const enhanced = this.cleanNoteContent(rawEnhanced, language);
     
     // Quality validation
     const originalWords = transcript.split(/\s+/).length;
@@ -180,7 +314,7 @@ Enhanced text:`;
     let userPrompt: string;
     
     if (language === 'ar') {
-      systemPrompt = "أنت طبيب خبير متخصص في كتابة التقارير الطبية الاحترافية باللغة العربية. تتميز بالدقة والوضوح والالتزام بالمعايير الطبية.";
+      systemPrompt = "أنت طبيب خبير متخصص في كتابة التقارير الطبية الاحترافية باللغة العربية. تتميز بالدقة والوضوح والالتزام بالمعايير الطبية. ابدأ مباشرة بالتقرير بدون أي مقدمات أو عبارات تمهيدية.";
       
       const noteTypeArabic = {
         'consultation': 'استشارة طبية',
@@ -191,41 +325,39 @@ Enhanced text:`;
         'general': 'تقرير عام'
       }[noteType] || 'تقرير طبي';
 
-      userPrompt = `اكتب ${noteTypeArabic} احترافي مفصل بناءً على هذه المحادثة الطبية:
+      userPrompt = `اكتب ${noteTypeArabic} احترافي مفصل بناءً على هذه المحادثة الطبية. ابدأ مباشرة بالتقرير:
 
 "${transcript}"
 
 ${this.getArabicNoteStructure(noteType)}
 
 متطلبات التقرير:
+- ابدأ مباشرة بالتقرير بدون مقدمات مثل "إليك التقرير" أو "فيما يلي"
 - اكتب تقرير طبي شامل ومنظم
 - استخدم المصطلحات الطبية العربية المناسبة
 - اتبع الهيكل المحدد بدقة
 - اذكر كل التفاصيل المهمة من المحادثة
 - استخدم لغة طبية احترافية
 - تأكد من الدقة والوضوح
-- لا تضيف معلومات غير موجودة في النص
-
-التقرير الطبي:`;
+- لا تضيف معلومات غير موجودة في النص`;
     } else {
-      systemPrompt = "You are an expert physician specialized in writing professional medical reports. You are known for accuracy, clarity, and adherence to medical standards.";
+      systemPrompt = "You are an expert physician specialized in writing professional medical reports. You are known for accuracy, clarity, and adherence to medical standards. Start directly with the report content without any introductory phrases.";
       
-      userPrompt = `Write a comprehensive professional ${noteType} report based on this medical conversation:
+      userPrompt = `Write a comprehensive professional ${noteType} report based on this medical conversation. Start directly with the report:
 
 "${transcript}"
 
 ${this.getEnglishNoteStructure(noteType)}
 
 Report requirements:
+- Start directly with the report without introductory phrases like "Here is the report" or "The following is"
 - Write a thorough and organized medical report
 - Use appropriate medical terminology
 - Follow the specified structure exactly
 - Include all important details from the conversation
 - Use professional medical language
 - Ensure accuracy and clarity
-- Do not add information not present in the text
-
-Medical Report:`;
+- Do not add information not present in the text`;
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {

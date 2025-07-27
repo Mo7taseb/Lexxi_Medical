@@ -32,6 +32,8 @@ export class GroqWhisperTranscriber {
    * Transcribe audio file using Groq's Whisper API
    */
   async transcribe(audioFile: File, options: GroqWhisperOptions = { language: 'ar' }): Promise<GroqWhisperResponse> {
+    console.log(`🎙️ Starting Groq Whisper transcription (Language: ${options.language.toUpperCase()})`);
+    
     const formData = new FormData();
     formData.append('file', audioFile);
     formData.append('model', options.model || 'whisper-large-v3-turbo'); // Faster turbo model
@@ -42,9 +44,13 @@ export class GroqWhisperTranscriber {
       formData.append('temperature', options.temperature.toString());
     }
 
-    // Add medical prompt for better Arabic medical transcription
+    // Add language-specific medical prompts for better transcription
     if (options.language === 'ar') {
+      console.log('📝 Using Arabic medical context prompt');
       formData.append('prompt', 'المريض يعاني من ألم في الصدر والرأس. الطبيب يفحص المريض ويكتب التشخيص والعلاج.');
+    } else if (options.language === 'en') {
+      console.log('📝 Using English medical context prompt');
+      formData.append('prompt', 'Patient complains of chest pain and headache. Doctor examines patient and writes diagnosis and treatment plan. Medical history includes hypertension and diabetes.');
     }
 
     const response = await fetch(`${this.baseUrl}/audio/transcriptions`, {
@@ -62,10 +68,12 @@ export class GroqWhisperTranscriber {
 
     const result = await response.json();
     
-    // Apply medical terminology corrections for Arabic
+    // Apply medical terminology corrections based on language
     let text = result.text || '';
     if (options.language === 'ar') {
       text = this.applyMedicalCorrections(text);
+    } else if (options.language === 'en') {
+      text = this.applyEnglishMedicalCorrections(text);
     }
 
     return {
@@ -163,6 +171,149 @@ export class GroqWhisperTranscriber {
       }
     });
 
+    return correctedText;
+  }
+
+  /**
+   * Apply medical terminology corrections for English text
+   * Common speech-to-text errors in medical dictation
+   */
+  private applyEnglishMedicalCorrections(text: string): string {
+    console.log('🔧 Applying English medical corrections...');
+    
+    const medicalCorrections: Record<string, string> = {
+      // Common medical dictation errors - Patient variations
+      'patent' : 'patient',
+      'patience' : 'patient', 
+      'patents' : 'patients',
+      'patiences' : 'patients',
+      'pasient' : 'patient',
+      'paisant' : 'patient',
+      
+      // Directional/anatomical errors
+      'write arm' : 'right arm',
+      'write hand' : 'right hand',
+      'write leg' : 'right leg',
+      'write side' : 'right side',
+      'left write' : 'left right', // Common confusion
+      
+      // Medical examination terms
+      'physical exam' : 'physical examination',
+      'heart sounds' : 'heart sounds',
+      'breath sounds' : 'breath sounds',
+      'lung sounds' : 'lung sounds',
+      'bowel sounds' : 'bowel sounds',
+      
+      // Common medical conditions - homophones
+      'dime abetes' : 'diabetes',
+      'die abetes' : 'diabetes', 
+      'hyperattention' : 'hypertension',
+      'high pertension' : 'hypertension',
+      'new monia' : 'pneumonia',
+      'ammonia' : 'pneumonia', // Common misheard
+      
+      // Medical procedures/actions
+      'prescribed' : 'prescribed',
+      'proscribed' : 'prescribed', // Common confusion
+      'diagnosed' : 'diagnosed',
+      'examine' : 'examine',
+      'examined' : 'examined',
+      'assessment' : 'assessment',
+      'treatment' : 'treatment',
+      'medication' : 'medication',
+      'surgery' : 'surgery',
+      
+      // Vital signs and measurements
+      'blood pressure' : 'blood pressure',
+      'heart rate' : 'heart rate',
+      'pulse rate' : 'pulse rate',
+      'respiratory rate' : 'respiratory rate',
+      'temperature' : 'temperature',
+      'oxygen saturation' : 'oxygen saturation',
+      'blood sugar' : 'blood sugar',
+      'glucose level' : 'glucose level',
+      
+      // Common symptoms
+      'chest pain' : 'chest pain',
+      'shortness of breath' : 'shortness of breath',
+      'difficulty breathing' : 'difficulty breathing',
+      'abdominal pain' : 'abdominal pain',
+      'headache' : 'headache',
+      'dizziness' : 'dizziness',
+      'nausea' : 'nausea',
+      'vomiting' : 'vomiting',
+      'fatigue' : 'fatigue',
+      'weakness' : 'weakness',
+      
+      // Medical phrases
+      'complains of' : 'complains of',
+      'suffers from' : 'suffers from',
+      'history of' : 'history of',
+      'family history' : 'family history',
+      'medical history' : 'medical history',
+      'physical examination' : 'physical examination',
+      'vital signs' : 'vital signs',
+      'normal limits' : 'normal limits',
+      'within normal limits' : 'within normal limits',
+      
+      // Dosage and timing - common errors
+      'once a day' : 'once daily',
+      'twice a day' : 'twice daily',  
+      'three times a day' : 'three times daily',
+      'four times a day' : 'four times daily',
+      'every four hours' : 'every 4 hours',
+      'every six hours' : 'every 6 hours',
+      'every eight hours' : 'every 8 hours',
+      'every twelve hours' : 'every 12 hours',
+      'as needed' : 'as needed',
+      'when necessary' : 'as needed',
+      'with food' : 'with food',
+      'before meals' : 'before meals',
+      'after meals' : 'after meals',
+      'on empty stomach' : 'on empty stomach',
+      
+      // Medical specialties  
+      'cardiology' : 'cardiology',
+      'neurology' : 'neurology',
+      'orthopedics' : 'orthopedics',
+      'gastroenterology' : 'gastroenterology',
+      'pulmonology' : 'pulmonology',
+      'endocrinology' : 'endocrinology',
+      
+      // Medical equipment/tests
+      'x-ray' : 'X-ray',
+      'CT scan' : 'CT scan',
+      'MRI' : 'MRI',
+      'ultrasound' : 'ultrasound',
+      'electrocardiogram' : 'electrocardiogram',
+      'ECG' : 'ECG',
+      'EKG' : 'EKG',
+      'blood test' : 'blood test',
+      'urine test' : 'urine test'
+    };
+
+    let correctedText = text;
+    let correctionCount = 0;
+
+    // Apply corrections with word boundaries to avoid partial matches
+    Object.entries(medicalCorrections).forEach(([wrong, correct]) => {
+      // Use case-insensitive matching but preserve original case
+      const regex = new RegExp(`\\b${wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+      const beforeReplace = correctedText;
+      correctedText = correctedText.replace(regex, (match) => {
+        correctionCount++;
+        console.log(`✅ Corrected: "${match}" → "${correct}"`);
+        // Preserve the case of the original match
+        if (match === match.toUpperCase()) return correct.toUpperCase();
+        if (match === match.toLowerCase()) return correct.toLowerCase();
+        if (match[0] === match[0].toUpperCase()) {
+          return correct.charAt(0).toUpperCase() + correct.slice(1).toLowerCase();
+        }
+        return correct;
+      });
+    });
+
+    console.log(`✨ Applied ${correctionCount} English medical corrections`);
     return correctedText;
   }
 

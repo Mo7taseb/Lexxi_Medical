@@ -27,6 +27,11 @@ export async function POST(request: NextRequest) {
     const language = formData.get('language') as string || 'ar';
     const model = formData.get('model') as string || 'whisper-large-v3-turbo'; // Support model selection
     
+    console.log(`[${requestId}] 📋 Form data received:`);
+    console.log(`[${requestId}] - Audio file: ${audioFile?.name} (${audioFile?.size} bytes)`);
+    console.log(`[${requestId}] - Language parameter: "${language}" (raw value)`);
+    console.log(`[${requestId}] - Model parameter: "${model}"`);
+    
     // Create unique key to prevent duplicates
     transcriptionKey = `${audioFile?.size}_${audioFile?.type}_${language}_${model}`;
     
@@ -45,7 +50,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    console.log(`[${requestId}] Processing audio file: ${audioFile?.name}, language: ${language}, model: ${model}`);
+    console.log(`[${requestId}] Processing audio file: ${audioFile?.name}, language: ${language.toUpperCase()}, model: ${model}`);
+    console.log(`[${requestId}] Language-optimized settings: ${language === 'en' ? 'English medical mode' : 'Arabic medical mode'}`);
     
     if (!audioFile) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
@@ -67,7 +73,7 @@ export async function POST(request: NextRequest) {
       const whisperResult = await groqTranscriber.transcribe(audioFile, {
         language: language as 'ar' | 'en',
         model: model as 'whisper-large-v3' | 'whisper-large-v3-turbo',
-        temperature: 0.0 // Deterministic for medical accuracy
+        temperature: language === 'en' ? 0.1 : 0.0 // Slightly higher temperature for English for better medical terminology
       });
       
       const rawTranscript = whisperResult.text;

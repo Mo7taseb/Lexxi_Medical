@@ -3,6 +3,16 @@
 
 @import "tailwindcss";
 
+@theme {
+  --color-medical-blue: #0066cc;
+  --color-medical-green: #00a86b;
+  --color-medical-red: #dc2626;
+  --color-medical-amber: #f59e0b;
+
+  --font-family-inter: 'Inter', system-ui, sans-serif;
+  --font-family-cairo: 'Cairo', system-ui, sans-serif;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #1f2937;
@@ -53,6 +63,105 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Language-specific text direction and number formatting */
+[dir="ltr"] {
+  text-align: left;
+  direction: ltr;
+}
+
+[dir="rtl"] {
+  text-align: right;
+  direction: rtl;
+}
+
+/* Force LTR for numbers in English content */
+[dir="ltr"] .medical-note-content {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed;
+}
+
+[dir="ltr"] .medical-note-content ol,
+[dir="ltr"] .medical-note-content ul {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+[dir="ltr"] .medical-note-content ol li,
+[dir="ltr"] .medical-note-content ul li {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed;
+}
+
+/* Ensure numbers display correctly in LTR - force positioning */
+[dir="ltr"] .medical-note-content .number-prefix {
+  direction: ltr !important;
+  display: inline-block !important;
+  unicode-bidi: embed;
+  text-align: left !important;
+  float: none !important;
+}
+
+/* Force LTR for any numbered content in English */
+[dir="ltr"] .medical-note-content div {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/* Force proper paragraph and text formatting */
+[dir="ltr"] .medical-note-content p {
+  direction: ltr !important;
+  text-align: left !important;
+  margin: 8px 0 !important;
+  line-height: 1.6 !important;
+}
+
+/* Medical header styling */
+.medical-header strong {
+  display: block !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  background: #f8fafc !important;
+  border-left: 4px solid #0066cc !important;
+  padding: 8px 0 8px 12px !important;
+  margin: 16px 0 8px 0 !important;
+}
+
+/* Enhanced medical content formatting */
+[dir="ltr"] .medical-note-content {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  line-height: 1.7 !important;
+  color: #374151 !important;
+}
+
+/* Override any RTL styling for English numbered lists */
+[dir="ltr"] .medical-note-content span[class*="number"] {
+  direction: ltr !important;
+  text-align: left !important;
+  order: -1 !important;
+}
+
+/* Arabic/RTL specific formatting */
+[dir="rtl"] .medical-note-content {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: embed;
+}
+
+[dir="rtl"] .medical-note-content ol,
+[dir="rtl"] .medical-note-content ul {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .medical-note-content ol li,
+[dir="rtl"] .medical-note-content ul li {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: embed;
 }
 
 /* Arabic language support */

@@ -17,6 +17,7 @@ export default function Home() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<'ar' | 'en'>('ar'); // Add language state
   const [noteType, setNoteType] = useState<string>('soap');
   const [generatedNote, setGeneratedNote] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -41,6 +42,11 @@ export default function Home() {
     setCurrentStep(4);
   };
 
+  const handleLanguageDetected = (language: 'ar' | 'en') => {
+    setSelectedLanguage(language);
+    console.log(`🌍 Language detected in main page: ${language.toUpperCase()}`);
+  };
+
   const handleNoteTypeSelect = (type: string) => {
     setNoteType(type);
     setCurrentStep(5);
@@ -49,15 +55,21 @@ export default function Home() {
   const handleGenerateNote = async () => {
     setIsProcessing(true);
     try {
+      console.log(`🏥 Generating note with language: ${selectedLanguage.toUpperCase()}`);
       const response = await fetch('/api/generate-note', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript, noteType }),
+        body: JSON.stringify({
+          transcript,
+          noteType,
+          language: selectedLanguage
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to generate note');
 
       const data = await response.json();
+      console.log(`✅ Note generated from ${data.source} with confidence: ${data.confidence}`);
       setGeneratedNote(data.note);
     } catch (error) {
       console.error('Error generating note:', error);
@@ -93,16 +105,16 @@ export default function Home() {
               {/* Logo */}
               <div className="relative group">
                 <div className="absolute inset-0 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"
-                   />
-                  <Image
-                    src="/logo.png"
-                    alt="Lexxi Medical Logo"
-                    width={230}
-                    height={30}
-                    className="rounded-xl object-contain bg-transparent drop-shadow-md"
-                    priority
-                  />
-                
+                />
+                <Image
+                  src="/logo.png"
+                  alt="Lexxi Medical Logo"
+                  width={230}
+                  height={30}
+                  className="rounded-xl object-contain bg-transparent drop-shadow-md"
+                  priority
+                />
+
               </div>
 
               {/* Brand Text */}
@@ -368,6 +380,7 @@ export default function Home() {
                 <TranscriptionViewer
                   audioFile={audioFile}
                   onComplete={handleTranscriptionComplete}
+                  onLanguageDetected={handleLanguageDetected}
                 />
               </Suspense>
             </div>
@@ -394,6 +407,7 @@ export default function Home() {
                   noteType={noteType}
                   generatedNote={generatedNote}
                   isProcessing={isProcessing}
+                  language={selectedLanguage}
                   onGenerate={handleGenerateNote}
                   onReset={resetApp}
                 />
