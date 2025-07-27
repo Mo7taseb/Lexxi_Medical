@@ -22,7 +22,7 @@ export class SmartLLMRouter {
 
     // Try cloud services first (faster)
     try {
-      if (this.groqApiKey && this.groqApiKey !== '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') {
+      if (this.groqApiKey && this.groqApiKey.length > 10) {
         const result = await this.enhanceWithGroq(transcript, language);
         console.log('✅ Enhanced with Groq');
         return { text: result, source: 'groq', confidence: 0.9 };
@@ -33,7 +33,7 @@ export class SmartLLMRouter {
 
     // Try Hugging Face
     try {
-      if (this.hfApiKey && this.hfApiKey !== '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') {
+      if (this.hfApiKey && this.hfApiKey.length > 10) {
         const result = await this.enhanceWithHuggingFace(transcript, language);
         console.log('✅ Enhanced with Hugging Face');
         return { text: result, source: 'huggingface', confidence: 0.8 };
@@ -68,7 +68,7 @@ export class SmartLLMRouter {
 
     // Try cloud services first
     try {
-      if (this.groqApiKey && this.groqApiKey !== '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') {
+      if (this.groqApiKey && this.groqApiKey.length > 10) {
         const result = await this.generateNoteWithGroq(transcript, noteType, language);
         console.log('✅ Generated note with Groq');
         return { text: result, source: 'groq', confidence: 0.9 };

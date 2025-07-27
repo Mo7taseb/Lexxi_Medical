@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
   const requestId = Date.now().toString();
   console.log(`[${requestId}] New Groq Whisper transcription request received`);
   
+  let transcriptionKey = '';
+  
   try {
     const formData = await request.formData();
     const audioFile = formData.get('audio') as File;
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
     const model = formData.get('model') as string || 'whisper-large-v3-turbo'; // Support model selection
     
     // Create unique key to prevent duplicates
-    const transcriptionKey = `${audioFile?.size}_${audioFile?.type}_${language}_${model}`;
+    transcriptionKey = `${audioFile?.size}_${audioFile?.type}_${language}_${model}`;
     
     // Block duplicate requests
     if (ongoingTranscriptions.has(transcriptionKey)) {
@@ -127,16 +129,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error(`[${requestId}] Transcription error:`, error);
     
-    // Always clean up on any error
-    try {
-      const formData = await request.formData();
-      const audioFile = formData.get('audio') as File;
-      const language = formData.get('language') as string || 'ar';
-      const model = formData.get('model') as string || 'whisper-large-v3-turbo';
-      const transcriptionKey = `${audioFile?.size}_${audioFile?.type}_${language}_${model}`;
+    // Clean up on any error using the already extracted transcriptionKey
+    if (transcriptionKey) {
       ongoingTranscriptions.delete(transcriptionKey);
-    } catch (cleanupError) {
-      console.log('Error during cleanup:', cleanupError);
+      console.log(`[${requestId}] Cleaned up transcription key: ${transcriptionKey}`);
     }
     
     return NextResponse.json(

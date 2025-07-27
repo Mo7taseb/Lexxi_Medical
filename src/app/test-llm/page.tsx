@@ -69,14 +69,14 @@ export default function TestPage() {
                                 <ul className="list-disc ml-6 space-y-1">
                                     <li>Visit: <a href="https://console.groq.com/keys" className="text-blue-600 underline">console.groq.com/keys</a></li>
                                     <li>Free tier: 6,000 tokens/minute</li>
-                                    <li>Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded">GROQ_API_KEY=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</code></li>
+                                    <li>Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded">GROQ_API_KEY=your_actual_groq_api_key</code></li>
                                 </ul>
 
                                 <p className="mb-2 mt-4"><strong>Hugging Face (Backup):</strong></p>
                                 <ul className="list-disc ml-6 space-y-1">
                                     <li>Visit: <a href="https://huggingface.co/settings/tokens" className="text-blue-600 underline">huggingface.co/settings/tokens</a></li>
                                     <li>Free tier: 1,000 requests/month</li>
-                                    <li>Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded">HUGGINGFACE_API_KEY=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</code></li>
+                                    <li>Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded">HUGGINGFACE_API_KEY=your_actual_hf_token</code></li>
                                 </ul>
                             </div>
                         </div>

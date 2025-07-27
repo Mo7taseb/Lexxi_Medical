@@ -23,8 +23,8 @@ export class GroqWhisperTranscriber {
 
   constructor() {
     this.apiKey = process.env.GROQ_API_KEY || '';
-    if (!this.apiKey || this.apiKey === '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') {
-      throw new Error('Valid GROQ_API_KEY is required');
+    if (!this.apiKey) {
+      throw new Error('GROQ_API_KEY environment variable is required');
     }
   }
 
@@ -170,7 +170,7 @@ export class GroqWhisperTranscriber {
    * Check if Groq API is available and configured
    */
   isAvailable(): boolean {
-    return !!(this.apiKey && this.apiKey !== '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' && this.apiKey.length > 10);
+    return !!(this.apiKey && this.apiKey.length > 10);
   }
 
   /**
