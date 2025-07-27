@@ -116,18 +116,6 @@ export default function Home() {
                 />
 
               </div>
-
-              {/* Brand Text */}
-              <div className="text-center">
-                <h1 className="text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent mb-1"
-                  style={{ backgroundImage: `linear-gradient(to right, #0f3143, #3e74c9, #276192)` }}>
-                  Lexxi Medical
-                </h1>
-                <div className="flex items-center justify-center gap-2 text-sm" style={{ color: '#276192' }}>
-                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#85cef7' }} />
-                  <span className="font-medium">Medical AI Assistant</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -138,25 +126,26 @@ export default function Home() {
         <div className="text-center mb-12">
           <div className="mb-8">
             <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#0f3143' }}>
-              تحويل الأصوات الطبية إلى تقارير احترافية
+              تحويل الأصوات الطبية إلى تقارير احترافية باستخدام الذكاء الاصطناعي
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              نظام ذكي متطور يحول محادثاتك الطبية إلى تقارير منظمة ودقيقة باستخدام أحدث تقنيات الذكاء الاصطناعي
-            </p>
           </div>
 
           <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#85cef7' }}></div>
               <span>Arabic Support</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#85cef7' }}></div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#3e74c9' }}></div>
-              <span>HIPAA Compliant</span>
+              <span>SeHE Compliant</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#6f91c7ff' }}></div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#6cb7e8' }}></div>
+              <span>PDPL Compliant</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4f78b9ff' }}></div>
+            </div>
+            <div className="flex items-center gap-2">
               <span>Real-time Processing</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#0c4a74ff' }}></div>
             </div>
           </div>
         </div>
