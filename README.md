@@ -199,6 +199,38 @@ npm start
 
 This project is for educational and prototype purposes. Please ensure compliance with healthcare regulations (HIPAA, etc.) before using in production.
 
+## 📁 Project Structure
+
+```
+lexxi/
+├── docs/                          # Documentation
+│   ├── GROQ_WHISPER_GUIDE.md     # Groq Whisper integration guide
+│   ├── LLM_INTEGRATION_GUIDE.md  # LLM setup and integration
+│   └── README.md                  # Documentation index
+├── scripts/                       # Utility scripts
+│   ├── generate-favicons.ps1     # Favicon generation script
+│   ├── setup-llm.bat            # LLM setup script
+│   └── README.md                 # Scripts documentation
+├── test-assets/                   # Test audio files
+│   ├── ar2.mp3                   # Arabic test audio
+│   ├── en.mp3                    # English test audio
+│   ├── mix1.mp3                  # Mixed language audio
+│   ├── consultation-voice-note.mp3 # Medical consultation
+│   └── README.md                 # Test assets documentation
+├── public/                        # Static assets
+│   ├── emblem.png                # Main logo/emblem
+│   ├── logo.png                  # Alternative logo
+│   └── favicon_io/               # Favicon files
+├── src/                          # Source code
+│   ├── app/                      # Next.js app directory
+│   ├── components/               # React components
+│   └── utils/                    # Utility functions
+├── package.json                  # Dependencies
+├── next.config.ts               # Next.js configuration
+├── tailwind.config.js           # Tailwind CSS config
+└── README.md                    # This file
+```
+
 ## 🆘 Support
 
 For issues and questions:
