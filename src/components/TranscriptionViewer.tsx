@@ -402,15 +402,15 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
             {/* Rest of the UI - Only show after language selection */}
             {!showLanguageSelection && (
                 <>
-                    {/* Language Selection */}
+                    {/* Language Selection - Mobile responsive */}
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {language === 'ar' ? 'اختر لغة التفريغ' : 'Select Transcription Language'}
                         </label>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                             <button
                                 onClick={() => setLanguage('ar')}
-                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${language === 'ar'
+                                className={`px-4 py-3 sm:py-2 rounded-lg font-medium transition-colors ${language === 'ar'
                                     ? 'bg-blue-600 text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }`}
@@ -419,7 +419,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                             </button>
                             <button
                                 onClick={() => setLanguage('en')}
-                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${language === 'en'
+                                className={`px-4 py-3 sm:py-2 rounded-lg font-medium transition-colors ${language === 'en'
                                     ? 'bg-blue-600 text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }`}
@@ -429,17 +429,17 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                         </div>
                     </div>
 
-                    {/* Transcription Info */}
-                    <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div className="flex items-center gap-2">
-                            <span className="text-blue-600 text-lg">☁️</span>
-                            <div>
+                    {/* Transcription Info - Mobile responsive */}
+                    <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                        <div className="flex items-start sm:items-center gap-2 sm:gap-2">
+                            <span className="text-blue-600 text-lg flex-shrink-0">☁️</span>
+                            <div className="min-w-0 flex-1">
                                 <p className="text-sm font-medium text-blue-800">
                                     {language === 'ar'
                                         ? 'تفريغ سحابي بتقنية Groq Whisper'
                                         : 'Cloud Transcription with Groq Whisper'}
                                 </p>
-                                <p className="text-xs text-blue-600">
+                                <p className="text-xs text-blue-600 mt-1">
                                     {language === 'ar'
                                         ? 'سرعة فائقة (5-15 ثانية) مع تصحيح المصطلحات الطبية العربية'
                                         : 'Ultra-fast (5-15 seconds) with medical terminology correction'}
@@ -448,12 +448,12 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                         </div>
                     </div>
 
-                    {/* Audio Info */}
-                    <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                        <div className="flex items-center gap-3">
-                            <Volume2 className="h-5 w-5 text-gray-600" />
-                            <div>
-                                <p className="text-sm text-gray-700">اسم الملف: {audioFile.name}</p>
+                    {/* Audio Info - Mobile responsive */}
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-6">
+                        <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+                            <Volume2 className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5 sm:mt-0" />
+                            <div className="min-w-0 flex-1">
+                                <p className="text-sm text-gray-700 truncate">اسم الملف: {audioFile.name}</p>
                                 <p className="text-sm text-gray-500">الحجم: {(audioFile.size / 1024 / 1024).toFixed(2)} MB</p>
                             </div>
                         </div>
@@ -661,32 +661,32 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                                 </div>
                             )}
 
-                            {/* Transcript Statistics */}
+                            {/* Transcript Statistics - Mobile responsive */}
                             <div className="mt-4 p-3 bg-gray-100 rounded-lg border">
-                                <div className="flex justify-between text-sm text-gray-700 font-medium">
-                                    <span>عدد الكلمات: {transcript.split(/\s+/).filter(word => word.trim()).length}</span>
-                                    <span>عدد الأحرف: {transcript.length}</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700 font-medium">
+                                    <span className="truncate">عدد الكلمات: {transcript.split(/\s+/).filter(word => word.trim()).length}</span>
+                                    <span className="truncate">عدد الأحرف: {transcript.length}</span>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Action Buttons */}
+                    {/* Action Buttons - Mobile responsive */}
                     {transcript && !isTranscribing && !isEditing && (
-                        <div className="flex justify-between">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-between">
                             <button
                                 onClick={() => {
                                     console.log(`🔄 Re-transcribing with language: ${language.toUpperCase()}`);
                                     transcribeAudioWithLanguage(language);
                                 }}
-                                className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+                                className="bg-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors order-2 sm:order-1"
                             >
                                 إعادة التفريغ
                             </button>
 
                             <button
                                 onClick={handleComplete}
-                                className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                                className="bg-blue-600 text-white px-4 sm:px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors order-1 sm:order-2"
                             >
                                 {language === 'ar' ? 'متابعة إلى اختيار نوع التقرير' : 'Continue to Note Type Selection'}
                             </button>

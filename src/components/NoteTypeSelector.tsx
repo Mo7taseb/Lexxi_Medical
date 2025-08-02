@@ -78,45 +78,45 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        <div className="max-w-5xl mx-auto">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center px-2">
                 اختر نوع التقرير الطبي
             </h2>
 
-            <p className="text-gray-600 text-center mb-8">
+            <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-base px-2">
                 اختر نوع التقرير الذي تريد إنشاءه من النص المفرغ
             </p>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
                 {noteTypes.map((noteType) => (
                     <div
                         key={noteType.id}
-                        className={`p-6 border-2 rounded-lg cursor-pointer transition-all hover:shadow-lg ${selectedType === noteType.id
-                                ? `${noteType.bgColor} border-current`
-                                : 'bg-white border-gray-200 hover:border-gray-300'
+                        className={`p-4 sm:p-6 border-2 rounded-lg sm:rounded-xl cursor-pointer transition-all hover:shadow-lg ${selectedType === noteType.id
+                            ? `${noteType.bgColor} border-current`
+                            : 'bg-white border-gray-200 hover:border-gray-300'
                             }`}
                         onClick={() => handleSelect(noteType.id)}
                     >
                         <div className="text-center">
-                            <div className={`w-16 h-16 rounded-full ${noteType.bgColor} flex items-center justify-center mx-auto mb-4`}>
-                                <noteType.icon className={`h-8 w-8 ${noteType.color}`} />
+                            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ${noteType.bgColor} flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
+                                <noteType.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${noteType.color}`} />
                             </div>
 
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 px-1">
                                 {noteType.title}
                             </h3>
 
-                            <p className="text-sm text-gray-500 mb-2">
+                            <p className="text-xs sm:text-sm text-gray-500 mb-2">
                                 {noteType.titleEn}
                             </p>
 
-                            <p className="text-sm text-gray-600 mb-4">
+                            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed px-1">
                                 {noteType.description}
                             </p>
 
-                            <div className="bg-gray-50 rounded-lg p-3 text-right">
+                            <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-right">
                                 <p className="text-xs text-gray-500 mb-1">مثال:</p>
-                                <p className="text-xs text-gray-700 whitespace-pre-line">
+                                <p className="text-xs text-gray-700 whitespace-pre-line leading-relaxed">
                                     {noteType.example}
                                 </p>
                             </div>
@@ -125,26 +125,26 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
                 ))}
             </div>
 
-            {/* Selected Note Details */}
+            {/* Selected Note Details - Mobile optimized */}
             {selectedType && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <ChevronRight className="h-5 w-5 text-blue-600" />
+                <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                             التقرير المختار: {noteTypes.find(type => type.id === selectedType)?.title}
                         </h3>
                     </div>
 
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-sm text-blue-800 mb-2">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                        <p className="text-xs sm:text-sm text-blue-800 mb-2">
                             <strong>الوصف:</strong> {noteTypes.find(type => type.id === selectedType)?.description}
                         </p>
 
-                        <div className="bg-white rounded-lg p-3 mt-3">
+                        <div className="bg-white rounded-lg p-2 sm:p-3 mt-2 sm:mt-3">
                             <p className="text-xs text-gray-500 mb-2">هيكل التقرير:</p>
-                            <p className="text-sm text-gray-700 whitespace-pre-line">
+                            <p className="text-xs sm:text-sm text-gray-700 whitespace-pre-line leading-relaxed">
                                 {noteTypes.find(type => type.id === selectedType)?.example}
                             </p>
                         </div>
@@ -152,12 +152,12 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
                 </div>
             )}
 
-            {/* Continue Button */}
+            {/* Continue Button - Mobile optimized */}
             <div className="text-center">
                 <button
                     onClick={() => handleSelect(selectedType)}
                     disabled={!selectedType}
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg sm:rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors w-full sm:w-auto text-sm sm:text-base"
                 >
                     متابعة إلى إنشاء التقرير
                 </button>

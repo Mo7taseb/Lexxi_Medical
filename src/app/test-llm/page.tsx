@@ -4,34 +4,34 @@ import Image from 'next/image';
 export default function TestPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50">
-            {/* Compact Modern Header with Large Logo */}
+            {/* Compact Modern Header with Large Logo - Mobile Optimized */}
             <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/30 border-b border-white/20 shadow-lg shadow-black/5">
-                <div className="container mx-auto py-3">
-                    <div className="flex items-center justify-center gap-4">
+                <div className="container mx-auto py-2 sm:py-3 px-3 sm:px-4">
+                    <div className="flex items-center justify-center gap-3 sm:gap-4">
                         {/* Large Logo - Compact Container */}
                         <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-2xl blur-md scale-105 opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative bg-white/40 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-white/50">
+                            <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-xl sm:rounded-2xl blur-md scale-105 opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative bg-white/40 backdrop-blur-sm p-1.5 sm:p-2 rounded-xl sm:rounded-2xl shadow-lg border border-white/50">
                                 <Image
                                     src="/Logo.png"
                                     alt="Lexxi Medical Logo"
-                                    width={160}
-                                    height={160}
-                                    className="rounded-xl object-contain bg-transparent drop-shadow-lg"
+                                    width={120}
+                                    height={120}
+                                    className="sm:w-[140px] sm:h-[140px] lg:w-[160px] lg:h-[160px] rounded-lg sm:rounded-xl object-contain bg-transparent drop-shadow-lg"
                                     priority
                                 />
                                 {/* Subtle glow effect */}
-                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-teal-400/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-teal-400/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                         </div>
 
-                        {/* Compact Branding */}
+                        {/* Compact Branding - Mobile responsive */}
                         <div className="text-left">
-                            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-800 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
                                 Lexxi Medical
                             </h1>
-                            <p className="text-sm text-teal-600 font-medium">LLM Integration Testing</p>
-                            <div className="flex items-center gap-1 mt-1">
+                            <p className="text-xs sm:text-sm text-teal-600 font-medium">LLM Integration Testing</p>
+                            <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
                                 <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></div>
                                 <span className="text-xs text-gray-500">70B Models Ready</span>
                             </div>
@@ -40,17 +40,17 @@ export default function TestPage() {
                 </div>
             </div>
 
-            <div className="container mx-auto py-12 px-6">
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium mb-6">
+            <div className="container mx-auto py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
+                <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                         Testing Environment • Groq 70B Models
                     </div>
 
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
                         Test AI Enhancement Capabilities
                     </h2>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-2">
                         Test our powerful 70B parameter Groq models for enhanced Arabic medical transcription
                         and professional medical note generation.
                     </p>
@@ -58,35 +58,35 @@ export default function TestPage() {
 
                 <LLMTester />
 
-                <div className="mt-12 bg-white rounded-lg shadow-lg p-6">
-                    <h2 className="text-2xl font-bold mb-4">🔧 Setup Instructions</h2>
+                <div className="mt-8 sm:mt-10 lg:mt-12 bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-6">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">🔧 Setup Instructions</h2>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         <div>
-                            <h3 className="text-lg font-semibold mb-2">1. Free Cloud LLMs (Recommended)</h3>
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                                <p className="mb-2"><strong>Groq (Primary):</strong></p>
-                                <ul className="list-disc ml-6 space-y-1">
+                            <h3 className="text-base sm:text-lg font-semibold mb-2">1. Free Cloud LLMs (Recommended)</h3>
+                            <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                                <p className="mb-2 text-sm sm:text-base"><strong>Groq (Primary):</strong></p>
+                                <ul className="list-disc ml-4 sm:ml-6 space-y-1 text-sm sm:text-base">
                                     <li>Visit: <a href="https://console.groq.com/keys" className="text-blue-600 underline">console.groq.com/keys</a></li>
                                     <li>Free tier: 6,000 tokens/minute</li>
-                                    <li>Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded">GROQ_API_KEY=your_actual_groq_api_key</code></li>
+                                    <li className="break-all">Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded text-xs sm:text-sm">GROQ_API_KEY=your_actual_groq_api_key</code></li>
                                 </ul>
 
-                                <p className="mb-2 mt-4"><strong>Hugging Face (Backup):</strong></p>
-                                <ul className="list-disc ml-6 space-y-1">
+                                <p className="mb-2 mt-3 sm:mt-4 text-sm sm:text-base"><strong>Hugging Face (Backup):</strong></p>
+                                <ul className="list-disc ml-4 sm:ml-6 space-y-1 text-sm sm:text-base">
                                     <li>Visit: <a href="https://huggingface.co/settings/tokens" className="text-blue-600 underline">huggingface.co/settings/tokens</a></li>
                                     <li>Free tier: 1,000 requests/month</li>
-                                    <li>Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded">HUGGINGFACE_API_KEY=your_actual_hf_token</code></li>
+                                    <li className="break-all">Add to .env.local: <code className="bg-gray-200 px-2 py-1 rounded text-xs sm:text-sm">HUGGINGFACE_API_KEY=your_actual_hf_token</code></li>
                                 </ul>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold mb-2">2. Local LLM Setup (Optional)</h3>
-                            <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="mb-2"><strong>Ollama Installation:</strong></p>
-                                <ul className="list-disc ml-6 space-y-1">
-                                    <li>Run: <code className="bg-gray-200 px-2 py-1 rounded">setup-llm.bat</code></li>
+                            <h3 className="text-base sm:text-lg font-semibold mb-2">2. Local LLM Setup (Optional)</h3>
+                            <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
+                                <p className="mb-2 text-sm sm:text-base"><strong>Ollama Installation:</strong></p>
+                                <ul className="list-disc ml-4 sm:ml-6 space-y-1 text-sm sm:text-base">
+                                    <li>Run: <code className="bg-gray-200 px-2 py-1 rounded text-xs sm:text-sm">setup-llm.bat</code></li>
                                     <li>Or manually install from: <a href="https://ollama.ai" className="text-blue-600 underline">ollama.ai</a></li>
                                     <li>Models will be downloaded automatically (~7GB total)</li>
                                     <li>Provides offline privacy and unlimited usage</li>
@@ -95,9 +95,9 @@ export default function TestPage() {
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold mb-2">3. System Requirements</h3>
-                            <div className="bg-yellow-50 p-4 rounded-lg">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <h3 className="text-base sm:text-lg font-semibold mb-2">3. System Requirements</h3>
+                            <div className="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                                     <div>
                                         <p className="font-medium">Your Hardware:</p>
                                         <ul className="list-disc ml-6 space-y-1">

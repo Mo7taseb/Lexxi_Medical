@@ -16,14 +16,22 @@ export const metadata: Metadata = {
   title: "Lexxi Medical - AI Medical Transcription System",
   description: "Advanced voice-to-medical-note system with Arabic support and AI enhancement",
   manifest: '/favicon_io/site.webmanifest',
-  themeColor: '#2563eb',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover',
 
-  // iOS PWA Configuration
+  // Mobile viewport optimization
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover'
+  },
+
+  // PWA Configuration
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Lexxi Medical',
+    startupImage: '/favicon_io/apple-touch-icon.png'
   },
 
   icons: {
@@ -39,15 +47,18 @@ export const metadata: Metadata = {
     ]
   },
 
-  // Additional PWA meta tags
+  // Mobile and PWA meta tags
   other: {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
     'apple-mobile-web-app-title': 'Lexxi Medical',
     'mobile-web-app-capable': 'yes',
     'application-name': 'Lexxi Medical',
+    'theme-color': '#2563eb',
     'msapplication-TileColor': '#2563eb',
     'format-detection': 'telephone=no',
+    'HandheldFriendly': 'true',
+    'MobileOptimized': 'width'
   }
 };
 

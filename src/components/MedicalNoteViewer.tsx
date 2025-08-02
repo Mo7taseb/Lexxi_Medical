@@ -197,65 +197,65 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-6">
-                <h2 className={`text-2xl font-bold text-gray-800 mb-2 ${isEnglish ? 'text-left' : 'text-right'}`}>
+        <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-4 sm:mb-6">
+                <h2 className={`text-xl sm:text-2xl font-bold text-gray-800 mb-2 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>
                     {(t.noteTypeNames as any)[noteType] || (isEnglish ? 'Medical Report' : 'التقرير الطبي')}
                 </h2>
                 {/* Note type description */}
                 {(t as any).noteTypeDescriptions && (t as any).noteTypeDescriptions[noteType] && (
-                    <p className={`text-sm text-gray-600 ${isEnglish ? 'text-left' : 'text-right'}`}>
+                    <p className={`text-xs sm:text-sm text-gray-600 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>
                         {(t as any).noteTypeDescriptions[noteType]}
                     </p>
                 )}
             </div>
 
-            {/* Original Transcript Preview */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <h3 className={`text-lg font-semibold text-gray-800 mb-3 ${isEnglish ? 'text-left' : 'text-right'}`}>
+            {/* Original Transcript Preview - Mobile optimized */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+                <h3 className={`text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 ${isEnglish ? 'text-left' : 'text-right'}`}>
                     {t.originalText}
                 </h3>
-                <div className="bg-white rounded-lg p-4 max-h-40 overflow-y-auto">
-                    <p className={`text-sm text-gray-700 whitespace-pre-wrap ${isEnglish ? 'text-left' : 'text-right'}`}
+                <div className="bg-white rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
+                    <p className={`text-xs sm:text-sm text-gray-700 whitespace-pre-wrap ${isEnglish ? 'text-left' : 'text-right'}`}
                         dir={isEnglish ? 'ltr' : 'rtl'}>
                         {transcript}
                     </p>
                 </div>
             </div>
 
-            {/* Generate Note Button */}
+            {/* Generate Note Button - Mobile responsive */}
             {!generatedNote && !isProcessing && (
-                <div className="text-center mb-6">
+                <div className="text-center mb-4 sm:mb-6">
                     <button
                         onClick={onGenerate}
-                        className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+                        className="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg sm:rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto w-full sm:w-auto text-sm sm:text-base"
                         dir={isEnglish ? 'ltr' : 'rtl'}
                     >
-                        <FileText className="h-5 w-5" />
+                        <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                         {t.generateReport}
                     </button>
                 </div>
             )}
 
-            {/* Loading State */}
+            {/* Loading State - Mobile optimized */}
             {isProcessing && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center mb-6">
-                    <Loader2 className="h-12 w-12 text-blue-600 mx-auto mb-4 animate-spin" />
-                    <h3 className="text-lg font-semibold text-blue-800 mb-2">{t.generating}</h3>
-                    <p className="text-blue-600 mb-3">{t.generatingDesc}</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6 lg:p-8 text-center mb-4 sm:mb-6">
+                    <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-3 sm:mb-4 animate-spin" />
+                    <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-2">{t.generating}</h3>
+                    <p className="text-blue-600 mb-3 text-sm sm:text-base px-2">{t.generatingDesc}</p>
 
-                    {/* English-specific loading indicators */}
+                    {/* English-specific loading indicators - Mobile responsive */}
                     {isEnglish && (
-                        <div className="mt-4 space-y-2">
-                            <div className="text-sm text-blue-600 flex items-center justify-center gap-2">
+                        <div className="mt-3 sm:mt-4 space-y-2">
+                            <div className="text-xs sm:text-sm text-blue-600 flex items-center justify-center gap-2">
                                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
                                 <span>Applying medical terminology corrections...</span>
                             </div>
-                            <div className="text-sm text-blue-600 flex items-center justify-center gap-2">
+                            <div className="text-xs sm:text-sm text-blue-600 flex items-center justify-center gap-2">
                                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                                 <span>Formatting professional medical structure...</span>
                             </div>
-                            <div className="text-sm text-blue-600 flex items-center justify-center gap-2">
+                            <div className="text-xs sm:text-sm text-blue-600 flex items-center justify-center gap-2">
                                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                 <span>Ensuring clinical accuracy...</span>
                             </div>
@@ -264,89 +264,94 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 </div>
             )}
 
-            {/* Generated Note Display */}
+            {/* Generated Note Display - Mobile optimized */}
             {generatedNote && !isProcessing && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                    <div className={`flex items-center justify-between mb-4 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
+                <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+                    {/* Header with title and action buttons - Mobile responsive */}
+                    <div className={`flex flex-col gap-3 sm:gap-4 mb-4 ${isEnglish ? 'sm:flex-row sm:items-center sm:justify-between' : 'sm:flex-row-reverse sm:items-center sm:justify-between'}`}>
+                        {/* Title section */}
                         <div className={`flex items-center gap-2 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
-                            <CheckCircle className="h-6 w-6 text-green-600" />
-                            <h3 className="text-lg font-semibold text-gray-800">
+                            <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
                                 {(t.noteTypeNames as any)[noteType] || noteType} - {t.reportGenerated}
                             </h3>
                         </div>
 
-                        <div className={`flex gap-2 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
+                        {/* Action buttons - Mobile stacked, desktop horizontal */}
+                        <div className={`flex flex-col sm:flex-row gap-2 sm:gap-2 ${isEnglish ? 'sm:flex-row' : 'sm:flex-row-reverse'}`}>
                             {!isEditing && (
                                 <button
                                     onClick={handleEdit}
-                                    className="bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center gap-2"
+                                    className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
                                 >
-                                    <Edit3 className="h-4 w-4" />
-                                    {t.edit}
+                                    <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="truncate">{t.edit}</span>
                                 </button>
                             )}
 
                             <button
                                 onClick={handleCopy}
-                                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${copySuccess
+                                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base ${copySuccess
                                     ? 'bg-green-600 text-white'
                                     : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
-                                <Copy className="h-4 w-4" />
-                                {copySuccess ? t.copied : t.copy}
+                                <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="truncate">{copySuccess ? t.copied : t.copy}</span>
                             </button>
 
                             <button
                                 onClick={handleDownload}
-                                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+                                className="bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
                             >
-                                <Download className="h-4 w-4" />
-                                {t.download}
+                                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="truncate">{t.download}</span>
                             </button>
                         </div>
                     </div>
 
                     {isEditing ? (
                         <div>
+                            {/* Mobile-optimized textarea for editing */}
                             <textarea
                                 value={editedNote}
                                 onChange={(e) => setEditedNote(e.target.value)}
-                                className={`w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white ${isEnglish ? 'text-left' : 'text-right'}`}
+                                className={`w-full h-64 sm:h-96 p-3 sm:p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white text-sm sm:text-base ${isEnglish ? 'text-left' : 'text-right'}`}
                                 placeholder={t.editPlaceholder}
                                 dir={isEnglish ? 'ltr' : 'rtl'}
                                 style={{
                                     color: '#1f2937',
-                                    fontSize: isEnglish ? '15px' : '16px',
-                                    lineHeight: isEnglish ? '1.7' : '1.6',
+                                    fontSize: isEnglish ? '14px' : '15px',
+                                    lineHeight: isEnglish ? '1.6' : '1.5',
                                     fontFamily: isEnglish ? 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' : 'Cairo, sans-serif',
-                                    letterSpacing: isEnglish ? '0.3px' : 'normal',
+                                    letterSpacing: isEnglish ? '0.2px' : 'normal',
                                     unicodeBidi: isEnglish ? 'embed' : 'normal',
                                     textAlign: isEnglish ? 'left' : 'right'
                                 }}
                             />
 
-                            {/* English editing helper */}
+                            {/* English editing helper - Mobile responsive */}
                             {isEnglish && isEditing && (
-                                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                                <div className="mt-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded text-xs sm:text-sm text-blue-700">
                                     💡 Tip: Use **bold** for section headers and • for bullet points. Medical terminology will be enhanced automatically.
                                 </div>
                             )}
 
-                            <div className={`flex justify-end gap-2 mt-4 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
+                            {/* Editing action buttons - Mobile responsive */}
+                            <div className={`flex flex-col sm:flex-row gap-2 sm:gap-2 mt-4 ${isEnglish ? 'sm:justify-end' : 'sm:justify-end'}`}>
                                 <button
                                     onClick={handleCancel}
-                                    className="bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center gap-2"
+                                    className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
                                 >
-                                    <X className="h-4 w-4" />
-                                    {t.cancel}
+                                    <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="truncate">{t.cancel}</span>
                                 </button>
                                 <button
                                     onClick={handleSave}
-                                    className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
+                                    className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2"
                                 >
-                                    <Save className="h-4 w-4" />
-                                    {t.save}
+                                    <Save className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="truncate">{t.save}</span>
                                 </button>
                             </div>
                         </div>
@@ -378,21 +383,21 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                         </div>
                     )}
 
-                    {/* Note Statistics */}
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                        <div className={`flex justify-between text-sm text-gray-600 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
-                            <span>{t.wordCount}: {(editedNote || generatedNote).split(/\s+/).filter(word => word.trim()).length}</span>
-                            <span>{t.charCount}: {(editedNote || generatedNote).length}</span>
-                            <span>{t.reportType}: {(t.noteTypeNames as any)[noteType] || noteType}</span>
+                    {/* Note Statistics - Mobile responsive */}
+                    <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 ${isEnglish ? '' : 'text-right'}`}>
+                            <span className="truncate">{t.wordCount}: {(editedNote || generatedNote).split(/\s+/).filter(word => word.trim()).length}</span>
+                            <span className="truncate">{t.charCount}: {(editedNote || generatedNote).length}</span>
+                            <span className="truncate">{t.reportType}: {(t.noteTypeNames as any)[noteType] || noteType}</span>
                         </div>
 
-                        {/* English-specific quality indicators */}
+                        {/* English-specific quality indicators - Mobile responsive */}
                         {isEnglish && generatedNote && (
                             <div className="mt-2 pt-2 border-t border-gray-200">
-                                <div className="flex items-center justify-between text-xs text-gray-500">
-                                    <span>✅ Medical terminology enhanced</span>
-                                    <span>✅ Professional formatting applied</span>
-                                    <span>✅ English medical standards</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 text-xs text-gray-500">
+                                    <span className="flex items-center gap-1">✅ Medical terminology enhanced</span>
+                                    <span className="flex items-center gap-1">✅ Professional formatting applied</span>
+                                    <span className="flex items-center gap-1">✅ English medical standards</span>
                                 </div>
                             </div>
                         )}
@@ -400,22 +405,22 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 </div>
             )}
 
-            {/* Action Buttons */}
+            {/* Bottom Action Buttons - Mobile responsive */}
             {generatedNote && !isProcessing && !isEditing && (
-                <div className={`flex justify-between ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
+                <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 ${isEnglish ? 'sm:justify-between' : 'sm:justify-between sm:flex-row-reverse'}`}>
                     <button
                         onClick={onReset}
-                        className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center gap-2"
+                        className="bg-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
                     >
-                        <RotateCcw className="h-5 w-5" />
-                        {t.startNew}
+                        <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="truncate">{t.startNew}</span>
                     </button>
 
                     <button
                         onClick={onGenerate}
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base order-1 sm:order-2"
                     >
-                        {t.regenerate}
+                        <span className="truncate">{t.regenerate}</span>
                     </button>
                 </div>
             )}
