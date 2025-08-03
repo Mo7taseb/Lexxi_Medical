@@ -180,7 +180,7 @@ ${symptoms.length > 0 ? symptoms[0] : 'Medical consultation requested'}
 [To be completed by healthcare provider]
 
 **Home Medications:**
-[To be completed by healthcare provider]
+[List each medication with specific dosage and frequency - to be completed by healthcare provider]
 
 **Allergies:**
 [To be completed by healthcare provider]
@@ -189,15 +189,23 @@ ${symptoms.length > 0 ? symptoms[0] : 'Medical consultation requested'}
 [To be completed by healthcare provider]
 
 **History of Presenting Illness:**
-Patient reports: "${transcript}"
+Patient presents with a narrative history describing their current condition. ${transcript}
 
 **Physical Examination:**
 [To be completed by healthcare provider]
 
 **Investigation:**
 **Lab Work:** [To be ordered as indicated]
-**Imaging:** [To be ordered as indicated]
-**Microbiology:** [To be ordered as indicated]
+**Imaging:** 
+• Date: [To be documented]
+• Type: [To be specified]
+• Site: [To be specified]
+• Result: [To be documented when available]
+**Microbiology:** 
+• Date: [If applicable]
+• Type: [To be specified]
+• Site: [To be specified]
+• Result: [To be documented when available]
 **Others:** [To be ordered as indicated]
 
 **Assessment:**
@@ -227,7 +235,7 @@ ${symptoms.length > 0 ? symptoms[0] : 'طلب استشارة طبية'}
 [يُملأ من قِبل مقدم الرعاية الصحية]
 
 **الأدوية المنزلية:**
-[يُملأ من قِبل مقدم الرعاية الصحية]
+[قائمة بكل دواء مع الجرعة والتكرار المحدد - يُملأ من قِبل مقدم الرعاية الصحية]
 
 **الحساسية:**
 [يُملأ من قِبل مقدم الرعاية الصحية]
@@ -236,15 +244,23 @@ ${symptoms.length > 0 ? symptoms[0] : 'طلب استشارة طبية'}
 [يُملأ من قِبل مقدم الرعاية الصحية]
 
 **تاريخ المرض الحالي:**
-المريض يذكر: "${transcript}"
+يحضر المريض بتاريخ سردي يصف حالته الحالية. ${transcript}
 
 **الفحص البدني:**
 [يُملأ من قِبل مقدم الرعاية الصحية]
 
 **الفحوصات:**
 **الفحوصات المخبرية:** [تُطلب حسب الحاجة]
-**التصوير الطبي:** [يُطلب حسب الحاجة]
-**الفحوصات الميكروبيولوجية:** [تُطلب حسب الحاجة]
+**التصوير الطبي:** 
+• التاريخ: [ليتم توثيقه]
+• النوع: [ليتم تحديده]
+• الموقع: [ليتم تحديده]
+• النتيجة: [ليتم توثيقها عند توفرها]
+**الفحوصات الميكروبيولوجية:** 
+• التاريخ: [إذا كان قابلاً للتطبيق]
+• النوع: [ليتم تحديده]
+• الموقع: [ليتم تحديده]
+• النتيجة: [ليتم توثيقها عند توفرها]
 **أخرى:** [تُطلب حسب الحاجة]
 
 **التقييم:**

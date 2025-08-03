@@ -174,7 +174,7 @@ export default function Home() {
                       <div className="absolute inset-0 rounded-2xl animate-pulse bg-gradient-to-r from-blue-400/20 to-blue-600/20" />
                     )}
                   </div>
-                  
+
                   {/* Step Text */}
                   <div className="flex-1 min-w-0">
                     <h3 className={`text-sm font-bold mb-1 ${currentStep >= step.id ? 'text-blue-700' : 'text-gray-500'
@@ -183,7 +183,7 @@ export default function Home() {
                     </h3>
                     <p className="text-xs text-gray-400 truncate">{step.titleEn}</p>
                   </div>
-                  
+
                   {/* Connection Line for Mobile */}
                   {index < steps.length - 1 && (
                     <div className="absolute right-6 mt-12 w-0.5 h-4 bg-gradient-to-b from-blue-300 to-gray-200 rounded-full" />

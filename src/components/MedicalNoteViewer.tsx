@@ -158,15 +158,37 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 // First, normalize line breaks
                 .replace(/\r\n/g, '\n')
                 .replace(/\r/g, '\n')
+                // Enhanced colon cleaning - remove stray colons from beginning of lines and after line breaks
+                .replace(/^\s*:\s*/gm, '')  // Remove colons at start of lines
+                .replace(/(\n|^)\s*:\s*/g, '$1')  // Remove colons after line breaks
+                .replace(/:\s*([A-Z][^:]*?:)/g, '$1')  // Remove colons before section headers that end with colon
+                .replace(/:\s*(Past medical|Home medications|Social history|Patient identification|History of presenting|Physical examination|Investigation|Assessment|Plan|Date of consultation|Patient location|Reason for consultation|Allergies)/gi, '$1')  // Remove colons before key section titles
                 // Convert text to proper HTML structure with better detection
-                .replace(/(Date of consultation:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Date of consultation?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Patient location:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Patient identification:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
-                .replace(/(Reason for consultation:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Reason for consultation?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Past medical history.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Home medications?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Allergies:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Social history:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(History of presenting illness:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #10b981; padding: 8px 0 8px 12px; background: #f0fdf4;">$1</strong></div>')
                 .replace(/(Physical examination.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
-                .replace(/(Assessment.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
-                .replace(/(Plan.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Investigation:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #7c3aed; padding: 8px 0 8px 12px; background: #faf5ff;">$1</strong></div>')
+                .replace(/(Lab work:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-left: 3px solid #f59e0b; padding: 6px 0 6px 10px; background: #fffbeb;">$1</strong></div>')
+                .replace(/(Imaging:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-left: 3px solid #ef4444; padding: 6px 0 6px 10px; background: #fef2f2;">$1</strong></div>')
+                .replace(/(Microbiology:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-left: 3px solid #06b6d4; padding: 6px 0 6px 10px; background: #f0f9ff;">$1</strong></div>')
+                .replace(/(Others?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-left: 3px solid #8b5cf6; padding: 6px 0 6px 10px; background: #f5f3ff;">$1</strong></div>')
+                .replace(/(Assessment.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #f59e0b; padding: 8px 0 8px 12px; background: #fffbeb;">$1</strong></div>')
+                .replace(/(Plan.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #10b981; padding: 8px 0 8px 12px; background: #f0fdf4;">$1</strong></div>')
+                // Enhanced medication formatting to highlight dosages
+                .replace(/(\w+)\s+(\d+\s*(?:mg|mcg|g|ml|units?|tablets?|capsules?))\s+((?:once|twice|three times|four times|daily|weekly|monthly|as needed|PRN|bid|tid|qid|qd|q\d+h?|every \d+ hours?|every \d+ days?).*?)(?=\n|$|\.)/gi,
+                    '<div style="margin: 6px 0; padding: 6px 8px; background: #fef3c7; border-left: 3px solid #f59e0b; border-radius: 4px; font-size: 13px; word-break: break-word;"><strong style="color: #92400e;">$1</strong> <span style="background: #fed7aa; padding: 2px 4px; border-radius: 3px; font-weight: 600; color: #9a3412; font-size: 12px;">$2</span> <em style="color: #78350f; font-size: 12px;">$3</em></div>')
+                // Enhanced formatting for Date, Type, Site, Result patterns in Imaging and Microbiology
+                .replace(/(Date:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; font-size: 13px;"><strong style="color: #374151;">📅 Date:</strong> <span style="background: #dbeafe; padding: 2px 4px; border-radius: 3px; color: #1e40af; font-size: 12px;">$2</span></div>')
+                .replace(/(Type:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; font-size: 13px;"><strong style="color: #374151;">🔬 Type:</strong> <span style="background: #ecfdf5; padding: 2px 4px; border-radius: 3px; color: #065f46; font-size: 12px;">$2</span></div>')
+                .replace(/(Site:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; font-size: 13px;"><strong style="color: #374151;">📍 Site:</strong> <span style="background: #fef3c7; padding: 2px 4px; border-radius: 3px; color: #92400e; font-size: 12px;">$2</span></div>')
+                .replace(/(Result:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0 12px 0; font-size: 13px;"><strong style="color: #374151;">📋 Result:</strong> <span style="background: #f3e8ff; padding: 2px 4px; border-radius: 3px; color: #6b21a8; font-size: 12px; word-break: break-word;">$2</span></div>')
                 // Format any remaining bold text
                 .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1f2937; font-weight: 600;">$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em style="color: #374151;">$1</em>')
@@ -186,11 +208,40 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             return `<div style="direction: ltr; text-align: left; font-family: 'Inter', sans-serif; color: #374151; line-height: 1.7;"><div style="margin: 12px 0; text-align: left; direction: ltr; line-height: 1.7; color: #374151;">${formatted}</div></div>`;
         }
 
-        // Arabic formatting (existing)
+        // Arabic formatting (enhanced)
         return note
             .replace(/\n/g, '<br>')
+            // Enhanced colon cleaning for Arabic - remove stray colons at the beginning of lines and before section headers
+            .replace(/^\s*:\s*/gm, '')  // Remove colons at start of lines
+            .replace(/(\n|^)\s*:\s*/g, '$1')  // Remove colons after line breaks
+            .replace(/:\s*([تاريخ الاستشارة|سبب الاستشارة|تعريف المريض|التاريخ المرضي السابق|أدوية المنزل|الحساسية|التاريخ الاجتماعي|تاريخ المرض الحالي|الفحص البدني|الفحوصات|التقييم|الخطة])/gi, '$1')  // Remove colons before Arabic section titles
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            // Enhanced Arabic section headers
+            .replace(/(تاريخ الاستشارة:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(سبب الاستشارة:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(تعريف المريض:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(التاريخ المرضي السابق.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(أدوية المنزل:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(الحساسية:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(التاريخ الاجتماعي:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(تاريخ المرض الحالي:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #10b981; padding: 8px 12px 8px 0; background: #f0fdf4; text-align: right;">$1</strong></div>')
+            .replace(/(الفحص البدني.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #0066cc; padding: 8px 12px 8px 0; background: #f8fafc; text-align: right;">$1</strong></div>')
+            .replace(/(الفحوصات:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #7c3aed; padding: 8px 12px 8px 0; background: #faf5ff; text-align: right;">$1</strong></div>')
+            .replace(/(الفحوصات المخبرية:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-right: 3px solid #f59e0b; padding: 6px 10px 6px 0; background: #fffbeb; text-align: right;">$1</strong></div>')
+            .replace(/(التصوير:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-right: 3px solid #ef4444; padding: 6px 10px 6px 0; background: #fef2f2; text-align: right;">$1</strong></div>')
+            .replace(/(علم الأحياء الدقيقة:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-right: 3px solid #06b6d4; padding: 6px 10px 6px 0; background: #f0f9ff; text-align: right;">$1</strong></div>')
+            .replace(/(أخرى:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 12px 0 6px 0; border-right: 3px solid #8b5cf6; padding: 6px 10px 6px 0; background: #f5f3ff; text-align: right;">$1</strong></div>')
+            .replace(/(التقييم.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #f59e0b; padding: 8px 12px 8px 0; background: #fffbeb; text-align: right;">$1</strong></div>')
+            .replace(/(الخطة.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-right: 4px solid #10b981; padding: 8px 12px 8px 0; background: #f0fdf4; text-align: right;">$1</strong></div>')
+            // Enhanced Arabic formatting for Date, Type, Site, Result patterns
+            .replace(/(التاريخ:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; text-align: right;"><strong style="color: #374151;">📅 التاريخ:</strong> <span style="background: #dbeafe; padding: 2px 6px; border-radius: 3px; color: #1e40af;">$2</span></div>')
+            .replace(/(النوع:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; text-align: right;"><strong style="color: #374151;">🔬 النوع:</strong> <span style="background: #ecfdf5; padding: 2px 6px; border-radius: 3px; color: #065f46;">$2</span></div>')
+            .replace(/(الموقع:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; text-align: right;"><strong style="color: #374151;">📍 الموقع:</strong> <span style="background: #fef3c7; padding: 2px 6px; border-radius: 3px; color: #92400e;">$2</span></div>')
+            .replace(/(النتيجة:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0 12px 0; text-align: right;"><strong style="color: #374151;">📋 النتيجة:</strong> <span style="background: #f3e8ff; padding: 2px 6px; border-radius: 3px; color: #6b21a8;">$2</span></div>')
+            // Enhanced Arabic medication formatting
+            .replace(/(\w+)\s+(\d+\s*(?:ملغ|مكغ|غ|مل|وحدة|وحدات|أقراص|كبسولات))\s+((?:مرة واحدة|مرتين|ثلاث مرات|أربع مرات|يومياً|أسبوعياً|شهرياً|عند الحاجة).*?)(?=\n|$|\.)/gi,
+                '<div style="margin: 6px 0; padding: 8px 12px; background: #fef3c7; border-right: 3px solid #f59e0b; border-radius: 4px; text-align: right;"><strong style="color: #92400e;">$1</strong> <span style="background: #fed7aa; padding: 2px 6px; border-radius: 3px; font-weight: 600; color: #9a3412;">$2</span> <em style="color: #78350f;">$3</em></div>')
             // Format numbered lists for Arabic with RTL direction
             .replace(/^(\d+)\.\s*(.+)$/gm, '<div style="margin: 4px 0; padding-right: 0; direction: rtl; text-align: right; display: flex; align-items: flex-start;"><span style="flex: 1;">$2</span><span style="display: inline-block; min-width: 32px; text-align: right; font-weight: 500; color: #374151; margin-left: 8px; flex-shrink: 0;">$1.</span></div>')
             .replace(/^(\d+)\s+(.+)$/gm, '<div style="margin: 4px 0; padding-right: 0; direction: rtl; text-align: right; display: flex; align-items: flex-start;"><span style="flex: 1;">$2</span><span style="display: inline-block; min-width: 32px; text-align: right; font-weight: 500; color: #374151; margin-left: 8px; flex-shrink: 0;">$1</span></div>');
@@ -282,7 +333,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                             {!isEditing && (
                                 <button
                                     onClick={handleEdit}
-                                    className="bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                                    className="bg-gray-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
                                 >
                                     <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                                     <span className="truncate">{t.edit}</span>
@@ -291,7 +342,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
                             <button
                                 onClick={handleCopy}
-                                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base ${copySuccess
+                                className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px] ${copySuccess
                                     ? 'bg-green-600 text-white'
                                     : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
@@ -302,7 +353,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
                             <button
                                 onClick={handleDownload}
-                                className="bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                                className="bg-purple-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
                             >
                                 <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                                 <span className="truncate">{t.download}</span>
@@ -356,26 +407,27 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-gray-50 p-6 rounded-lg">
+                        <div className="bg-gray-50 p-3 sm:p-6 rounded-lg">
                             <div
-                                className={`medical-note-content leading-relaxed text-gray-800 ${isEnglish ? 'text-left' : 'text-right'} ${isEnglish ? 'font-sans' : 'font-cairo'
-                                    }`}
+                                className={`medical-note-content leading-relaxed text-gray-800 ${isEnglish ? 'text-left' : 'text-right'} ${isEnglish ? 'font-sans' : 'font-cairo'} break-words overflow-hidden`}
                                 dangerouslySetInnerHTML={{ __html: formatNote(editedNote || generatedNote) }}
                                 dir={isEnglish ? 'ltr' : 'rtl'}
                                 style={{
-                                    fontSize: isEnglish ? '15px' : '16px',
-                                    lineHeight: isEnglish ? '1.7' : '1.6',
-                                    letterSpacing: isEnglish ? '0.3px' : 'normal',
+                                    fontSize: isEnglish ? '14px' : '15px',
+                                    lineHeight: isEnglish ? '1.6' : '1.5',
+                                    letterSpacing: isEnglish ? '0.2px' : 'normal',
                                     unicodeBidi: isEnglish ? 'embed' : 'normal',
-                                    textAlign: isEnglish ? 'left' : 'right'
+                                    textAlign: isEnglish ? 'left' : 'right',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word'
                                 }}
                             />
 
                             {/* English note enhancement indicator */}
                             {isEnglish && generatedNote && (
-                                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <p className="text-sm text-blue-700 flex items-center gap-2">
-                                        <CheckCircle className="h-4 w-4" />
+                                <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p className="text-xs sm:text-sm text-blue-700 flex items-center gap-2">
+                                        <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                                         Professional medical terminology and formatting applied
                                     </p>
                                 </div>
@@ -384,20 +436,20 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                     )}
 
                     {/* Note Statistics - Mobile responsive */}
-                    <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
                         <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 ${isEnglish ? '' : 'text-right'}`}>
-                            <span className="truncate">{t.wordCount}: {(editedNote || generatedNote).split(/\s+/).filter(word => word.trim()).length}</span>
-                            <span className="truncate">{t.charCount}: {(editedNote || generatedNote).length}</span>
-                            <span className="truncate">{t.reportType}: {(t.noteTypeNames as any)[noteType] || noteType}</span>
+                            <span className="truncate py-1">{t.wordCount}: {(editedNote || generatedNote).split(/\s+/).filter(word => word.trim()).length}</span>
+                            <span className="truncate py-1">{t.charCount}: {(editedNote || generatedNote).length}</span>
+                            <span className="truncate py-1">{t.reportType}: {(t.noteTypeNames as any)[noteType] || noteType}</span>
                         </div>
 
                         {/* English-specific quality indicators - Mobile responsive */}
                         {isEnglish && generatedNote && (
                             <div className="mt-2 pt-2 border-t border-gray-200">
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 text-xs text-gray-500">
-                                    <span className="flex items-center gap-1">✅ Medical terminology enhanced</span>
-                                    <span className="flex items-center gap-1">✅ Professional formatting applied</span>
-                                    <span className="flex items-center gap-1">✅ English medical standards</span>
+                                    <span className="flex items-center gap-1 py-1">✅ Medical terminology enhanced</span>
+                                    <span className="flex items-center gap-1 py-1">✅ Professional formatting applied</span>
+                                    <span className="flex items-center gap-1 py-1">✅ English medical standards</span>
                                 </div>
                             </div>
                         )}
@@ -410,7 +462,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 ${isEnglish ? 'sm:justify-between' : 'sm:justify-between sm:flex-row-reverse'}`}>
                     <button
                         onClick={onReset}
-                        className="bg-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
+                        className="bg-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1 min-h-[48px]"
                     >
                         <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" />
                         <span className="truncate">{t.startNew}</span>
@@ -418,7 +470,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
                     <button
                         onClick={onGenerate}
-                        className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base order-1 sm:order-2"
+                        className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base order-1 sm:order-2 min-h-[48px] flex items-center justify-center"
                     >
                         <span className="truncate">{t.regenerate}</span>
                     </button>

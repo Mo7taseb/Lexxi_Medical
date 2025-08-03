@@ -277,8 +277,7 @@ ${timestamp}
 • Referral indication: Requires medical evaluation
 
 **Patient identification:**
-• Patient requires proper identification
-• Age, gender, and relevant identifiers needed
+Patient requires proper identification and documentation
 
 **Past medical history:**
 • Previous conditions: Requires medical record review
@@ -286,9 +285,8 @@ ${timestamp}
 • Significant events: From available information
 
 **Home medications:**
-• Current medications: Requires medication reconciliation
-• Dosages and frequencies: Need verification
-• Recent changes: To be documented
+• Current medications: Requires medication reconciliation with specific dosages and frequencies
+• Recent changes: To be documented with exact dosages
 
 **Allergies:**
 • Known allergies: Requires patient interview
@@ -302,8 +300,8 @@ ${timestamp}
 
 **History of presenting illness:**
 ${symptoms.length > 0 ? 
-  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
-  `• ${transcript.split('\n')[0] || 'Patient presents with current concerns'}`
+  `Patient presents with a history of ${symptoms.join(', ')}. The condition has developed over time with various symptoms and concerns. ${transcript.split('.')[0] || 'Further details from consultation are being documented'}.` : 
+  `Patient presents with current concerns requiring medical evaluation. ${transcript.split('.')[0] || 'The presentation involves multiple symptoms and requires comprehensive assessment'}.`
 }
 
 **Physical examination:**
@@ -319,12 +317,16 @@ ${symptoms.length > 0 ?
 • Additional tests: As clinically indicated
 
 **Imaging:**
-• Radiology studies: As needed
-• Specialized imaging: Based on clinical assessment
+• Date: [To be documented]
+• Type: [Imaging studies as needed]
+• Site: [Based on clinical assessment]
+• Result: [Results to be documented when available]
 
 **Microbiology:**
-• Culture results: If applicable
-• Sensitivity testing: As indicated
+• Date: [If applicable]
+• Type: [Culture studies as indicated]
+• Site: [Specimen collection site]
+• Result: [Sensitivity testing and organism identification]
 
 **Others:**
 • Specialized tests: As required
@@ -357,8 +359,7 @@ ${timestamp}
 • مؤشر الإحالة: يتطلب تقييماً طبياً
 
 **تعريف المريض:**
-• المريض يتطلب التعريف المناسب
-• العمر والجنس والمعرفات ذات الصلة مطلوبة
+المريض يتطلب التوثيق والتعريف المناسب
 
 **التاريخ المرضي السابق:**
 • الحالات السابقة: تتطلب مراجعة السجل الطبي
@@ -366,9 +367,8 @@ ${timestamp}
 • الأحداث المهمة: من المعلومات المتاحة
 
 **أدوية المنزل:**
-• الأدوية الحالية: تتطلب توفيق الأدوية
-• الجرعات والتكرار: تحتاج للتحقق
-• التغييرات الأخيرة: ليتم توثيقها
+• الأدوية الحالية: تتطلب توفيق الأدوية مع الجرعات والتكرار المحدد
+• التغييرات الأخيرة: ليتم توثيقها مع الجرعات الدقيقة
 
 **الحساسية:**
 • الحساسيات المعروفة: تتطلب مقابلة المريض
@@ -382,8 +382,8 @@ ${timestamp}
 
 **تاريخ المرض الحالي:**
 ${symptoms.length > 0 ? 
-  symptoms.map(symptom => `• ${symptom}`).join('\n') : 
-  `• ${transcript.split('\n')[0] || 'المريض يحضر بمخاوف حالية'}`
+  `يحضر المريض بتاريخ مرضي يتضمن ${symptoms.join('، ')}. تطورت الحالة مع مرور الوقت مع أعراض ومخاوف مختلفة. ${transcript.split('.')[0] || 'تفاصيل إضافية من الاستشارة يتم توثيقها'}.` : 
+  `يحضر المريض بمخاوف حالية تتطلب تقييماً طبياً. ${transcript.split('.')[0] || 'العرض يتضمن أعراضاً متعددة ويتطلب تقييماً شاملاً'}.`
 }
 
 **الفحص البدني:**
@@ -399,12 +399,16 @@ ${symptoms.length > 0 ?
 • اختبارات إضافية: كما هو مبين سريرياً
 
 **التصوير:**
-• دراسات الأشعة: حسب الحاجة
-• التصوير المتخصص: بناءً على التقييم السريري
+• التاريخ: [ليتم توثيقه]
+• النوع: [دراسات التصوير حسب الحاجة]
+• الموقع: [بناءً على التقييم السريري]
+• النتيجة: [النتائج ليتم توثيقها عند توفرها]
 
 **علم الأحياء الدقيقة:**
-• نتائج الزراعة: إذا كان قابلاً للتطبيق
-• اختبار الحساسية: كما هو مبين
+• التاريخ: [إذا كان قابلاً للتطبيق]
+• النوع: [دراسات الزراعة كما هو مبين]
+• الموقع: [موقع جمع العينة]
+• النتيجة: [اختبار الحساسية وتحديد الكائن]
 
 **أخرى:**
 • اختبارات متخصصة: كما هو مطلوب

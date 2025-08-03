@@ -599,8 +599,7 @@ Rules:
 - Referral indication
 
 **Patient identification:**
-- Patient demographics and identifiers
-- Age, gender, relevant identifiers
+Miss X, 31-year-old female, originally from Nepal, currently residing in London, Ontario, with her husband
 
 **Past medical history:**
 - Previous medical conditions
@@ -608,9 +607,9 @@ Rules:
 - Significant medical events
 
 **Home medications:**
-- Current medications
-- Dosages and frequencies
-- Recent medication changes
+- List each medication followed by specific dosage and frequency (e.g., Medication Name 500mg twice daily)
+- Include route of administration when relevant
+- Recent medication changes with dosages
 
 **Allergies:**
 - Known drug allergies
@@ -623,9 +622,7 @@ Rules:
 - Family history if relevant
 
 **History of presenting illness:**
-- Detailed description of current problem
-- Timeline and progression
-- Associated symptoms
+Write as a narrative story format describing the patient's journey with their current illness. Include timeline, symptom progression, associated symptoms, and any relevant details in paragraph form rather than bullet points. Describe how the condition developed, progressed, and any factors that may have contributed to the current presentation.
 
 **Physical examination:**
 - Vital signs
@@ -638,12 +635,16 @@ Rules:
 - Pending lab work
 
 **Imaging:**
-- Radiology results
-- Imaging studies ordered
+- Date: [Date of imaging]
+- Type: [Type of imaging study]
+- Site: [Anatomical site examined]
+- Result: [Detailed findings and interpretation]
 
 **Microbiology:**
-- Culture results
-- Microbiology findings
+- Date: [Date of specimen collection]
+- Type: [Type of test/culture]
+- Site: [Site of specimen collection]
+- Result: [Organism identified, sensitivities, clinical significance]
 
 **Others:**
 - Additional diagnostic tests
@@ -666,8 +667,7 @@ Rules:
 [Current date and time]
 
 **Patient identification:**
-- Patient demographics and identifiers
-- Age, gender, relevant identifiers
+Brief patient demographics and identifiers
 
 **Brief hospital course:**
 - Summary of hospital stay
@@ -695,7 +695,7 @@ Rules:
 - Updated problem list
 
 **Plan:**
-- Ongoing treatment modifications
+- Ongoing treatment modifications with specific dosages and frequencies
 - New interventions
 - Discharge planning considerations`;
 
@@ -717,8 +717,7 @@ Rules:
 - مؤشر الإحالة
 
 **تعريف المريض:**
-- البيانات الديموغرافية للمريض والمعرفات
-- العمر والجنس والمعرفات ذات الصلة
+الآنسة إكس، امرأة تبلغ من العمر 31 عامًا، من النيبال أصلاً، تقيم حاليًا في لندن، أونتاريو، مع زوجها
 
 **التاريخ المرضي السابق:**
 - الحالات الطبية السابقة
@@ -726,9 +725,9 @@ Rules:
 - الأحداث الطبية المهمة
 
 **أدوية المنزل:**
-- الأدوية الحالية
-- الجرعات والتكرار
-- التغييرات الحديثة في الأدوية
+- اذكر كل دواء متبوعًا بالجرعة المحددة والتكرار (مثل: اسم الدواء 500 ملغ مرتين يوميًا)
+- تضمين طريقة الإعطاء عند الضرورة
+- التغييرات الحديثة في الأدوية مع الجرعات
 
 **الحساسية:**
 - حساسية الأدوية المعروفة
@@ -741,9 +740,7 @@ Rules:
 - التاريخ العائلي إذا كان ذا صلة
 
 **تاريخ المرض الحالي:**
-- وصف تفصيلي للمشكلة الحالية
-- الجدول الزمني والتطور
-- الأعراض المصاحبة
+اكتب كقصة سردية تصف رحلة المريض مع مرضه الحالي. تضمين الجدول الزمني، تطور الأعراض، الأعراض المصاحبة، وأي تفاصيل ذات صلة في شكل فقرات بدلاً من النقاط. اوصف كيف تطورت الحالة، وتقدمت، وأي عوامل قد تكون ساهمت في العرض الحالي.
 
 **الفحص البدني:**
 - العلامات الحيوية
@@ -756,12 +753,16 @@ Rules:
 - الأعمال المخبرية المعلقة
 
 **التصوير:**
-- نتائج الأشعة
-- دراسات التصوير المطلوبة
+- التاريخ: [تاريخ التصوير]
+- النوع: [نوع دراسة التصوير]
+- الموقع: [الموقع التشريحي المفحوص]
+- النتيجة: [النتائج التفصيلية والتفسير]
 
 **علم الأحياء الدقيقة:**
-- نتائج الزراعة
-- نتائج علم الأحياء الدقيقة
+- التاريخ: [تاريخ جمع العينة]
+- النوع: [نوع الفحص/الزراعة]
+- الموقع: [موقع جمع العينة]
+- النتيجة: [الكائن المحدد، الحساسيات، الأهمية السريرية]
 
 **أخرى:**
 - فحوصات تشخيصية إضافية
