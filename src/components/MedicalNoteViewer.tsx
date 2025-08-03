@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Loader2, AlertCircle, CheckCircle, Copy, Download, RotateCcw, Edit3, Save, X } from 'lucide-react';
 
 interface MedicalNoteViewerProps {
@@ -25,6 +25,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     const [isEditing, setIsEditing] = useState(false);
     const [editedNote, setEditedNote] = useState(generatedNote);
     const [copySuccess, setCopySuccess] = useState(false);
+
+    // Sync editedNote with generatedNote when it changes
+    useEffect(() => {
+        if (generatedNote && generatedNote !== editedNote) {
+            console.log('🔄 [MedicalNoteViewer] Syncing editedNote with new generatedNote');
+            setEditedNote(generatedNote);
+        }
+    }, [generatedNote]);
 
     // Detect language from transcript if not provided
     const detectedLanguage = language || detectLanguage(transcript);
@@ -154,20 +162,40 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
         // Enhanced formatting for English notes
         if (isEnglish) {
+            console.log('🔍 [MedicalNoteViewer] Processing English note...');
+            console.log('📝 Original note (first 300 chars):', note.substring(0, 300));
+
             let formatted = note
                 // First, normalize line breaks
                 .replace(/\r\n/g, '\n')
                 .replace(/\r/g, '\n')
-                // Enhanced colon cleaning - remove stray colons from beginning of lines and after line breaks
+                // FIX: Add spaces between words that got stuck together
+                .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between lowercase and uppercase
+                .replace(/([a-zA-Z])(\d)/g, '$1 $2') // Add space between letter and number
+                .replace(/(\d)([a-zA-Z])/g, '$1 $2') // Add space between number and letter
+                .replace(/([a-z])([A-Z][a-z])/g, '$1 $2') // Split camelCase words
+                .replace(/([a-zA-Z])(work|tests?|laboratory|pending|routine|specified|chest|site|result|unremarkable)/gi, '$1 $2') // Fix specific stuck words
+                .replace(/(work)(Routine|Laboratory|Tests?)/gi, '$1 $2') // Fix "workRoutine" etc
+                .replace(/(lab|work)(Routine|Laboratory|Tests?)/gi, '$1 $2') // Fix "labRoutine" etc
+                .replace(/(Date)(Not)/gi, '$1 $2') // Fix "DateNot"
+                // CRITICAL FIX: Handle markdown bold formatting BEFORE other processing
+                // Convert **Text:** patterns to clean section headers without extra colons
+                .replace(/\*\*(.*?):\*\*/g, (match, p1) => {
+                    console.log('🔧 Fixed markdown bold:', match, '→', `${p1.replace(/^:+\s*/, '').replace(/\s*:+$/, '')}:`);
+                    // Clean up the section title and ensure no extra colons, but DON'T wrap in markdown
+                    const cleanTitle = p1.replace(/^:+\s*/, '').replace(/\s*:+$/, '');
+                    return `${cleanTitle}:`; // Remove ** wrapper to avoid nested formatting later
+                })
+                // Enhanced colon cleaning - remove stray colons from beginning of lines and after line breaks  
                 .replace(/^\s*:\s*/gm, '')  // Remove colons at start of lines
                 .replace(/(\n|^)\s*:\s*/g, '$1')  // Remove colons after line breaks
                 .replace(/:\s*([A-Z][^:]*?:)/g, '$1')  // Remove colons before section headers that end with colon
                 .replace(/:\s*(Past medical|Home medications|Social history|Patient identification|History of presenting|Physical examination|Investigation|Assessment|Plan|Date of consultation|Patient location|Reason for consultation|Allergies)/gi, '$1')  // Remove colons before key section titles
-                // Convert text to proper HTML structure with better detection
-                .replace(/(Date of consultation?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                // Convert text to proper HTML structure with better detection (handle both markdown and clean formats)
+                .replace(/(Date of consult(?:ation)?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Patient location:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Patient identification:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
-                .replace(/(Reason for consultation?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
+                .replace(/(Reason (?:for )?consult(?:ation)?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Past medical history.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Home medications?:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
                 .replace(/(Allergies:.*?)(\n|$)/gi, '<div class="medical-header"><strong style="color: #1f2937; font-weight: 700; display: block; margin: 16px 0 8px 0; border-left: 4px solid #0066cc; padding: 8px 0 8px 12px; background: #f8fafc;">$1</strong></div>')
@@ -189,20 +217,28 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 .replace(/(Type:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; font-size: 13px;"><strong style="color: #374151;">🔬 Type:</strong> <span style="background: #ecfdf5; padding: 2px 4px; border-radius: 3px; color: #065f46; font-size: 12px;">$2</span></div>')
                 .replace(/(Site:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0; font-size: 13px;"><strong style="color: #374151;">📍 Site:</strong> <span style="background: #fef3c7; padding: 2px 4px; border-radius: 3px; color: #92400e; font-size: 12px;">$2</span></div>')
                 .replace(/(Result:\s*)(.*?)(\n|$)/gi, '<div style="margin: 4px 0 12px 0; font-size: 13px;"><strong style="color: #374151;">📋 Result:</strong> <span style="background: #f3e8ff; padding: 2px 4px; border-radius: 3px; color: #6b21a8; font-size: 12px; word-break: break-word;">$2</span></div>')
-                // Format any remaining bold text
-                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1f2937; font-weight: 600;">$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em style="color: #374151;">$1</em>')
+                // ADDITIONAL FIX: Clean up any remaining stuck words in the final content
+                .replace(/([a-z])([A-Z])/g, '$1 $2') // Final pass to separate any remaining camelCase
+                .replace(/(pending|routine|laboratory|chest|site|result|date|type)(tests?|work|x-ray|specified|not)/gi, '$1 $2') // Fix specific medical term combinations
+                // Format any remaining bold text (but NOT the section headers we already processed)
+                .replace(/\*(?!\*)(.*?)\*/g, '<em style="color: #374151;">$1</em>') // Handle single asterisk for italics
                 // Highlight important medical terms more aggressively
                 .replace(/\b(tuberculosis|lymphadenitis|anti-tubercular|medication|Nepal|Canada|London|Ontario|Miss X|31-year-old|female|male|diagnosis|diagnosed|treated|months|years|history|consultation|patient|examination|assessment|plan)\b/gi,
                     '<span style="background: #dbeafe; padding: 2px 6px; border-radius: 4px; font-weight: 500; color: #1e40af;">$1</span>')
                 // Format numbered lists with FORCED LTR direction and proper left alignment
                 .replace(/^(\d+)\.\s*(.+)$/gm, '<div style="margin: 12px 0; direction: ltr !important; text-align: left !important; display: flex !important; flex-direction: row !important; align-items: flex-start; justify-content: flex-start; border-left: 2px solid #e5e7eb; padding-left: 12px;"><span style="display: inline-block !important; min-width: 40px; text-align: left !important; font-weight: 700; color: #374151; margin-right: 16px; flex-shrink: 0; background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">$1.</span><span style="flex: 1; text-align: left !important; line-height: 1.6;">$2</span></div>')
-                // Better bullet point formatting
+                // Better bullet point formatting for both • and - patterns
                 .replace(/^• (.+)$/gm, '<div style="margin: 8px 0; padding-left: 24px; direction: ltr !important; text-align: left !important; position: relative;"><span style="position: absolute; left: 0; color: #0066cc; font-weight: bold;">•</span>$1</div>')
+                .replace(/^- (.+)$/gm, '<div style="margin: 8px 0; padding-left: 24px; direction: ltr !important; text-align: left !important; position: relative;"><span style="position: absolute; left: 0; color: #0066cc; font-weight: bold;">•</span>$1</div>')
+                // Handle standalone dashes that might be separated from their content
+                .replace(/^-\s*$/gm, '') // Remove standalone dashes
+                .replace(/^-([A-Za-z])/gm, '• $1') // Convert "-DateNot" to "• DateNot"
                 // Convert sentences into proper divs instead of invalid nested p tags
                 .replace(/\.\s+([A-Z][a-z])/g, '.</div><div style="margin: 12px 0; text-align: left; direction: ltr; line-height: 1.7; color: #374151;">$1')
                 // Handle remaining line breaks
                 .replace(/\n/g, '<br style="margin: 6px 0;">');
+
+            console.log('✅ [MedicalNoteViewer] Final formatted content (first 300 chars):', formatted.substring(0, 300));
 
             // Wrap the content properly in a container div, not p tag
             return `<div style="direction: ltr; text-align: left; font-family: 'Inter', sans-serif; color: #374151; line-height: 1.7;"><div style="margin: 12px 0; text-align: left; direction: ltr; line-height: 1.7; color: #374151;">${formatted}</div></div>`;
@@ -211,6 +247,12 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
         // Arabic formatting (enhanced)
         return note
             .replace(/\n/g, '<br>')
+            // CRITICAL FIX: Handle markdown bold formatting BEFORE other processing for Arabic
+            .replace(/\*\*(.*?):\*\*/g, (match, p1) => {
+                // Clean up the section title and ensure no extra colons
+                const cleanTitle = p1.replace(/^:+\s*/, '').replace(/\s*:+$/, '');
+                return `**${cleanTitle}:**`;
+            })
             // Enhanced colon cleaning for Arabic - remove stray colons at the beginning of lines and before section headers
             .replace(/^\s*:\s*/gm, '')  // Remove colons at start of lines
             .replace(/(\n|^)\s*:\s*/g, '$1')  // Remove colons after line breaks
@@ -410,7 +452,19 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                         <div className="bg-gray-50 p-3 sm:p-6 rounded-lg">
                             <div
                                 className={`medical-note-content leading-relaxed text-gray-800 ${isEnglish ? 'text-left' : 'text-right'} ${isEnglish ? 'font-sans' : 'font-cairo'} break-words overflow-hidden`}
-                                dangerouslySetInnerHTML={{ __html: formatNote(editedNote || generatedNote) }}
+                                dangerouslySetInnerHTML={{
+                                    __html: (() => {
+                                        const noteToFormat = editedNote || generatedNote;
+                                        console.log('🎯 [MedicalNoteViewer] About to format note:', {
+                                            hasEditedNote: !!editedNote,
+                                            hasGeneratedNote: !!generatedNote,
+                                            noteLength: noteToFormat?.length || 0,
+                                            isEnglish,
+                                            notePreview: noteToFormat?.substring(0, 100)
+                                        });
+                                        return formatNote(noteToFormat);
+                                    })()
+                                }}
                                 dir={isEnglish ? 'ltr' : 'rtl'}
                                 style={{
                                     fontSize: isEnglish ? '14px' : '15px',
