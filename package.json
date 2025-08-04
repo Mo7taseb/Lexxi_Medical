@@ -10,8 +10,7 @@
     "setup": "python setup-python.py",
     "setup-llm": "setup-llm.bat",
     "test-setup": "python test-setup.py",
-    "transcribe": "python whisper_transcribe.py",
-    "test-llm": "start http://localhost:3000/test-llm"
+    "transcribe": "python whisper_transcribe.py"
   },
   "dependencies": {
     "formidable": "^3.5.4",
