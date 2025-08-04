@@ -129,7 +129,10 @@ body {
 [dir="ltr"] .medical-note-content {
   direction: ltr !important;
   text-align: left !important;
-  unicode-bidi: embed;
+  unicode-bidi: embed !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  line-height: 1.7 !important;
+  color: #374151 !important;
 }
 
 [dir="ltr"] .medical-note-content ol,
@@ -168,22 +171,14 @@ body {
   line-height: 1.6 !important;
 }
 
-/* Medical header styling */
+/* Medical header styling - removed duplicate border-left (handled in medical-note styles) */
 .medical-header strong {
   display: block !important;
   font-weight: 700 !important;
   color: #1f2937 !important;
   background: #f8fafc !important;
-  border-left: 4px solid #0066cc !important;
   padding: 8px 0 8px 12px !important;
   margin: 16px 0 8px 0 !important;
-}
-
-/* Enhanced medical content formatting */
-[dir="ltr"] .medical-note-content {
-  font-family: 'Inter', system-ui, sans-serif !important;
-  line-height: 1.7 !important;
-  color: #374151 !important;
 }
 
 /* Override any RTL styling for English numbered lists */

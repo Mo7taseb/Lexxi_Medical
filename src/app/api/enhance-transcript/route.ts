@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SmartLLMRouter } from '@/utils/smartLLMRouter';
+import { SimpleLLMRouter } from '@/utils/simpleLLMRouter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No transcript provided' }, { status: 400 });
     }
 
-    const router = new SmartLLMRouter();
+    const router = new SimpleLLMRouter();
     
     console.log(`🔄 Enhancing transcript (${language}): ${transcript.substring(0, 100)}...`);
     

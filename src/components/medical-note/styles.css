@@ -99,7 +99,7 @@
 
 .medical-section-investigation {
     background: #f3e8ff;
-    border: 1px solid #7c3aed;
+    border: 1px solid #237fca;
 }
 
 /* Special styling for important medical sections */
@@ -120,7 +120,6 @@
 
 .medical-section[data-section-type="medications"] .medical-section-header {
     background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border-left-color: #0066cc;
 }
 
 /* Professional medical note touches */
@@ -193,7 +192,6 @@
 /* List Items */
 .numbered-item,
 .bullet-item {
-    margin: 4px 0;
     display: flex;
     align-items: flex-start;
     line-height: 1.5;
@@ -236,7 +234,7 @@
 /* Investigation Fields */
 .investigation-field {
     margin: 4px 0;
-    font-size: 13px;
+    font-size: 18px;
 }
 
 .investigation-field strong {

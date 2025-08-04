@@ -42,7 +42,7 @@ export const englishSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^[\*]*\s*(History of presenting illness):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#10b981',
+    color: '#0066cc',
     icon: '🩺',
     priority: 5
   },
@@ -56,7 +56,7 @@ export const englishSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^[\*]*\s*(Investigation|Lab work|Imaging|Microbiology):?\s*[\*]*(.*)$/gmi,
     type: 'investigation',
-    color: '#7c3aed',
+    color: '#0066cc',
     icon: '🧪',
     priority: 7
   },
@@ -70,7 +70,7 @@ export const englishSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^[\*]*\s*(Plan):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#10b981',
+    color: '#0066cc',
     icon: '📝',
     priority: 9
   },
@@ -91,7 +91,7 @@ export const englishSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^[\*]*\s*(Social history):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#059669',
+    color: '#0066cc',
     icon: '👥',
     priority: 12
   }
@@ -130,7 +130,7 @@ export const arabicSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^(تاريخ المرض الحالي:.*?)$/gmi,
     type: 'header',
-    color: '#10b981',
+    color: '#0066cc',
     icon: '🩺',
     priority: 5
   },
@@ -144,7 +144,7 @@ export const arabicSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^(الفحوصات|الفحوصات المخبرية|التصوير|علم الأحياء الدقيقة):.*?$/gmi,
     type: 'investigation',
-    color: '#7c3aed',
+    color: '#3a96edff',
     icon: '🧪',
     priority: 7
   },
