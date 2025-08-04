@@ -591,74 +591,73 @@ Rules:
       case 'consultation':
         return `Please follow this EXACT structure:
 
-**Date of consult:**
-[Current date and time]
+**Date of consultation:** (this is a section title)
+- [Current date and time]
 
-**Reason of consult:**
-- Primary reason for consultation
-- Referral indication
+**Reason of consultation:**(this is a section title)
+- [Primary reason for consultation]
 
-**Patient identification:**
-Miss X, 31-year-old female, originally from Nepal, currently residing in London, Ontario, with her husband
 
-**Past medical history:**
-- Previous medical conditions
-- Surgical history
-- Significant medical events
+**Patient identification:**(this is a section title)
+- make the information as bullet points, include everything mentioned in the transcript, no need to add the field labels
+- [Patient demographics and identifiers]
 
-**Home medications:**
+
+**Past medical history:**(this is a section title)
+- [Previous medical conditions]
+- [Surgical history]
+- [Significant medical events]
+
+**Home medications:**(this is a section title)
 - List each medication followed by specific dosage and frequency (e.g., Medication Name 500mg twice daily)
 - Include route of administration when relevant
 - Recent medication changes with dosages
 
-**Allergies:**
-- Known drug allergies
-- Food or environmental allergies
-- Allergy reactions
+**Allergies:**(this is a section title)
+- [Known drug allergies]
+- [Food or environmental allergies]
+- [Allergic reactions]
 
-**Social history:**
-- Smoking, alcohol, drug use
-- Occupation and lifestyle factors
-- Family history if relevant
+**Social history:**(this is a section title)
+- [Smoking, alcohol, drug use]
+- [Occupation and lifestyle factors]
+- [Family history if relevant]
 
-**History of presenting illness:**
+**History of presenting illness:**(this is a section title)
 Write as a narrative story format describing the patient's journey with their current illness. Include timeline, symptom progression, associated symptoms, and any relevant details in paragraph form rather than bullet points. Describe how the condition developed, progressed, and any factors that may have contributed to the current presentation.
 
-**Physical examination:**
-- Vital signs
-- Systematic physical findings
-- Relevant examination results
+**Physical examination:**(this is a section title)
+- [Vital signs]
+- [Systematic physical findings]
+- [Relevant examination results]
 
-**Investigation:**
+**Investigation:**(this is a section title)
 **Lab work:**
 - Laboratory test results
 - Pending lab work
 
-**Imaging:**
-- Date: [Date of imaging]
-- Type: [Type of imaging study]
-- Site: [Anatomical site examined]
-- Result: [Detailed findings and interpretation]
+**Imaging:**(this is a section title)
+- [Date of imaging]
+- [Type of imaging study]
+- [Anatomical site examined]
+- [Detailed findings and interpretation]
 
-**Microbiology:**
-- Date: [Date of specimen collection]
-- Type: [Type of test/culture]
-- Site: [Site of specimen collection]
-- Result: [Organism identified, sensitivities, clinical significance]
+**Microbiology:**(this is a section title)
+- [Date of specimen collection]
+- [Type of test/culture]
+- [Site of specimen collection]
+- [Organism identified, sensitivities, clinical significance]
 
-**Others:**
-- Additional diagnostic tests
-- Specialized investigations
 
-**Assessment:**
-- Clinical impression
-- Differential diagnosis
-- Problem prioritization
+**Assessment:**(this is a section title)
+- [Clinical impression]
+- [Differential diagnosis]
+- [Problem prioritization]
 
-**Plan:**
-- Treatment recommendations
-- Follow-up arrangements
-- Further investigations needed`;
+**Plan:**(this is a section title)
+- [Treatment recommendations]
+- [Follow-up arrangements]
+- [Further investigations needed]`;
 
       case 'progress':
         return `Please follow this EXACT structure:
