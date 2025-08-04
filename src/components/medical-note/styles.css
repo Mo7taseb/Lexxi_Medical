@@ -1,0 +1,210 @@
+/* Medical Note Viewer Styles */
+
+/* Force LTR for all medical content regardless of parent dir attribute */
+.medical-note-content,
+.medical-note-content *,
+.medical-section,
+.medical-section *,
+[class*="medical"] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+}
+
+.medical-note-content {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  color: #374151;
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.medical-note-content * {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.medical-note-content[dir="rtl"] {
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
+  direction: rtl;
+}
+
+/* Section Styles */
+.medical-section {
+  transition: all 0.2s ease;
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.medical-section:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Force LTR for all medical section content */
+.medical-section * {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.medical-section-header {
+  border-left: 4px solid var(--section-color, #0066cc);
+  background: #f8fafc;
+  padding: 12px 16px;
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.medical-section-header[dir="rtl"] {
+  border-left: none;
+  border-right: 4px solid var(--section-color, #0066cc);
+}
+
+.medical-section-medication {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+}
+
+.medical-section-investigation {
+  background: #f3e8ff;
+  border: 1px solid #7c3aed;
+}
+
+/* Medication Items */
+.medication-item {
+  margin: 6px 0;
+  padding: 8px 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.medication-item[dir="rtl"] {
+  border-left: none;
+  border-right: 3px solid #f59e0b;
+  text-align: right;
+}
+
+.medication-item .dosage {
+  background: #fed7aa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #9a3412;
+  font-size: 12px;
+}
+
+/* List Items */
+.numbered-item, .bullet-item {
+  margin: 8px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.numbered-item[dir="rtl"], .bullet-item[dir="rtl"] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.numbered-item .number, .bullet-item .bullet {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #374151;
+  min-width: 24px;
+}
+
+.numbered-item .number {
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.bullet-item .bullet {
+  color: #0066cc;
+  font-weight: bold;
+}
+
+/* Investigation Fields */
+.investigation-field {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.investigation-field strong {
+  color: #374151;
+}
+
+.investigation-field .value {
+  background: #e0e7ff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #1e40af;
+  font-size: 12px;
+}
+
+/* Rich Text Editor Styles */
+.rich-text-editor {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rich-editor-textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: #1f2937 !important;
+}
+
+.rich-editor-textarea:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  color: #1f2937 !important;
+}
+
+.rich-editor-textarea:hover {
+  border-color: #9ca3af;
+}
+
+.rich-editor-textarea::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .medical-section {
+    margin: 12px 0;
+  }
+  
+  .medical-section-header {
+    padding: 8px 12px;
+  }
+  
+  .medication-item {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .numbered-item, .bullet-item {
+    margin: 6px 0;
+  }
+}
+
+/* Print styles */
+@media print {
+  .medical-note-content {
+    color: #000;
+    background: #fff;
+  }
+  
+  .medical-section {
+    break-inside: avoid;
+    margin: 8px 0;
+  }
+  
+  .medical-section:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

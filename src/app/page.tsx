@@ -4,6 +4,7 @@ import React, { useState, lazy, Suspense } from 'react';
 import { Mic, Upload, FileText, Stethoscope, AlertCircle, CheckCircle } from 'lucide-react';
 import { FastLoadingSpinner } from '@/components/LoadingOptimization';
 import Image from 'next/image';
+import '@/components/medical-note/styles.css';
 
 // Lazy load components to reduce initial bundle size
 const VoiceRecorder = lazy(() => import('@/components/VoiceRecorder'));
