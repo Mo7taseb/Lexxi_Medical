@@ -75,11 +75,25 @@ export const englishSectionTemplates: SectionTemplate[] = [
     priority: 9
   },
   {
-    pattern: /^[\*]*\s*(Home medications?|Allergies|Social history):?\s*[\*]*(.*)$/gmi,
+    pattern: /^[\*]*\s*(Home medications?):?\s*[\*]*(.*)$/gmi,
     type: 'header',
     color: '#0066cc',
-    icon: '�',
+    icon: '💊',
     priority: 10
+  },
+  {
+    pattern: /^[\*]*\s*(Allergies):?\s*[\*]*(.*)$/gmi,
+    type: 'header',
+    color: '#dc2626',
+    icon: '⚠️',
+    priority: 11
+  },
+  {
+    pattern: /^[\*]*\s*(Social history):?\s*[\*]*(.*)$/gmi,
+    type: 'header',
+    color: '#059669',
+    icon: '👥',
+    priority: 12
   }
 ];
 
