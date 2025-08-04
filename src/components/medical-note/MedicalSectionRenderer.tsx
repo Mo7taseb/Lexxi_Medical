@@ -32,13 +32,13 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                 return {
                     ...baseStyles,
                     background: '#fef3c7',
-                    borderColor: '#f59e0b'
+                    borderColor: '#0066cc'
                 };
             case 'investigation':
                 return {
                     ...baseStyles,
                     background: '#e8f0ffff',
-                    borderColor: '#7c3aed'
+                    borderColor: '#75a3ceff'
                 };
             default:
                 return baseStyles;

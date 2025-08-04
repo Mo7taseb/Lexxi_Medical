@@ -63,7 +63,7 @@ export const englishSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^[\*]*\s*(Assessment):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#f59e0b',
+    color: '#0066cc',
     icon: '📊',
     priority: 8
   },
@@ -151,7 +151,7 @@ export const arabicSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^(التقييم.*?)$/gmi,
     type: 'header',
-    color: '#f59e0b',
+    color: '#0066cc',
     icon: '📊',
     priority: 8
   },

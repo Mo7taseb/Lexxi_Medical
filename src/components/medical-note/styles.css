@@ -94,7 +94,7 @@
 
 .medical-section-medication {
     background: #fef3c7;
-    border: 1px solid #f59e0b;
+    border: 1px solid #0066cc;
 }
 
 .medical-section-investigation {
@@ -169,14 +169,14 @@
     margin: 6px 0;
     padding: 8px 12px;
     background: rgba(245, 158, 11, 0.1);
-    border-left: 3px solid #f59e0b;
+    border-left: 3px solid #0066cc;
     border-radius: 4px;
     font-size: 13px;
 }
 
 .medication-item[dir="rtl"] {
     border-left: none;
-    border-right: 3px solid #f59e0b;
+    border-right: 3px solid #0066cc;
     text-align: right;
 }
 
