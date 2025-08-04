@@ -6,308 +6,312 @@
 .medical-section,
 .medical-section *,
 [class*="medical"] {
-  direction: ltr !important;
-  text-align: left !important;
-  unicode-bidi: embed !important;
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: embed !important;
 }
 
 .medical-note-content {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.6;
-  color: #374151;
-  direction: ltr !important;
-  text-align: left !important;
-  font-size: 14px;
-  letter-spacing: 0.025em;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: #374151;
+    direction: ltr !important;
+    text-align: left !important;
+    font-size: 14px;
+    letter-spacing: 0.025em;
 }
 
 .medical-note-content * {
-  direction: ltr !important;
-  text-align: left !important;
+    direction: ltr !important;
+    text-align: left !important;
 }
 
 .medical-note-content[dir="rtl"] {
-  font-family: 'Cairo', sans-serif;
-  text-align: right;
-  direction: rtl;
+    font-family: 'Cairo', sans-serif;
+    text-align: right;
+    direction: rtl;
 }
 
 /* Section Styles */
 .medical-section {
-  transition: all 0.2s ease;
-  direction: ltr !important;
-  text-align: left !important;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-  background: #ffffff;
-  overflow: hidden;
+    transition: all 0.2s ease;
+    direction: ltr !important;
+    text-align: left !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+    background: #ffffff;
+    overflow: hidden;
 }
 
 .medical-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #8bbdfa;
 }
 
 .medical-section-content {
-  padding: 12px 16px 16px 16px;
-  line-height: 1.6;
-  color: #374151;
+    padding: 12px 16px 16px 16px;
+    line-height: 1.6;
+    color: #0040a7;
 }
 
 /* Force LTR for all medical section content */
 .medical-section * {
-  direction: ltr !important;
-  text-align: left !important;
+    direction: ltr !important;
+    text-align: left !important;
 }
 
 .medical-section-header {
-  border-left: 4px solid var(--section-color, #0066cc);
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  padding: 12px 16px;
-  direction: ltr !important;
-  text-align: left !important;
-  border-radius: 6px 6px 0 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid var(--section-color, #0066cc);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 12px 16px;
+    direction: ltr !important;
+    text-align: left !important;
+    border-radius: 6px 6px 0 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .medical-section-header .section-title {
-  font-weight: 600;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #1e293b;
+    font-weight: 600;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1e293b;
 }
 
 .medical-section-header .section-icon {
-  font-size: 16px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    font-size: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .medical-section-header[dir="rtl"] {
-  border-left: none;
-  border-right: 4px solid var(--section-color, #0066cc);
+    border-left: none;
+    border-right: 4px solid var(--section-color, #0066cc);
 }
 
 .medical-section-medication {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
 }
 
 .medical-section-investigation {
-  background: #f3e8ff;
-  border: 1px solid #7c3aed;
+    background: #f3e8ff;
+    border: 1px solid #7c3aed;
 }
 
 /* Special styling for important medical sections */
 .medical-section[data-section-type="allergies"] {
-  border-color: #dc2626 !important;
-  background: #fef2f2;
+    border-color: #dc2626 !important;
+    background: #fef2f2;
 }
 
 .medical-section[data-section-type="allergies"] .medical-section-header {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  border-left-color: #dc2626;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-left-color: #dc2626;
 }
 
 .medical-section[data-section-type="medications"] {
-  border-color: #0066cc !important;
-  background: #f0f9ff;
+    border-color: #0066cc !important;
+    background: #f0f9ff;
 }
 
 .medical-section[data-section-type="medications"] .medical-section-header {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border-left-color: #0066cc;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-left-color: #0066cc;
 }
 
 /* Professional medical note touches */
 .medical-section-content p {
-  margin: 8px 0;
-  line-height: 1.6;
+    margin: 8px 0;
+    line-height: 1.6;
 }
 
 .medical-section-content strong {
-  font-weight: 600;
-  color: #1e293b;
+    font-weight: 600;
+    color: #1e293b;
 }
 
 .medical-section-content em {
-  font-style: italic;
-  color: #64748b;
+    font-style: italic;
+    color: #64748b;
 }
 
 /* Enhanced visual hierarchy */
 .medical-section[data-section-type="allergies"] .section-title {
-  color: #dc2626;
-  font-weight: 700;
+    color: #dc2626;
+    font-weight: 700;
 }
 
 .medical-section[data-section-type="medications"] .section-title {
-  color: #0066cc;
-  font-weight: 600;
+    color: #0066cc;
+    font-weight: 600;
 }
 
 /* Subtle animations for professional feel */
 .section-icon {
-  transition: transform 0.2s ease;
+    transition: transform 0.2s ease;
 }
 
 .medical-section:hover .section-icon {
-  transform: scale(1.1);
+    transform: scale(1.1);
 }
 
 /* Better readability */
 .medical-section-content {
-  font-size: 14px;
-  letter-spacing: 0.01em;
+    font-size: 18px;
+    letter-spacing: 0.01em;
 }
 
 /* Medication Items */
 .medication-item {
-  margin: 6px 0;
-  padding: 8px 12px;
-  background: rgba(245, 158, 11, 0.1);
-  border-left: 3px solid #f59e0b;
-  border-radius: 4px;
-  font-size: 13px;
+    margin: 6px 0;
+    padding: 8px 12px;
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid #f59e0b;
+    border-radius: 4px;
+    font-size: 13px;
 }
 
 .medication-item[dir="rtl"] {
-  border-left: none;
-  border-right: 3px solid #f59e0b;
-  text-align: right;
+    border-left: none;
+    border-right: 3px solid #f59e0b;
+    text-align: right;
 }
 
 .medication-item .dosage {
-  background: #fed7aa;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 600;
-  color: #9a3412;
-  font-size: 12px;
+    background: #fed7aa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    color: #9a3412;
+    font-size: 12px;
 }
 
 /* List Items */
-.numbered-item, .bullet-item {
-  margin: 4px 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  line-height: 1.5;
+.numbered-item,
+.bullet-item {
+    margin: 4px 0;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.5;
 }
 
-.numbered-item[dir="rtl"], .bullet-item[dir="rtl"] {
-  flex-direction: row-reverse;
-  text-align: right;
+.numbered-item[dir="rtl"],
+.bullet-item[dir="rtl"] {
+    flex-direction: row-reverse;
+    text-align: right;
 }
 
-.numbered-item .number, .bullet-item .bullet {
-  flex-shrink: 0;
-  font-weight: 600;
-  color: #374151;
-  min-width: 20px;
-  margin-top: 1px;
+.numbered-item .number,
+.bullet-item .bullet {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: #374151;
+    min-width: 20px;
+    margin-top: 1px;
 }
 
 .numbered-item .number {
-  background: #f3f4f6;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 12px;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
 }
 
 .bullet-item .bullet {
-  color: #0066cc;
-  font-weight: bold;
-  font-size: 14px;
+    color: #0066cc;
+    font-weight: bold;
+    font-size: 14px;
 }
 
-.numbered-item .text, .bullet-item .text {
-  flex: 1;
-  line-height: 1.5;
+.numbered-item .text,
+.bullet-item .text {
+    flex: 1;
+    line-height: 1.5;
 }
 
 /* Investigation Fields */
 .investigation-field {
-  margin: 4px 0;
-  font-size: 13px;
+    margin: 4px 0;
+    font-size: 13px;
 }
 
 .investigation-field strong {
-  color: #374151;
+    color: #374151;
 }
 
 .investigation-field .value {
-  background: #e0e7ff;
-  padding: 2px 6px;
-  border-radius: 3px;
-  color: #1e40af;
-  font-size: 12px;
+    background: #e0e7ff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #1e40af;
+    font-size: 12px;
 }
 
 /* Rich Text Editor Styles */
 .rich-text-editor {
-  border-radius: 8px;
-  overflow: hidden;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .rich-editor-textarea {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  color: #1f2937 !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: #1f2937 !important;
 }
 
 .rich-editor-textarea:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  color: #1f2937 !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    color: #1f2937 !important;
 }
 
 .rich-editor-textarea:hover {
-  border-color: #9ca3af;
+    border-color: #9ca3af;
 }
 
 .rich-editor-textarea::placeholder {
-  color: #9ca3af;
-  opacity: 1;
+    color: #9ca3af;
+    opacity: 1;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  .medical-section {
-    margin: 12px 0;
-  }
-  
-  .medical-section-header {
-    padding: 8px 12px;
-  }
-  
-  .medication-item {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
-  
-  .numbered-item, .bullet-item {
-    margin: 6px 0;
-  }
+    .medical-section {
+        margin: 12px 0;
+    }
+
+    .medical-section-header {
+        padding: 8px 12px;
+    }
+
+    .medication-item {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+
+    .numbered-item,
+    .bullet-item {
+        margin: 6px 0;
+    }
 }
 
 /* Print styles */
 @media print {
-  .medical-note-content {
-    color: #000;
-    background: #fff;
-  }
-  
-  .medical-section {
-    break-inside: avoid;
-    margin: 8px 0;
-  }
-  
-  .medical-section:hover {
-    transform: none;
-    box-shadow: none;
-  }
+    .medical-note-content {
+        color: #000;
+        background: #fff;
+    }
+
+    .medical-section {
+        break-inside: avoid;
+        margin: 8px 0;
+    }
+
+    .medical-section:hover {
+        transform: none;
+        box-shadow: none;
+    }
 }
