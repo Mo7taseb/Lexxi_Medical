@@ -591,19 +591,21 @@ Rules:
       case 'consultation':
         return `Please follow this EXACT structure:
 
-**Date of consultation:** (this is a section title)
-- [Current date and time]
-
-**Reason of consultation:**(this is a section title)
-- [Primary reason for consultation]
-
-
-**Patient identification:**(this is a section title)
-- make the information as bullet points, include everything mentioned in the transcript, no need to add the field labels
-- [Patient demographics and identifiers]
+**Consultation Details:**
+Date of Consultation: [Current date]
+Patient Location: [Hospital/Clinic location from transcript]
+Consulting Service: Infectious Diseases
+Reason for Consult: [Main reason from transcript]
 
 
-**Past medical history:**(this is a section title)
+I assessed [Patient name/identifier] at [location] for [chief complaint/reason].
+
+
+**HISTORY OF PRESENTING ILLNESS:**
+Write as a comprehensive narrative describing the patient's journey with their current illness. Start with patient demographics (e.g., "Mr. X is a 33-year-old previously healthy male who..."). Include detailed timeline, symptom progression, associated symptoms, treatment received, and current status. Write in paragraph form, not bullet points. Include all relevant details from the conversation such as how the condition started, what treatments were given, current symptoms, and patient's current state.
+
+
+**PAST MEDICAL HISTORY:**
 - [Previous medical conditions]
 - [Surgical history]
 - [Significant medical events]
@@ -622,9 +624,6 @@ Rules:
 - [Smoking, alcohol, drug use]
 - [Occupation and lifestyle factors]
 - [Family history if relevant]
-
-**History of presenting illness:**(this is a section title)
-Write as a narrative story format describing the patient's journey with their current illness. Include timeline, symptom progression, associated symptoms, and any relevant details in paragraph form rather than bullet points. Describe how the condition developed, progressed, and any factors that may have contributed to the current presentation.
 
 **Physical examination:**(this is a section title)
 - [Vital signs]
