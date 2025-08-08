@@ -25,33 +25,7 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
             textAlign: 'left' as const
         };
 
-        switch (section.type) {
-            case 'header':
-                return baseStyles;
-            case 'medication':
-                return {
-                    ...baseStyles,
-                    background: '#fef3c7',
-                    borderColor: '#0066cc'
-                };
-            case 'investigation':
-                return {
-                    ...baseStyles,
-                    background: '#e8f0ffff',
-                    borderColor: '#75a3ceff'
-                };
-            default:
-                return baseStyles;
-        }
-    };
-
-    const getSectionDataType = () => {
-        const title = section.title.toLowerCase();
-        if (title.includes('allerg')) return 'allergies';
-        if (title.includes('medication')) return 'medications';
-        if (title.includes('social')) return 'social';
-        if (title.includes('investigation') || section.type === 'investigation') return 'investigation';
-        return section.type;
+        return baseStyles;
     };
 
     const formattedContent = formatSectionContent(section, language);
@@ -62,7 +36,6 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
             style={getSectionStyles()}
             dir="ltr"
             className={`medical-section medical-section-${section.type}`}
-            data-section-type={getSectionDataType()}
         >
             {/* Section Header */}
             {section.title && (

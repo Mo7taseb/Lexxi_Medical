@@ -14,91 +14,91 @@ export const englishSectionTemplates: SectionTemplate[] = [
   {
     pattern: /^[\*]*\s*(Consultation Details):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '📅',
     priority: 1
   },
   {
     pattern: /^[\*]*\s*(Date of consult(?:ation)?):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '📅',
     priority: 1
   },
   {
     pattern: /^[\*]*\s*(Patient (?:identification|location)):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '👤',
     priority: 2
   },
   {
     pattern: /^[\*]*\s*(Reason (?:for )?(?:of )?consult(?:ation)?):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '📋',
     priority: 3
   },
   {
     pattern: /^[\*]*\s*(Past medical history):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '📚',
     priority: 4
   },
   {
     pattern: /^[\*]*\s*(History of presenting illness):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '🩺',
     priority: 5
   },
   {
     pattern: /^[\*]*\s*(Physical examination):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '🔍',
     priority: 6
   },
   {
     pattern: /^[\*]*\s*(Investigation):?\s*[\*]*(.*)$/gmi,
-    type: 'investigation',
-    color: '#0066cc',
+    type: 'header',
+    color: '#ffffffff',
     icon: '🧪',
     priority: 7
   },
   {
     pattern: /^[\*]*\s*(Assessment):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '📊',
     priority: 8
   },
   {
     pattern: /^[\*]*\s*(Plan):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '📝',
     priority: 9
   },
   {
     pattern: /^[\*]*\s*(Home medications?):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '💊',
     priority: 10
   },
   {
     pattern: /^[\*]*\s*(Allergies):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#dc2626',
+    color: '#ffffffff',
     icon: '⚠️',
     priority: 11
   },
   {
     pattern: /^[\*]*\s*(Social history):?\s*[\*]*(.*)$/gmi,
     type: 'header',
-    color: '#0066cc',
+    color: '#ffffffff',
     icon: '👥',
     priority: 12
   }
@@ -150,8 +150,8 @@ export const arabicSectionTemplates: SectionTemplate[] = [
   },
   {
     pattern: /^(الفحوصات|الفحوصات المخبرية|التصوير|علم الأحياء الدقيقة):.*?$/gmi,
-    type: 'investigation',
-    color: '#3a96edff',
+    type: 'header',
+    color: '#0066cc',
     icon: '🧪',
     priority: 7
   },
@@ -214,7 +214,7 @@ export const parseNoteToSections = (note: string, language: Language): MedicalSe
         title: 'Consultation Details',
         content: '',
         type: 'header',
-        color: '#0066cc',
+        color: '#ffffffff',
         icon: '📅'
       };
       isInConsultationDetails = true;
@@ -343,23 +343,7 @@ export const formatSectionContent = (section: MedicalSection, language: Language
     const bulletMatch = line.match(/^[\s]*[-•]\s*(.+)$/);
     const numberedMatch = line.match(/^[\s]*(\d+)\.?\s*(.+)$/);
     
-    // Check if this line is an investigation subsection header
-    const investigationHeader = line.match(/^(Lab work|Imaging|Microbiology):\s*$/);
-    
-    if (investigationHeader) {
-      // Close any open lists
-      if (inBulletList) {
-        formattedLines.push('</ul>');
-        inBulletList = false;
-      }
-      if (inNumberedList) {
-        formattedLines.push('</ol>');
-        inNumberedList = false;
-      }
-      
-      // Add the investigation subsection header
-      formattedLines.push(`<h4 class="investigation-subsection">${investigationHeader[1]}:</h4>`);
-    } else if (bulletMatch) {
+    if (bulletMatch) {
       // Close numbered list if we were in one
       if (inNumberedList) {
         formattedLines.push('</ol>');
@@ -421,11 +405,6 @@ export const formatSectionContent = (section: MedicalSection, language: Language
       /(\w+)\s+(\d+\s*(?:mg|mcg|g|ml|units?|tablets?|capsules?))\s+(.*)/gi,
       '<div class="medication-item"><strong>$1</strong> <span class="dosage">$2</span> <em>$3</em></div>'
     );
-  } else if (section.type === 'investigation') {
-    // Investigation field formatting (Date:, Type:, Site:, Result:)
-    content = content
-      .replace(/(Date|Type|Site|Result):\s*(.*?)(?=\n|$)/gi, 
-        '<div class="investigation-field"><strong>$1:</strong> <span class="value">$2</span></div>');
   }
 
   // Basic text formatting
