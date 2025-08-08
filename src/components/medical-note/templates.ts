@@ -330,10 +330,74 @@ export const formatSectionContent = (section: MedicalSection, language: Language
 
   if (!content) return '';
 
-  // Handle bullet points and dashes
-  content = content
-    .replace(/^[\s]*[-•]\s*(.+)$/gm, '<div class="bullet-item"><span class="bullet">•</span><span class="text">$1</span></div>')
-    .replace(/^[\s]*(\d+)\.?\s*(.+)$/gm, '<div class="numbered-item"><span class="number">$1.</span><span class="text">$2</span></div>');
+  // Split content into lines to identify bullet points
+  const lines = content.split('\n');
+  let formattedLines: string[] = [];
+  let inBulletList = false;
+  let inNumberedList = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Check if this line is a bullet point
+    const bulletMatch = line.match(/^[\s]*[-•]\s*(.+)$/);
+    const numberedMatch = line.match(/^[\s]*(\d+)\.?\s*(.+)$/);
+    
+    if (bulletMatch) {
+      // Close numbered list if we were in one
+      if (inNumberedList) {
+        formattedLines.push('</ol>');
+        inNumberedList = false;
+      }
+      
+      // Start bullet list if not already in one
+      if (!inBulletList) {
+        formattedLines.push('<ul class="medical-bullet-list">');
+        inBulletList = true;
+      }
+      
+      formattedLines.push(`<li>${bulletMatch[1]}</li>`);
+    } else if (numberedMatch) {
+      // Close bullet list if we were in one
+      if (inBulletList) {
+        formattedLines.push('</ul>');
+        inBulletList = false;
+      }
+      
+      // Start numbered list if not already in one
+      if (!inNumberedList) {
+        formattedLines.push('<ol class="medical-numbered-list">');
+        inNumberedList = true;
+      }
+      
+      formattedLines.push(`<li>${numberedMatch[2]}</li>`);
+    } else {
+      // Close any open lists
+      if (inBulletList) {
+        formattedLines.push('</ul>');
+        inBulletList = false;
+      }
+      if (inNumberedList) {
+        formattedLines.push('</ol>');
+        inNumberedList = false;
+      }
+      
+      // Regular line
+      if (line) {
+        formattedLines.push(line);
+      }
+    }
+  }
+  
+  // Close any remaining open lists
+  if (inBulletList) {
+    formattedLines.push('</ul>');
+  }
+  if (inNumberedList) {
+    formattedLines.push('</ol>');
+  }
+  
+  content = formattedLines.join('\n');
 
   if (section.type === 'medication') {
     // Special formatting for medications
