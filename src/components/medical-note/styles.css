@@ -291,6 +291,58 @@
     font-size: 12px;
 }
 
+/* Investigation Section Enhancement */
+.medical-section[data-section-type="investigation"] .medical-section-content,
+.medical-section-investigation .medical-section-content {
+    padding: 16px 20px;
+}
+
+/* Investigation subsection headers - target all investigation sections */
+.medical-section[data-section-type="investigation"] h4.investigation-subsection,
+.medical-section-investigation h4.investigation-subsection,
+.investigation-subsection,
+h4.investigation-subsection {
+    display: block;
+    margin: 16px 0 8px 0;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-left: 3px solid #0066cc;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* First subsection header should have less top margin */
+.medical-section[data-section-type="investigation"] h4.investigation-subsection:first-of-type,
+.medical-section-investigation h4.investigation-subsection:first-of-type,
+.investigation-subsection:first-of-type,
+h4.investigation-subsection:first-of-type {
+    margin-top: 8px;
+}
+
+/* Style for investigation subsection headers - apply to investigation sections only */
+.medical-section[data-section-type="investigation"] .medical-section-content h4,
+.medical-section-investigation .medical-section-content h4 {
+    display: block;
+    margin: 16px 0 8px 0;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-left: 3px solid #0066cc;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* First subsection header should have less top margin */
+.medical-section[data-section-type="investigation"] .medical-section-content h4:first-of-type,
+.medical-section-investigation .medical-section-content h4:first-of-type {
+    margin-top: 8px;
+}
+
 /* Rich Text Editor Styles */
 .rich-text-editor {
     border-radius: 8px;

@@ -61,7 +61,7 @@ export const englishSectionTemplates: SectionTemplate[] = [
     priority: 6
   },
   {
-    pattern: /^[\*]*\s*(Investigation|Lab work|Imaging|Microbiology):?\s*[\*]*(.*)$/gmi,
+    pattern: /^[\*]*\s*(Investigation):?\s*[\*]*(.*)$/gmi,
     type: 'investigation',
     color: '#0066cc',
     icon: '🧪',
@@ -343,7 +343,23 @@ export const formatSectionContent = (section: MedicalSection, language: Language
     const bulletMatch = line.match(/^[\s]*[-•]\s*(.+)$/);
     const numberedMatch = line.match(/^[\s]*(\d+)\.?\s*(.+)$/);
     
-    if (bulletMatch) {
+    // Check if this line is an investigation subsection header
+    const investigationHeader = line.match(/^(Lab work|Imaging|Microbiology):\s*$/);
+    
+    if (investigationHeader) {
+      // Close any open lists
+      if (inBulletList) {
+        formattedLines.push('</ul>');
+        inBulletList = false;
+      }
+      if (inNumberedList) {
+        formattedLines.push('</ol>');
+        inNumberedList = false;
+      }
+      
+      // Add the investigation subsection header
+      formattedLines.push(`<h4 class="investigation-subsection">${investigationHeader[1]}:</h4>`);
+    } else if (bulletMatch) {
       // Close numbered list if we were in one
       if (inNumberedList) {
         formattedLines.push('</ol>');
@@ -406,7 +422,7 @@ export const formatSectionContent = (section: MedicalSection, language: Language
       '<div class="medication-item"><strong>$1</strong> <span class="dosage">$2</span> <em>$3</em></div>'
     );
   } else if (section.type === 'investigation') {
-    // Format investigation results
+    // Investigation field formatting (Date:, Type:, Site:, Result:)
     content = content
       .replace(/(Date|Type|Site|Result):\s*(.*?)(?=\n|$)/gi, 
         '<div class="investigation-field"><strong>$1:</strong> <span class="value">$2</span></div>');

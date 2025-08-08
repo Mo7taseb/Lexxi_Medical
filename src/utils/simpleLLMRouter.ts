@@ -630,18 +630,18 @@ Write as a comprehensive narrative describing the patient's journey with their c
 - [Systematic physical findings]
 - [Relevant examination results]
 
-**Investigation:**(this is a section title)
-**Lab work:**
+**Investigation:**
+Lab work:
 - Laboratory test results
 - Pending lab work
 
-**Imaging:**(this is a section title)
+Imaging:
 - [Date of imaging]
 - [Type of imaging study]
 - [Anatomical site examined]
 - [Detailed findings and interpretation]
 
-**Microbiology:**(this is a section title)
+Microbiology:
 - [Date of specimen collection]
 - [Type of test/culture]
 - [Site of specimen collection]

@@ -50,6 +50,7 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
         if (title.includes('allerg')) return 'allergies';
         if (title.includes('medication')) return 'medications';
         if (title.includes('social')) return 'social';
+        if (title.includes('investigation') || section.type === 'investigation') return 'investigation';
         return section.type;
     };
 
