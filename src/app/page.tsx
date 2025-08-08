@@ -166,11 +166,8 @@ export default function Home() {
                       background: `linear-gradient(135deg, #3e74c9, #6cb7e8)`,
                       boxShadow: '0 8px 25px -5px rgba(62, 116, 201, 0.3)'
                     } : {}}>
-                    {currentStep > step.id ? (
-                      <CheckCircle className="h-6 w-6" />
-                    ) : (
-                      <step.icon className="h-6 w-6" />
-                    )}
+                    {/* Always show original icon, never replace with checkmark */}
+                    <step.icon className="h-6 w-6" />
                     {currentStep >= step.id && (
                       <div className="absolute inset-0 rounded-2xl animate-pulse bg-gradient-to-r from-blue-400/20 to-blue-600/20" />
                     )}
@@ -207,11 +204,8 @@ export default function Home() {
                         background: `linear-gradient(135deg, #3e74c9, #6cb7e8)`,
                         boxShadow: '0 12px 25px -5px rgba(62, 116, 201, 0.3)'
                       } : {}}>
-                      {currentStep > step.id ? (
-                        <CheckCircle className="h-7 w-7 lg:h-8 lg:w-8" />
-                      ) : (
-                        <step.icon className="h-7 w-7 lg:h-8 lg:w-8" />
-                      )}
+                      {/* Always show original icon, never replace with checkmark */}
+                      <step.icon className="h-7 w-7 lg:h-8 lg:w-8" />
                       {currentStep >= step.id && (
                         <div className="absolute inset-0 rounded-2xl lg:rounded-3xl animate-pulse bg-gradient-to-r from-blue-400/20 to-blue-600/20" />
                       )}
