@@ -384,7 +384,12 @@ export const formatSectionContent = (section: MedicalSection, language: Language
       
       // Regular line
       if (line) {
-        formattedLines.push(line);
+        // Check if this line is a subsection header (ends with colon)
+        if (line.match(/^(Lab work|Imaging|Microbiology|Pathology|Radiology|Laboratory|Blood work|Urine analysis|Stool analysis):?\s*$/i)) {
+          formattedLines.push(`<p class="investigation-subsection-header"><strong>${line}</strong></p>`);
+        } else {
+          formattedLines.push(line);
+        }
       }
     }
   }

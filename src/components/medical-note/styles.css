@@ -11,11 +11,6 @@
     unicode-bidi: embed !important;
 }
 
-.medical-note-content * {
-    direction: ltr !important;
-    text-align: left !important;
-}
-
 .medical-note-content[dir="rtl"] {
     font-family: 'Cairo', sans-serif;
     text-align: right;
@@ -31,6 +26,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
     overflow: hidden;
+    margin: 16px 0;
 }
 
 .medical-section:hover {
@@ -41,13 +37,11 @@
 
 .medical-section-content {
     line-height: 1.6;
+    font-size: 25px;
+    letter-spacing: 0.2px;
 }
 
-/* Force LTR for all medical section content */
-.medical-section * {
-    direction: ltr !important;
-    text-align: left !important;
-}
+/* Removed redundant LTR rules since they're already covered above */
 
 .medical-section-header {
     border-left: 2px solid var(--section-color, #005fcc);
@@ -88,22 +82,28 @@
     color: #64748b;
 }
 
-
-/* Subtle animations for professional feel */
-.section-icon {
-    transition: transform 0.2s ease;
+/* Investigation subsection headers styling */
+.investigation-subsection-header {
+    font-weight: 800 !important;
+    color: #1e293b !important;
+    font-size: 1.15em;
+    margin-bottom: -30px;
+    margin-top: -20px;
 }
 
-.medical-section:hover .section-icon {
-    transform: scale(1.1);
+.investigation-subsection-header:first-child {
+    margin-top: 0px;
 }
 
-/* Better readability */
-.medical-section-content {
-    font-size: 20px;
-    letter-spacing: 0.01em;
 
+.medical-section-content p:has(+ .medical-bullet-list),
+.medical-section-content p:has(+ ul) {
+    font-weight: 700;
+    color: #1e293b;
 }
+
+
+/* Professional button styling for save/cancel */
 
 .medication-item[dir="rtl"] {
     border-left: none;
@@ -197,7 +197,6 @@
 }
 
 .rich-editor-textarea {
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     color: #1f2937 !important;
 }
 
@@ -260,28 +259,6 @@
     position: relative;
 }
 
-.medical-section.group:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    border-color: #60a5fa;
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* Enhanced hover effects for editable sections */
 .medical-section.cursor-pointer:hover {
     border-color: #3b82f6;
@@ -307,55 +284,6 @@
 
 /* Professional button styling for save/cancel */
 .medical-section button {
-    transition: all 0.15s ease;
     font-weight: 600;
     padding: 10px 15px;
-}
-
-.medical-section button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.medical-section button:active {
-    transform: translateY(0);
-}
-
-/* Enhanced tooltip styling */
-.group:hover .opacity-0 {
-    animation: slideInFade 0.2s ease-out forwards;
-}
-
-@keyframes slideInFade {
-    from {
-        opacity: 0;
-        transform: translateX(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Character counter color transitions */
-.text-orange-600 {
-    transition: color 0.3s ease;
-}
-
-/* Edit icon pulse effect */
-.group:hover .absolute.top-2.right-2 div {
-    animation: editIconPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes editIconPulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.1);
-    }
 }

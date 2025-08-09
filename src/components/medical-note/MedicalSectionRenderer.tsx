@@ -6,8 +6,6 @@ import { sanitizeHTML } from './utils';
 interface MedicalSectionRendererProps {
     section: MedicalSection;
     language: Language;
-    isEditing?: boolean;
-    onEdit?: (sectionId: string, content: string) => void;
     onStartEdit?: (sectionId: string) => void;
     onSaveEdit?: (sectionId: string, newContent: string) => void;
     onCancelEdit?: (sectionId: string) => void;
@@ -17,8 +15,6 @@ interface MedicalSectionRendererProps {
 const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
     section,
     language,
-    isEditing,
-    onEdit,
     onStartEdit,
     onSaveEdit,
     onCancelEdit,
@@ -26,7 +22,6 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 }) => {
     const [isEditingThis, setIsEditingThis] = useState(false);
     const [editContent, setEditContent] = useState(section.content);
-    const [showEditHint, setShowEditHint] = useState(false);
 
     // Handle touch/click to start editing (better for mobile)
     const handleTapToEdit = () => {
@@ -64,26 +59,14 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
             handleSave();
         }
     };
-    // Force LTR for all content - no RTL logic
-
-    const getSectionStyles = () => {
-        const baseStyles = {
-            margin: '16px 0',
-            direction: 'ltr' as const,
-            textAlign: 'left' as const
-        };
-
-        return baseStyles;
-    };
+    // Force LTR for all content - handled by CSS
 
     const formattedContent = formatSectionContent(section, language);
     const sanitizedContent = sanitizeHTML(formattedContent);
 
     return (
         <div
-            style={getSectionStyles()}
-            dir="ltr"
-            className={`medical-section medical-section-${section.type} ${isInlineEditing && !isEditingThis ? 'cursor-pointer transition-all duration-200 group' : ''
+            className={`medical-section medical-section-${section.type} ${isInlineEditing && !isEditingThis ? 'cursor-pointer group' : ''
                 } ${isEditingThis ? 'ring-2 ring-blue-500 shadow-lg' : ''} relative`}
             onDoubleClick={handleDoubleClick}
             onClick={handleTapToEdit}
@@ -101,14 +84,14 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                             <button
                                 onClick={handleSave}
-                                className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg active:scale-95 min-h-[48px]"
+                                className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl text-base font-semibold flex items-center justify-center gap-2 shadow-lg min-h-[48px]"
                                 title="Save changes"
                             >
                                 <span className="text-lg">✓</span> Save
                             </button>
                             <button
                                 onClick={handleCancel}
-                                className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg active:scale-95 min-h-[48px]"
+                                className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl text-base font-semibold flex items-center justify-center gap-2 shadow-lg min-h-[48px]"
                                 title="Cancel editing"
                             >
                                 <span className="text-lg">✕</span> Cancel
@@ -147,19 +130,19 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                             <div className="flex justify-center items-center text-base sm:text-sm bg-blue-50 border border-blue-200 px-4 py-3 sm:py-2.5 rounded-xl">
                                 <span className={`font-semibold ${editContent.length > 1000 ? 'text-orange-600' : 'text-blue-600'}`}>
                                     {editContent.length} characters
-                                    {editContent.length > 1000 && <span className="ml-2 animate-pulse">⚠️ Long</span>}
+                                    {editContent.length > 1000 && <span className="ml-2">⚠️ Long</span>}
                                 </span>
                             </div>
                         </div>
                     ) : (
                         <div
-                            className={isInlineEditing ? 'rounded-xl p-4 transition-all duration-300 border-2 border-transparent active:border-blue-300' : 'p-2'}
+                            className={isInlineEditing ? 'rounded-xl p-4 border-2 border-transparent' : 'p-2'}
                             style={{
                                 color: '#1f2937',
                                 lineHeight: '1.8',
                                 textAlign: 'left',
                                 direction: 'ltr',
-                                fontSize: '16px', // Larger for mobile readability
+                                fontSize: '16px',
                                 fontWeight: '400'
                             }}
                             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
@@ -170,7 +153,7 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 
             {/* Editing Indicator */}
             {isEditingThis && (
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 rounded-l shadow-sm animate-pulse"></div>
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 rounded-l shadow-sm"></div>
             )}
         </div>
     );
