@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -16,15 +16,6 @@ export const metadata: Metadata = {
   title: "Lexxi Medical - AI Medical Transcription System",
   description: "Advanced voice-to-medical-note system with Arabic support and AI enhancement",
   manifest: '/favicon_io/site.webmanifest',
-
-  // Mobile viewport optimization
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover'
-  },
 
   // PWA Configuration
   appleWebApp: {
@@ -62,6 +53,15 @@ export const metadata: Metadata = {
   }
 };
 
+// Separate viewport export (Next.js 15+ requirement)
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover'
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -77,6 +77,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        suppressHydrationWarning={true}
       >
         {children}
       </body>

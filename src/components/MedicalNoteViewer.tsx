@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { FileText, Loader2, CheckCircle, Copy, Download, RotateCcw, Edit3 } from 'lucide-react';
+import { FileText, Loader2, CheckCircle, Copy, RotateCcw, Edit3 } from 'lucide-react';
 
 // Import our new modular components
 import { MedicalNoteViewerProps, Language, FormattedNote } from './medical-note/types';
@@ -10,6 +10,8 @@ import { parseNoteToSections } from './medical-note/templates';
 import MedicalSectionRenderer from './medical-note/MedicalSectionRenderer';
 import RichTextEditor from './medical-note/RichTextEditor';
 import { languageTexts } from './medical-note/constants';
+import { downloadDocx } from './medical-note/docxExport';
+import DownloadDropdown from './medical-note/DownloadDropdown';
 
 const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   transcript,
@@ -87,6 +89,15 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     const filename = `medical-note-${Date.now()}.txt`;
     downloadFile(currentNote, filename);
   }, [currentNote]);
+
+  const handleDownloadDocx = useCallback(async () => {
+    try {
+      const sections = parseNoteToSections(currentNote, detectedLanguage);
+      await downloadDocx(sections, noteType, detectedLanguage);
+    } catch (error) {
+      console.error('Failed to download DOCX:', error);
+    }
+  }, [currentNote, noteType, detectedLanguage]);
 
   const handleEdit = useCallback(() => {
     setIsEditing(true);
@@ -244,13 +255,12 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 <span className="truncate">{copySuccess ? t.copied : t.copy}</span>
               </button>
 
-              <button
-                onClick={handleDownload}
-                className="bg-purple-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
-              >
-                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="truncate">{t.download}</span>
-              </button>
+              <DownloadDropdown
+                onDownloadTxt={handleDownload}
+                onDownloadDocx={handleDownloadDocx}
+                downloadText={t.download}
+                downloadDocxText={t.downloadDocx}
+              />
             </div>
           </div>
 

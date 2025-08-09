@@ -42,6 +42,7 @@ export interface LanguageTexts {
     copy: string;
     copied: string;
     download: string;
+    downloadDocx: string;
     cancel: string;
     save: string;
     editPlaceholder: string;
@@ -63,6 +64,7 @@ export interface LanguageTexts {
     copy: string;
     copied: string;
     download: string;
+    downloadDocx: string;
     cancel: string;
     save: string;
     editPlaceholder: string;
