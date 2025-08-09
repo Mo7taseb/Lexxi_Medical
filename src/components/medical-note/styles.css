@@ -11,16 +11,6 @@
     unicode-bidi: embed !important;
 }
 
-.medical-note-content {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.6;
-    color: #374151;
-    direction: ltr !important;
-    text-align: left !important;
-    font-size: 14px;
-    letter-spacing: 0.025em;
-}
-
 .medical-note-content * {
     direction: ltr !important;
     text-align: left !important;
@@ -40,7 +30,6 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
-    margin-bottom: 16px;
     overflow: hidden;
 }
 
@@ -51,7 +40,6 @@
 }
 
 .medical-section-content {
-    padding: 12px 16px 16px 16px;
     line-height: 1.6;
 }
 
@@ -63,7 +51,7 @@
 
 .medical-section-header {
     border-left: 2px solid var(--section-color, #005fcc);
-    background: linear-gradient(135deg, #fafeff 0%, #eafaff 100%);
+    background: linear-gradient(135deg, #fafeff 0%, #f4fdff 100%);
     padding: 12px 16px;
     direction: ltr !important;
     text-align: left !important;
@@ -90,17 +78,6 @@
     border-right: 4px solid var(--section-color, #0066cc);
 }
 
-/* Special styling for important medical sections */
-.medical-section[data-section-type="allergies"] {
-    border-color: #dc2626 !important;
-    background: #fef2f2;
-}
-
-.medical-section[data-section-type="allergies"] .medical-section-header {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border-left-color: #dc2626;
-}
-
 .medical-section-content strong {
     font-weight: 600;
     color: #1e293b;
@@ -111,11 +88,6 @@
     color: #64748b;
 }
 
-/* Enhanced visual hierarchy */
-.medical-section[data-section-type="allergies"] .section-title {
-    color: #dc2626;
-    font-weight: 700;
-}
 
 /* Subtle animations for professional feel */
 .section-icon {
@@ -128,8 +100,9 @@
 
 /* Better readability */
 .medical-section-content {
-    font-size: 18px;
+    font-size: 20px;
     letter-spacing: 0.01em;
+
 }
 
 .medication-item[dir="rtl"] {
@@ -219,9 +192,9 @@
 
 /* Rich Text Editor Styles */
 .rich-text-editor {
-    border-radius: 8px; 
+    border-radius: 8px;
     overflow: hidden;
-    }
+}
 
 .rich-editor-textarea {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -279,5 +252,110 @@
     .medical-section:hover {
         transform: none;
         box-shadow: none;
+    }
+}
+
+/* Inline Editing Styles */
+.medical-section.cursor-pointer {
+    position: relative;
+}
+
+.medical-section.group:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    border-color: #60a5fa;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced hover effects for editable sections */
+.medical-section.cursor-pointer:hover {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+/* Editing state styling */
+.medical-section:has(textarea) {
+    background: linear-gradient(135deg, #fefffe 0%, #f0f9ff 100%);
+    border: 2px solid #3b82f6;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+}
+
+
+
+.medical-section textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #2563eb;
+    background-color: #ffffff;
+}
+
+
+/* Professional button styling for save/cancel */
+.medical-section button {
+    transition: all 0.15s ease;
+    font-weight: 600;
+    padding: 10px 15px;
+}
+
+.medical-section button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.medical-section button:active {
+    transform: translateY(0);
+}
+
+/* Enhanced tooltip styling */
+.group:hover .opacity-0 {
+    animation: slideInFade 0.2s ease-out forwards;
+}
+
+@keyframes slideInFade {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Character counter color transitions */
+.text-orange-600 {
+    transition: color 0.3s ease;
+}
+
+/* Edit icon pulse effect */
+.group:hover .absolute.top-2.right-2 div {
+    animation: editIconPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes editIconPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
     }
 }

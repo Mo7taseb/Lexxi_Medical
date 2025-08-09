@@ -24,6 +24,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedNote, setEditedNote] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [editedSections, setEditedSections] = useState<{ [key: string]: string }>({});
 
   // Memoized language detection and text selection
   const detectedLanguage: Language = useMemo(() => {
@@ -105,6 +106,45 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     setEditedNote(value);
   }, []);
 
+  // Inline editing handlers
+  const handleSectionStartEdit = useCallback((sectionId: string) => {
+    console.log(`Starting inline edit for section: ${sectionId}`);
+  }, []);
+
+  const handleSectionSaveEdit = useCallback((sectionId: string, newContent: string) => {
+    console.log(`Saving inline edit for section: ${sectionId}`);
+
+    // Update the edited sections
+    setEditedSections(prev => ({
+      ...prev,
+      [sectionId]: newContent
+    }));
+
+    // Reconstruct the full note with the updated section
+    const updatedSections = formattedNote.sections.map(section =>
+      section.id === sectionId
+        ? { ...section, content: newContent }
+        : editedSections[section.id]
+          ? { ...section, content: editedSections[section.id] }
+          : section
+    );
+
+    // Convert sections back to text format
+    const reconstructedNote = updatedSections.map(section => {
+      const title = section.title ? `**${section.title}:**` : '';
+      const content = section.content || '';
+      return title + (title ? '\n' : '') + content;
+    }).join('\n\n');
+
+    setEditedNote(reconstructedNote);
+  }, [formattedNote.sections, editedSections]);
+
+  const handleSectionCancelEdit = useCallback((sectionId: string) => {
+    console.log(`Canceling inline edit for section: ${sectionId}`);
+  }, []);
+
+  // Inline editing is always enabled - removed toggle function
+
   return (
     <div className="max-w-5xl mx-auto" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
       {/* Header Section */}
@@ -184,13 +224,15 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             {/* Action buttons */}
             <div className={`flex flex-col sm:flex-row gap-2 sm:gap-2 ${isEnglish ? 'sm:flex-row' : 'sm:flex-row-reverse'}`}>
               {!isEditing && (
-                <button
-                  onClick={handleEdit}
-                  className="bg-gray-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
-                >
-                  <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="truncate">{t.edit}</span>
-                </button>
+                <>
+                  <button
+                    onClick={handleEdit}
+                    className="bg-gray-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
+                  >
+                    <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="truncate">{t.edit}</span>
+                  </button>
+                </>
               )}
 
               <button
@@ -224,12 +266,16 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             />
           ) : (
             <div className="bg-gray-50 p-3 sm:p-6 rounded-lg">
-              {/* Render structured sections */}
+              {/* Render structured sections - always editable */}
               {formattedNote.sections.map((section) => (
                 <MedicalSectionRenderer
                   key={section.id}
-                  section={section}
+                  section={editedSections[section.id] ? { ...section, content: editedSections[section.id] } : section}
                   language={detectedLanguage}
+                  isInlineEditing={!isEditing} // Always allow inline editing when not in full edit mode
+                  onStartEdit={handleSectionStartEdit}
+                  onSaveEdit={handleSectionSaveEdit}
+                  onCancelEdit={handleSectionCancelEdit}
                 />
               ))}
 
