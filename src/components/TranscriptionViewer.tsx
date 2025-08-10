@@ -123,16 +123,24 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                     let errorMessage = 'فشل في تفريغ الصوت';
 
                     try {
-                        errorData = await response.json();
+                        // Clone response to avoid "body stream already read" in Vercel
+                        const responseClone = response.clone();
+                        errorData = await responseClone.json();
                         errorMessage = errorData.error || 'فشل في تفريغ الصوت';
                     } catch (parseError) {
-                        const errorText = await response.text();
-                        console.error('Non-JSON error response:', errorText);
+                        try {
+                            // Try reading as text if JSON parsing fails
+                            const errorText = await response.text();
+                            console.error('Non-JSON error response:', errorText);
 
-                        if (response.status === 413) {
-                            errorMessage = 'حجم الملف كبير جداً. يرجى استخدام Cloudinary للملفات الكبيرة.';
-                        } else {
-                            errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى.`;
+                            if (response.status === 413) {
+                                errorMessage = 'حجم الملف كبير جداً. يرجى استخدام Cloudinary للملفات الكبيرة.';
+                            } else {
+                                errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى.`;
+                            }
+                        } catch (textError) {
+                            console.error('Failed to read response in deployment:', textError);
+                            errorMessage = `خطأ في قراءة الاستجابة (${response.status}). يرجى المحاولة مرة أخرى.`;
                         }
                     }
 
@@ -273,14 +281,15 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                 let errorMessage = 'فشل في تفريغ الصوت';
 
                 try {
-                    // Try to read as text first, then parse as JSON if possible
-                    const responseText = await response.text();
+                    // Clone response to avoid "body stream already read" in Vercel
+                    const responseClone = response.clone();
+                    const responseText = await responseClone.text();
                     try {
                         const errorData = JSON.parse(responseText);
                         errorMessage = errorData.error || 'فشل في تفريغ الصوت';
                     } catch (jsonError) {
                         // If not valid JSON, handle different status codes
-                        console.error('Non-JSON error response:', responseText);
+                        console.error('Non-JSON error response:', responseText.substring(0, 200));
 
                         if (response.status === 413) {
                             errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
@@ -297,7 +306,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                         }
                     }
                 } catch (readError) {
-                    console.error('Failed to read response:', readError);
+                    console.error('Failed to read response in deployment:', readError);
                     errorMessage = `خطأ في قراءة الاستجابة (${response.status}). يرجى المحاولة مرة أخرى.`;
                 }
 

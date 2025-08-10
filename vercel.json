@@ -3,6 +3,10 @@
     "src/app/api/transcribe/route.ts": {
       "maxDuration": 60,
       "memory": 1024
+    },
+    "src/app/api/transcribe-cloudinary/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   },
   "headers": [
