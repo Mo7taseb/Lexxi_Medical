@@ -100,8 +100,8 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                     )}
 
                     {isInlineEditing && !isEditingThis && (
-                        <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 font-medium">
-                            ✏️ Tap to edit
+                        <div className="text-xs sm:text-sm text-blue-600 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-blue-200 font-medium text-center">
+                            Tap to edit
                         </div>
                     )}
                 </div>

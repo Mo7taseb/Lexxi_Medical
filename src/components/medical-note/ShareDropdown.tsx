@@ -105,11 +105,11 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
     };
 
     return (
-        <div className={`relative ${className}`} ref={dropdownRef}>
+        <div className={`relative w-full ${className}`} ref={dropdownRef}>
             {/* Share Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
+                className="w-full bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
             >
                 <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="truncate">

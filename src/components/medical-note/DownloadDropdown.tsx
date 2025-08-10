@@ -42,17 +42,16 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative w-full" ref={dropdownRef}>
             {/* Main Download Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="bg-purple-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px] relative"
+                className="w-full bg-purple-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px] relative"
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
-                <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-                <span className="truncate">Download as</span>
                 <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="truncate">Download as</span>
             </button>
 
             {/* Dropdown Menu */}
