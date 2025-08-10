@@ -60,16 +60,22 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                 });
 
                 if (!response.ok) {
-                    let errorData;
                     let errorMessage = 'فشل في تفريغ الصوت من Cloudinary';
 
                     try {
-                        errorData = await response.json();
-                        errorMessage = errorData.error || 'فشل في تفريغ الصوت من Cloudinary';
-                    } catch (parseError) {
-                        const errorText = await response.text();
-                        console.error('Non-JSON error response:', errorText);
-                        errorMessage = `خطأ في معالجة الملف من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
+                        // Try to read as text first, then parse as JSON if possible
+                        const responseText = await response.text();
+                        try {
+                            const errorData = JSON.parse(responseText);
+                            errorMessage = errorData.error || 'فشل في تفريغ الصوت من Cloudinary';
+                        } catch (jsonError) {
+                            // If not valid JSON, use the raw text for debugging
+                            console.error('Non-JSON error response:', responseText);
+                            errorMessage = `خطأ في معالجة الملف من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
+                        }
+                    } catch (readError) {
+                        console.error('Failed to read response:', readError);
+                        errorMessage = `خطأ في قراءة الاستجابة من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
                     }
 
                     if (response.status === 429) {
@@ -264,31 +270,35 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
             });
 
             if (!response.ok) {
-                let errorData;
                 let errorMessage = 'فشل في تفريغ الصوت';
 
                 try {
-                    // Try to parse JSON error response
-                    errorData = await response.json();
-                    errorMessage = errorData.error || 'فشل في تفريغ الصوت';
-                } catch (parseError) {
-                    // If JSON parsing fails, it might be an HTML error page
-                    const errorText = await response.text();
-                    console.error('Non-JSON error response:', errorText);
+                    // Try to read as text first, then parse as JSON if possible
+                    const responseText = await response.text();
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        errorMessage = errorData.error || 'فشل في تفريغ الصوت';
+                    } catch (jsonError) {
+                        // If not valid JSON, handle different status codes
+                        console.error('Non-JSON error response:', responseText);
 
-                    if (response.status === 413) {
-                        errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
-                    } else if (response.status === 400) {
-                        errorMessage = 'تنسيق الملف غير مدعوم أو يحتوي على أخطاء.';
-                    } else if (response.status === 500) {
-                        errorMessage = 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
-                    } else if (response.status === 502 || response.status === 503) {
-                        errorMessage = 'الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى بعد دقائق قليلة.';
-                    } else if (errorText.includes('Request Entity Too Large') || errorText.includes('413')) {
-                        errorMessage = 'حجم الملف كبير جداً للمعالجة. يرجى استخدام ملف أصغر من 25 MB.';
-                    } else {
-                        errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى أو التواصل مع الدعم.`;
+                        if (response.status === 413) {
+                            errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
+                        } else if (response.status === 400) {
+                            errorMessage = 'تنسيق الملف غير مدعوم أو يحتوي على أخطاء.';
+                        } else if (response.status === 500) {
+                            errorMessage = 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
+                        } else if (response.status === 502 || response.status === 503) {
+                            errorMessage = 'الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى بعد دقائق قليلة.';
+                        } else if (responseText.includes('Request Entity Too Large') || responseText.includes('413')) {
+                            errorMessage = 'حجم الملف كبير جداً للمعالجة. يرجى استخدام ملف أصغر من 25 MB.';
+                        } else {
+                            errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى أو التواصل مع الدعم.`;
+                        }
                     }
+                } catch (readError) {
+                    console.error('Failed to read response:', readError);
+                    errorMessage = `خطأ في قراءة الاستجابة (${response.status}). يرجى المحاولة مرة أخرى.`;
                 }
 
                 // If it's a duplicate request, show a better message instead of auto-retry
