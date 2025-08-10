@@ -33,7 +33,12 @@ export const languageTexts: LanguageTexts = {
     charCount: 'عدد الأحرف',
     reportType: 'نوع التقرير',
     startNew: 'بدء جديد',
-    regenerate: 'إعادة إنشاء التقرير'
+    regenerate: 'إعادة إنشاء التقرير',
+    share: 'مشاركة',
+    shareReport: 'مشاركة التقرير',
+    shareViaEmail: 'مشاركة عبر البريد الإلكتروني',
+    shareViaWhatsApp: 'مشاركة عبر واتساب',
+    copyContent: 'نسخ المحتوى'
   },
   en: {
     noteTypeNames: {
@@ -67,6 +72,11 @@ export const languageTexts: LanguageTexts = {
     charCount: 'Character count',
     reportType: 'Report type',
     startNew: 'Start New',
-    regenerate: 'Regenerate Report'
+    regenerate: 'Regenerate Report',
+    share: 'Share',
+    shareReport: 'Share Report',
+    shareViaEmail: 'Share via Email',
+    shareViaWhatsApp: 'Share via WhatsApp',
+    copyContent: 'Copy Content'
   }
 };

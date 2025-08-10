@@ -12,6 +12,7 @@ import RichTextEditor from './medical-note/RichTextEditor';
 import { languageTexts } from './medical-note/constants';
 import { downloadDocx } from './medical-note/docxExport';
 import DownloadDropdown from './medical-note/DownloadDropdown';
+import ShareDropdown from './medical-note/ShareDropdown';
 
 const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   transcript,
@@ -98,6 +99,24 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       console.error('Failed to download DOCX:', error);
     }
   }, [currentNote, noteType, detectedLanguage]);
+
+  // Share handlers
+  const handleShareEmail = useCallback((format: 'text' | 'docx') => {
+    if (format === 'docx') {
+      // Only trigger DOCX download when specifically sharing via DOCX
+      handleDownloadDocx();
+    }
+    // Don't interfere with email opening - that's handled in ShareDropdown
+    console.log(`Sharing via email in ${format} format`);
+  }, [handleDownloadDocx]);
+
+  const handleShareWhatsApp = useCallback((format: 'text') => {
+    console.log('Sharing via WhatsApp');
+  }, []);
+
+  const handleCopyLink = useCallback(() => {
+    console.log('Medical report content copied to clipboard');
+  }, []);
 
   const handleEdit = useCallback(() => {
     setIsEditing(true);
@@ -260,6 +279,16 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 onDownloadDocx={handleDownloadDocx}
                 downloadText={t.download}
                 downloadDocxText={t.downloadDocx}
+              />
+
+              <ShareDropdown
+                medicalNote={currentNote}
+                patientInfo={{ name: "Patient" }} // You can make this dynamic if you have patient data
+                noteType={noteType}
+                language={detectedLanguage}
+                onShareEmail={handleShareEmail}
+                onShareWhatsApp={handleShareWhatsApp}
+                onCopyLink={handleCopyLink}
               />
             </div>
           </div>

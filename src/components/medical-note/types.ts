@@ -51,6 +51,11 @@ export interface LanguageTexts {
     reportType: string;
     startNew: string;
     regenerate: string;
+    share: string;
+    shareReport: string;
+    shareViaEmail: string;
+    shareViaWhatsApp: string;
+    copyContent: string;
   };
   en: {
     noteTypeNames: Record<string, string>;
@@ -73,6 +78,11 @@ export interface LanguageTexts {
     reportType: string;
     startNew: string;
     regenerate: string;
+    share: string;
+    shareReport: string;
+    shareViaEmail: string;
+    shareViaWhatsApp: string;
+    copyContent: string;
   };
 }
 
