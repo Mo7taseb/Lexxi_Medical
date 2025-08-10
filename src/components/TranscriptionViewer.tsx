@@ -5,11 +5,12 @@ import { FileText, Loader2, AlertCircle, CheckCircle, Volume2, Edit3, Save, X } 
 
 interface TranscriptionViewerProps {
     audioFile: File;
+    audioUrl?: string; // Add support for Cloudinary URL
     onComplete: (transcript: string) => void;
     onLanguageDetected?: (language: 'ar' | 'en') => void; // Add language detection callback
 }
 
-const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, onComplete, onLanguageDetected }) => {
+const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, audioUrl, onComplete, onLanguageDetected }) => {
     const [transcript, setTranscript] = useState<string>('');
     const [originalTranscript, setOriginalTranscript] = useState<string>('');
     const [enhancement, setEnhancement] = useState<any>(null);
@@ -39,47 +40,133 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
         setHasTranscribed(true);
 
         try {
-            const formData = new FormData();
-            formData.append('audio', audioFile);
-            formData.append('language', language);
+            // Check if we have a Cloudinary URL (for large files)
+            const isCloudinaryUrl = audioUrl && audioUrl.includes('cloudinary.com');
+            
+            if (isCloudinaryUrl) {
+                // Use Cloudinary transcription endpoint
+                console.log('Using Cloudinary transcription for large file:', audioUrl);
+                
+                const response = await fetch('/api/transcribe-cloudinary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioUrl: audioUrl,
+                        language: language,
+                        model: 'whisper-large-v3-turbo'
+                    }),
+                });
 
-            console.log('Sending transcription request...');
-            const response = await fetch('/api/transcribe', {
-                method: 'POST',
-                body: formData,
-            });
+                if (!response.ok) {
+                    let errorData;
+                    let errorMessage = 'فشل في تفريغ الصوت من السحابة';
+                    
+                    try {
+                        errorData = await response.json();
+                        errorMessage = errorData.error || 'فشل في تفريغ الصوت من السحابة';
+                    } catch (parseError) {
+                        const errorText = await response.text();
+                        console.error('Non-JSON error response:', errorText);
+                        errorMessage = `خطأ في معالجة الملف السحابي (${response.status}). يرجى المحاولة مرة أخرى.`;
+                    }
 
-            if (!response.ok) {
-                const errorData = await response.json();
+                    if (response.status === 429) {
+                        throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
+                    }
 
-                // If it's a duplicate request, show a better message instead of auto-retry
-                if (response.status === 429) {
-                    console.log('Duplicate request detected');
-                    throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
+                    throw new Error(errorMessage);
                 }
 
-                throw new Error(errorData.error || 'فشل في تفريغ الصوت');
+                const data = await response.json();
+
+                if (!data.transcript || data.transcript.trim() === '') {
+                    throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
+                }
+
+                // Set enhanced transcript as primary
+                setTranscript(data.transcript);
+                setEditedTranscript(data.transcript);
+
+                // Store original and enhancement info
+                setOriginalTranscript(data.originalTranscript || data.transcript);
+                setEnhancement(data.enhancement || null);
+                setTranscriptionSource(data.transcriptionSource || 'groq-whisper-cloudinary');
+
+                console.log('Cloudinary transcription completed successfully');
+                console.log('- Source:', data.transcriptionSource);
+                console.log('- Enhancement:', data.enhancement?.source);
+                
+            } else {
+                // Use regular transcription endpoint for normal files
+                const formData = new FormData();
+                formData.append('audio', audioFile);
+                formData.append('language', language);
+
+                console.log('Sending transcription request...');
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    let errorData;
+                    let errorMessage = 'فشل في تفريغ الصوت';
+                    
+                    try {
+                        // Try to parse JSON error response
+                        errorData = await response.json();
+                        errorMessage = errorData.error || 'فشل في تفريغ الصوت';
+                    } catch (parseError) {
+                        // If JSON parsing fails, it might be an HTML error page
+                        const errorText = await response.text();
+                        console.error('Non-JSON error response:', errorText);
+                        
+                        if (response.status === 413) {
+                            errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
+                        } else if (response.status === 400) {
+                            errorMessage = 'تنسيق الملف غير مدعوم أو يحتوي على أخطاء.';
+                        } else if (response.status === 500) {
+                            errorMessage = 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
+                        } else if (response.status === 502 || response.status === 503) {
+                            errorMessage = 'الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى بعد دقائق قليلة.';
+                        } else if (errorText.includes('Request Entity Too Large') || errorText.includes('413')) {
+                            errorMessage = 'حجم الملف كبير جداً للمعالجة. يرجى استخدام ملف أصغر من 25 MB.';
+                        } else {
+                            errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى أو التواصل مع الدعم.`;
+                        }
+                    }
+
+                    // If it's a duplicate request, show a better message instead of auto-retry
+                    if (response.status === 429) {
+                        console.log('Duplicate request detected');
+                        throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
+                    }
+
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+
+                if (!data.transcript || data.transcript.trim() === '') {
+                    throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
+                }
+
+                // Set enhanced transcript as primary
+                setTranscript(data.transcript);
+                setEditedTranscript(data.transcript);
+
+                // Store original and enhancement info
+                setOriginalTranscript(data.originalTranscript || data.transcript);
+                setEnhancement(data.enhancement || null);
+                setTranscriptionSource(data.transcriptionSource || 'unknown');
+
+                console.log('Transcription completed successfully:');
+                console.log('- Source:', data.transcriptionSource);
+                console.log('- Enhancement:', data.enhancement?.source);
+                console.log('- Improved:', data.enhancement?.improved);
             }
-
-            const data = await response.json();
-
-            if (!data.transcript || data.transcript.trim() === '') {
-                throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
-            }
-
-            // Set enhanced transcript as primary
-            setTranscript(data.transcript);
-            setEditedTranscript(data.transcript);
-
-            // Store original and enhancement info
-            setOriginalTranscript(data.originalTranscript || data.transcript);
-            setEnhancement(data.enhancement || null);
-            setTranscriptionSource(data.transcriptionSource || 'unknown');
-
-            console.log('Transcription completed successfully:');
-            console.log('- Source:', data.transcriptionSource);
-            console.log('- Enhancement:', data.enhancement?.source);
-            console.log('- Improved:', data.enhancement?.improved);
 
         } catch (err) {
             setHasTranscribed(false); // Reset flag on error so user can retry
@@ -193,7 +280,32 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
+                let errorData;
+                let errorMessage = 'فشل في تفريغ الصوت';
+                
+                try {
+                    // Try to parse JSON error response
+                    errorData = await response.json();
+                    errorMessage = errorData.error || 'فشل في تفريغ الصوت';
+                } catch (parseError) {
+                    // If JSON parsing fails, it might be an HTML error page
+                    const errorText = await response.text();
+                    console.error('Non-JSON error response:', errorText);
+                    
+                    if (response.status === 413) {
+                        errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
+                    } else if (response.status === 400) {
+                        errorMessage = 'تنسيق الملف غير مدعوم أو يحتوي على أخطاء.';
+                    } else if (response.status === 500) {
+                        errorMessage = 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
+                    } else if (response.status === 502 || response.status === 503) {
+                        errorMessage = 'الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى بعد دقائق قليلة.';
+                    } else if (errorText.includes('Request Entity Too Large') || errorText.includes('413')) {
+                        errorMessage = 'حجم الملف كبير جداً للمعالجة. يرجى استخدام ملف أصغر من 25 MB.';
+                    } else {
+                        errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى أو التواصل مع الدعم.`;
+                    }
+                }
 
                 // If it's a duplicate request, show a better message instead of auto-retry
                 if (response.status === 429) {
@@ -201,7 +313,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, on
                     throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
                 }
 
-                throw new Error(errorData.error || 'فشل في تفريغ الصوت');
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();

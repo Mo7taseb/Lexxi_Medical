@@ -17,6 +17,7 @@ export default function Home() {
   const [inputMode, setInputMode] = useState<'conversation' | 'summary' | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null); // Add Cloudinary URL state
   const [transcript, setTranscript] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState<'ar' | 'en'>('ar'); // Add language state
   const [noteType, setNoteType] = useState<string>('soap');
@@ -35,6 +36,14 @@ export default function Home() {
   const handleAudioComplete = (file: File, url: string) => {
     setAudioFile(file);
     setAudioUrl(url);
+    
+    // Check if it's a Cloudinary URL and store it separately
+    if (url.includes('cloudinary.com')) {
+      setCloudinaryUrl(url);
+    } else {
+      setCloudinaryUrl(null);
+    }
+    
     setCurrentStep(3);
   };
 
@@ -405,6 +414,7 @@ export default function Home() {
               <Suspense fallback={<LoadingSpinner />}>
                 <TranscriptionViewer
                   audioFile={audioFile}
+                  audioUrl={cloudinaryUrl || undefined} // Pass Cloudinary URL if available
                   onComplete={handleTranscriptionComplete}
                   onLanguageDetected={handleLanguageDetected}
                 />

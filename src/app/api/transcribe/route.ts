@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SimpleLLMRouter } from '@/utils/simpleLLMRouter';
 import { GroqWhisperTranscriber } from '@/utils/groqWhisper';
 
+// Configure API route to handle larger files
+export const runtime = 'nodejs';
+export const maxDuration = 60; // 60 seconds timeout for Vercel
+export const dynamic = 'force-dynamic';
+
+// Vercel-specific body size limit detection
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+const isProduction = process.env.NODE_ENV === 'production';
+const VERCEL_BODY_SIZE_LIMIT = (isVercel || isProduction) ? 4.5 * 1024 * 1024 : 25 * 1024 * 1024;
+
 // Prevent duplicate transcriptions with timestamps
 const ongoingTranscriptions = new Map<string, number>();
 
@@ -32,8 +42,44 @@ export async function POST(request: NextRequest) {
     console.log(`[${requestId}] - Language parameter: "${language}" (raw value)`);
     console.log(`[${requestId}] - Model parameter: "${model}"`);
     
+    if (!audioFile) {
+      return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
+    }
+
+    // Check file size limit (different limits for local vs Vercel)
+    const isVercelDeployment = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+    const maxSize = isVercelDeployment ? 4.5 * 1024 * 1024 : 25 * 1024 * 1024; // 4.5MB for Vercel, 25MB for local
+    const maxSizeLabel = isVercelDeployment ? '4.5 MB' : '25 MB';
+    
+    if (audioFile.size > maxSize) {
+      console.log(`[${requestId}] File too large: ${audioFile.size} bytes (max: ${maxSize})`);
+      console.log(`[${requestId}] Environment: ${isVercelDeployment ? 'Vercel' : 'Local'}`);
+      return NextResponse.json(
+        { 
+          error: isVercelDeployment 
+            ? `حجم الملف كبير جداً (${(audioFile.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى للنشر المجاني على Vercel هو ${maxSizeLabel}. يرجى ضغط الملف أو استخدام ملف أصغر.`
+            : `حجم الملف كبير جداً (${(audioFile.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى المسموح هو ${maxSizeLabel}. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.`,
+          maxSizeAllowed: maxSizeLabel,
+          currentSize: `${(audioFile.size / 1024 / 1024).toFixed(1)}MB`,
+          environment: isVercelDeployment ? 'vercel' : 'local'
+        }, 
+        { status: 413 }
+      );
+    }
+
+    // Check file type
+    const supportedTypes = ['audio/webm', 'audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/m4a', 'audio/ogg'];
+    if (!supportedTypes.some(type => audioFile.type.includes(type.split('/')[1]))) {
+      console.log(`[${requestId}] Unsupported file type: ${audioFile.type}`);
+      return NextResponse.json(
+        { error: `نوع الملف غير مدعوم (${audioFile.type}). الأنواع المدعومة: MP3, WAV, M4A, WebM, OGG` },
+        { status: 400 }
+      );
+    }
+    
     // Create unique key to prevent duplicates
     transcriptionKey = `${audioFile?.size}_${audioFile?.type}_${language}_${model}`;
+
     
     // Block duplicate requests
     if (ongoingTranscriptions.has(transcriptionKey)) {
@@ -52,15 +98,9 @@ export async function POST(request: NextRequest) {
     
     console.log(`[${requestId}] Processing audio file: ${audioFile?.name}, language: ${language.toUpperCase()}, model: ${model}`);
     console.log(`[${requestId}] Language-optimized settings: ${language === 'en' ? 'English medical mode' : 'Arabic medical mode'}`);
-    
-    if (!audioFile) {
-      return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
-    }
 
     // Mark as ongoing with timestamp
-    ongoingTranscriptions.set(transcriptionKey, Date.now());
-
-    try {
+    ongoingTranscriptions.set(transcriptionKey, Date.now());    try {
       console.log(`[${requestId}] Starting Groq Whisper transcription...`);
       
       // Step 1: Transcribe with Groq Whisper API
