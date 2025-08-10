@@ -40,13 +40,13 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
         setHasTranscribed(true);
 
         try {
-            // Check if we have a Cloudinary URL (for large files)
+            // Always use Cloudinary transcription if we have a Cloudinary URL
             const isCloudinaryUrl = audioUrl && audioUrl.includes('cloudinary.com');
-            
+
             if (isCloudinaryUrl) {
                 // Use Cloudinary transcription endpoint
-                console.log('Using Cloudinary transcription for large file:', audioUrl);
-                
+                console.log('Using Cloudinary transcription for file:', audioUrl);
+
                 const response = await fetch('/api/transcribe-cloudinary', {
                     method: 'POST',
                     headers: {
@@ -61,15 +61,15 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
 
                 if (!response.ok) {
                     let errorData;
-                    let errorMessage = 'فشل في تفريغ الصوت من السحابة';
-                    
+                    let errorMessage = 'فشل في تفريغ الصوت من Cloudinary';
+
                     try {
                         errorData = await response.json();
-                        errorMessage = errorData.error || 'فشل في تفريغ الصوت من السحابة';
+                        errorMessage = errorData.error || 'فشل في تفريغ الصوت من Cloudinary';
                     } catch (parseError) {
                         const errorText = await response.text();
                         console.error('Non-JSON error response:', errorText);
-                        errorMessage = `خطأ في معالجة الملف السحابي (${response.status}). يرجى المحاولة مرة أخرى.`;
+                        errorMessage = `خطأ في معالجة الملف من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
                     }
 
                     if (response.status === 429) {
@@ -97,9 +97,11 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                 console.log('Cloudinary transcription completed successfully');
                 console.log('- Source:', data.transcriptionSource);
                 console.log('- Enhancement:', data.enhancement?.source);
-                
+
             } else {
-                // Use regular transcription endpoint for normal files
+                // Fallback to regular transcription (should rarely happen now)
+                console.log('Warning: Using direct file upload instead of Cloudinary');
+
                 const formData = new FormData();
                 formData.append('audio', audioFile);
                 formData.append('language', language);
@@ -113,34 +115,22 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                 if (!response.ok) {
                     let errorData;
                     let errorMessage = 'فشل في تفريغ الصوت';
-                    
+
                     try {
-                        // Try to parse JSON error response
                         errorData = await response.json();
                         errorMessage = errorData.error || 'فشل في تفريغ الصوت';
                     } catch (parseError) {
-                        // If JSON parsing fails, it might be an HTML error page
                         const errorText = await response.text();
                         console.error('Non-JSON error response:', errorText);
-                        
+
                         if (response.status === 413) {
-                            errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
-                        } else if (response.status === 400) {
-                            errorMessage = 'تنسيق الملف غير مدعوم أو يحتوي على أخطاء.';
-                        } else if (response.status === 500) {
-                            errorMessage = 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
-                        } else if (response.status === 502 || response.status === 503) {
-                            errorMessage = 'الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى بعد دقائق قليلة.';
-                        } else if (errorText.includes('Request Entity Too Large') || errorText.includes('413')) {
-                            errorMessage = 'حجم الملف كبير جداً للمعالجة. يرجى استخدام ملف أصغر من 25 MB.';
+                            errorMessage = 'حجم الملف كبير جداً. يرجى استخدام Cloudinary للملفات الكبيرة.';
                         } else {
-                            errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى أو التواصل مع الدعم.`;
+                            errorMessage = `خطأ غير متوقع (${response.status}). يرجى المحاولة مرة أخرى.`;
                         }
                     }
 
-                    // If it's a duplicate request, show a better message instead of auto-retry
                     if (response.status === 429) {
-                        console.log('Duplicate request detected');
                         throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
                     }
 
@@ -153,19 +143,13 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                     throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
                 }
 
-                // Set enhanced transcript as primary
                 setTranscript(data.transcript);
                 setEditedTranscript(data.transcript);
-
-                // Store original and enhancement info
                 setOriginalTranscript(data.originalTranscript || data.transcript);
                 setEnhancement(data.enhancement || null);
-                setTranscriptionSource(data.transcriptionSource || 'unknown');
+                setTranscriptionSource(data.transcriptionSource || 'groq-whisper-direct');
 
-                console.log('Transcription completed successfully:');
-                console.log('- Source:', data.transcriptionSource);
-                console.log('- Enhancement:', data.enhancement?.source);
-                console.log('- Improved:', data.enhancement?.improved);
+                console.log('Direct transcription completed successfully');
             }
 
         } catch (err) {
@@ -282,7 +266,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
             if (!response.ok) {
                 let errorData;
                 let errorMessage = 'فشل في تفريغ الصوت';
-                
+
                 try {
                     // Try to parse JSON error response
                     errorData = await response.json();
@@ -291,7 +275,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                     // If JSON parsing fails, it might be an HTML error page
                     const errorText = await response.text();
                     console.error('Non-JSON error response:', errorText);
-                    
+
                     if (response.status === 413) {
                         errorMessage = 'حجم الملف كبير جداً. الحد الأقصى المسموح هو 25 MB. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.';
                     } else if (response.status === 400) {

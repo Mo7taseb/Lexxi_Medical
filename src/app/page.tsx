@@ -36,14 +36,14 @@ export default function Home() {
   const handleAudioComplete = (file: File, url: string) => {
     setAudioFile(file);
     setAudioUrl(url);
-    
+
     // Check if it's a Cloudinary URL and store it separately
     if (url.includes('cloudinary.com')) {
       setCloudinaryUrl(url);
     } else {
       setCloudinaryUrl(null);
     }
-    
+
     setCurrentStep(3);
   };
 

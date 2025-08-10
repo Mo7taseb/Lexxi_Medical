@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Play, Pause, Upload, AlertCircle, CheckCircle, Volume2, FileText, Loader2, Cloud } from 'lucide-react';
-import { AudioCompressor } from '@/utils/audioCompression';
 import { CloudinaryUploader } from '@/utils/cloudinaryUpload';
 
 interface VoiceRecorderProps {
@@ -17,7 +16,6 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
     const [audioFile, setAudioFile] = useState<File | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isCompressing, setIsCompressing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null);
@@ -142,85 +140,44 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                 return;
             }
 
-            // Check if we're on Vercel and file is large
-            const isVercel = window.location.hostname.includes('vercel.app') || 
-                           window.location.hostname.includes('.app') ||
-                           process.env.NODE_ENV === 'production';
-            const vercelLimit = 4.5 * 1024 * 1024;
-            const maxLocalSize = 25 * 1024 * 1024;
-            
-            if (isVercel && file.size > vercelLimit) {
-                // Try Cloudinary upload for large files
-                if (file.size <= 100 * 1024 * 1024) { // 100MB Cloudinary limit
-                    try {
-                        setIsUploading(true);
-                        setError(null);
-                        setUploadProgress(0);
-                        
-                        // Upload to Cloudinary
-                        const cloudinary = new CloudinaryUploader();
-                        const uploadResult = await cloudinary.uploadAudio(file);
-                        
-                        console.log('Cloudinary upload successful:', uploadResult);
-                        
-                        // Store Cloudinary URL for later use
-                        setCloudinaryUrl(uploadResult.secure_url);
-                        
-                        // Create a local URL for preview (but actual processing will use Cloudinary URL)
-                        const url = URL.createObjectURL(file);
-                        setAudioURL(url);
-                        setAudioFile(file); // Keep original file for local preview
-                        setError(`تم رفع الملف بنجاح إلى السحابة! الحجم: ${(file.size / 1024 / 1024).toFixed(1)} MB`);
-                        
-                    } catch (uploadError) {
-                        console.error('Cloudinary upload failed:', uploadError);
-                        
-                        // Fallback to compression
-                        try {
-                            setIsCompressing(true);
-                            setError(null);
-                            
-                            const compressedFile = await AudioCompressor.compressAudio(file, {
-                                quality: 0.5,
-                                sampleRate: 16000,
-                                maxSizeMB: 4.0
-                            });
-                            
-                            const url = URL.createObjectURL(compressedFile);
-                            setAudioURL(url);
-                            setAudioFile(compressedFile);
-                            setError(`تم ضغط الملف! الحجم الأصلي: ${(file.size / 1024 / 1024).toFixed(1)} MB → الحجم الجديد: ${(compressedFile.size / 1024 / 1024).toFixed(1)} MB`);
-                            
-                        } catch (compressionError) {
-                            setError(`فشل في رفع الملف للسحابة وضغطه. حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} MB). يرجى استخدام ملف أصغر.`);
-                            event.target.value = '';
-                        } finally {
-                            setIsCompressing(false);
-                        }
-                    } finally {
-                        setIsUploading(false);
-                        setUploadProgress(0);
-                    }
-                } else {
-                    setError(`حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى هو 100 MB. يرجى استخدام ملف أصغر.`);
-                    event.target.value = '';
-                }
-                return;
-            }
-            
-            // Handle normal file sizes
-            if (!isVercel && file.size > maxLocalSize) {
-                setError(`حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى المسموح هو 25 MB. يرجى استخدام ملف أصغر.`);
+            // Check file size (100MB Cloudinary limit)
+            const maxCloudinarySize = 100 * 1024 * 1024; // 100MB
+
+            if (file.size > maxCloudinarySize) {
+                setError(`حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى لـ Cloudinary هو 100 MB. يرجى استخدام ملف أصغر.`);
                 event.target.value = '';
                 return;
             }
 
-            // File is within size limits
-            const url = URL.createObjectURL(file);
-            setAudioURL(url);
-            setAudioFile(file);
-            setError(null);
-            setCloudinaryUrl(null); // Reset Cloudinary URL for normal files
+            // Always upload to Cloudinary for consistent testing
+            try {
+                setIsUploading(true);
+                setError(null);
+                setUploadProgress(0);
+
+                // Upload to Cloudinary
+                const cloudinary = new CloudinaryUploader();
+                const uploadResult = await cloudinary.uploadAudio(file);
+
+                console.log('Cloudinary upload successful:', uploadResult);
+
+                // Store Cloudinary URL for transcription
+                setCloudinaryUrl(uploadResult.secure_url);
+
+                // Create a local URL for preview
+                const url = URL.createObjectURL(file);
+                setAudioURL(url);
+                setAudioFile(file); // Keep original file for local preview
+                setError(null); // Clear any previous errors
+
+            } catch (uploadError) {
+                console.error('Cloudinary upload failed:', uploadError);
+                setError(`فشل في رفع الملف إلى Cloudinary. يرجى التحقق من إعدادات Cloudinary والمحاولة مرة أخرى. الخطأ: ${uploadError}`);
+                event.target.value = '';
+            } finally {
+                setIsUploading(false);
+                setUploadProgress(0);
+            }
         }
     };
 
@@ -244,20 +201,13 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                     تسجيل الصوت
                 </h2>
                 <p className="text-gray-600 text-sm sm:text-base px-2">سجل المحادثة الطبية أو ارفع ملف صوتي موجود</p>
-                
-                {/* Environment indicator */}
+
+                {/* Cloudinary indicator */}
                 <div className="mt-3 sm:mt-4">
-                    {(window.location.hostname.includes('vercel.app') || window.location.hostname.includes('.app')) ? (
-                        <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
-                            <span className="text-blue-600 text-xs font-medium">☁️ النشر السحابي</span>
-                            <span className="text-blue-500 text-xs">الحد الأقصى: 4.5 MB • الملفات الكبيرة: Cloudinary</span>
-                        </div>
-                    ) : (
-                        <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5">
-                            <span className="text-green-600 text-xs font-medium">🖥️ البيئة المحلية</span>
-                            <span className="text-green-500 text-xs">الحد الأقصى: 25 MB</span>
-                        </div>
-                    )}
+                    <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                        <span className="text-blue-600 text-xs font-medium">☁️ Cloudinary Upload</span>
+                        <span className="text-blue-500 text-xs">الحد الأقصى: 100 MB • رفع سحابي لجميع الملفات</span>
+                    </div>
                 </div>
             </div>
 
@@ -380,33 +330,31 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                 </div>
 
                 <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center">
-                    <label className={`group relative bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 lg:gap-3 shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/30 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base ${isCompressing || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <label className={`group relative bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 lg:gap-3 shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/30 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                         <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
                             {isUploading ? (
                                 <Cloud className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse" />
-                            ) : isCompressing ? (
-                                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                             ) : (
                                 <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
                             )}
                         </div>
-                        {isUploading ? 'جاري الرفع للسحابة...' : isCompressing ? 'جاري ضغط الملف...' : 'رفع ملف صوتي'}
+                        {isUploading ? 'جاري الرفع إلى Cloudinary...' : 'رفع ملف صوتي'}
                         <input
                             type="file"
                             accept="audio/*"
                             onChange={handleFileUpload}
-                            disabled={isCompressing || isUploading}
+                            disabled={isUploading}
                             className="hidden"
                         />
                         <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </label>
                 </div>
-                
+
                 {/* Upload Progress */}
                 {isUploading && uploadProgress > 0 && (
                     <div className="mt-3">
                         <div className="bg-gray-200 rounded-full h-2">
-                            <div 
+                            <div
                                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                                 style={{ width: `${uploadProgress}%` }}
                             ></div>
@@ -439,7 +387,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                     <div className="bg-white rounded-xl p-4 md:p-6 mb-6 border border-green-100">
                         <audio
                             ref={audioRef}
-                            src={audioURL}
+                            src={audioURL} // Use local URL for playback, not Cloudinary URL
                             onEnded={() => setIsPlaying(false)}
                             className="w-full mb-4"
                             controls

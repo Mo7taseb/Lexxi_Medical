@@ -33,6 +33,10 @@ export class CloudinaryUploader {
     formData.append('upload_preset', this.uploadPreset);
     formData.append('resource_type', 'video'); // Cloudinary treats audio as video
     formData.append('folder', 'lexxi-audio');
+    // Add timestamp and random string for unique naming
+    formData.append('public_id', `${Date.now()}-${Math.random().toString(36).substring(2)}`);
+    // Remove access_mode since it's handled by upload preset
+    // formData.append('access_mode', 'token');
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${this.cloudName}/video/upload`,
@@ -43,7 +47,16 @@ export class CloudinaryUploader {
     );
 
     if (!response.ok) {
-      throw new Error(`Cloudinary upload failed: ${response.statusText}`);
+      // Get detailed error information
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error?.message || errorData.message || response.statusText;
+        console.error('Cloudinary error details:', errorData);
+      } catch (e) {
+        errorMessage = response.statusText;
+      }
+      throw new Error(`Cloudinary upload failed: ${errorMessage}`);
     }
 
     return response.json();

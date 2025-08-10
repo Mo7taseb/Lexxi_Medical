@@ -7,10 +7,8 @@ export const runtime = 'nodejs';
 export const maxDuration = 60; // 60 seconds timeout for Vercel
 export const dynamic = 'force-dynamic';
 
-// Vercel-specific body size limit detection
-const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
-const isProduction = process.env.NODE_ENV === 'production';
-const VERCEL_BODY_SIZE_LIMIT = (isVercel || isProduction) ? 4.5 * 1024 * 1024 : 25 * 1024 * 1024;
+// Since we're using Cloudinary for all uploads, we can handle larger files
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB (Cloudinary limit)
 
 // Prevent duplicate transcriptions with timestamps
 const ongoingTranscriptions = new Map<string, number>();
@@ -46,22 +44,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
     }
 
-    // Check file size limit (different limits for local vs Vercel)
-    const isVercelDeployment = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
-    const maxSize = isVercelDeployment ? 4.5 * 1024 * 1024 : 25 * 1024 * 1024; // 4.5MB for Vercel, 25MB for local
-    const maxSizeLabel = isVercelDeployment ? '4.5 MB' : '25 MB';
-    
-    if (audioFile.size > maxSize) {
-      console.log(`[${requestId}] File too large: ${audioFile.size} bytes (max: ${maxSize})`);
-      console.log(`[${requestId}] Environment: ${isVercelDeployment ? 'Vercel' : 'Local'}`);
+    // Check file size limit (100MB for Cloudinary)
+    if (audioFile.size > MAX_FILE_SIZE) {
+      console.log(`[${requestId}] File too large: ${audioFile.size} bytes (max: ${MAX_FILE_SIZE})`);
       return NextResponse.json(
         { 
-          error: isVercelDeployment 
-            ? `حجم الملف كبير جداً (${(audioFile.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى للنشر المجاني على Vercel هو ${maxSizeLabel}. يرجى ضغط الملف أو استخدام ملف أصغر.`
-            : `حجم الملف كبير جداً (${(audioFile.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى المسموح هو ${maxSizeLabel}. يرجى ضغط الملف أو تقسيمه إلى أجزاء أصغر.`,
-          maxSizeAllowed: maxSizeLabel,
+          error: `حجم الملف كبير جداً (${(audioFile.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى لـ Cloudinary هو 100 MB. يرجى استخدام ملف أصغر.`,
+          maxSizeAllowed: '100MB',
           currentSize: `${(audioFile.size / 1024 / 1024).toFixed(1)}MB`,
-          environment: isVercelDeployment ? 'vercel' : 'local'
+          platform: 'cloudinary'
         }, 
         { status: 413 }
       );
