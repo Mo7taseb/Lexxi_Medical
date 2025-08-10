@@ -8,9 +8,11 @@ const nextConfig: NextConfig = {
   
   // Configure API routes for handling larger files
   experimental: {
-    // Enable body size parser for API routes
-    serverComponentsExternalPackages: [],
+    // This config is now moved to serverExternalPackages (Next.js 15+)
   },
+  
+  // New location for external packages in Next.js 15+
+  serverExternalPackages: [],
   
   // Configure for production deployment
   productionBrowserSourceMaps: false,
