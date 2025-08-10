@@ -63,7 +63,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
             onShareEmail('text');
         } catch (error) {
             console.error('Failed to open Gmail:', error);
-            
+
             // Fallback: Copy formatted text to clipboard
             const success = await utilCopyToClipboard(shareContent.body);
 
