@@ -32,6 +32,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No audio URL provided' }, { status: 400 });
     }
 
+    // Validate Cloudinary URL format
+    if (!audioUrl.includes('cloudinary.com')) {
+      console.log(`[${requestId}] Invalid URL format: ${audioUrl}`);
+      return NextResponse.json({ error: 'URL غير صحيح. يجب أن يكون من Cloudinary' }, { status: 400 });
+    }
+
     // Create unique key for duplicate prevention
     const transcriptionKey = `${audioUrl}_${language}_${model}`;
     
@@ -54,13 +60,49 @@ export async function POST(request: NextRequest) {
     try {
       // Download audio file from Cloudinary
       console.log(`[${requestId}] Downloading audio from Cloudinary...`);
-      const audioResponse = await fetch(audioUrl);
+      
+      // Add timeout and better error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      let audioResponse;
+      try {
+        audioResponse = await fetch(audioUrl, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Lexxi-Transcription-Service'
+          }
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        console.log(`[${requestId}] Fetch error:`, fetchError);
+        
+        if (fetchError instanceof Error) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error('انتهت مهلة تحميل الملف الصوتي. يرجى المحاولة مرة أخرى.');
+          } else if (fetchError.message.includes('network') || fetchError.message.includes('ENOTFOUND')) {
+            throw new Error('خطأ في الشبكة أثناء تحميل الملف. يرجى التحقق من الاتصال والمحاولة مرة أخرى.');
+          }
+        }
+        throw new Error('فشل في الاتصال بخدمة تخزين الملفات. يرجى المحاولة مرة أخرى.');
+      }
       
       if (!audioResponse.ok) {
-        throw new Error(`Failed to download audio: ${audioResponse.statusText}`);
+        console.log(`[${requestId}] Audio download failed:`, {
+          status: audioResponse.status,
+          statusText: audioResponse.statusText,
+          url: audioUrl
+        });
+        throw new Error(`فشل في تحميل الملف الصوتي من Cloudinary (${audioResponse.status}). يرجى التأكد من رابط الملف والمحاولة مرة أخرى.`);
       }
 
       const audioBuffer = await audioResponse.arrayBuffer();
+      console.log(`[${requestId}] Audio buffer created:`, {
+        bufferSize: audioBuffer.byteLength,
+        contentType: audioResponse.headers.get('content-type')
+      });
+      
       const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       const audioFile = new File([audioBlob], 'audio.mp3', { type: 'audio/mpeg' });
 
