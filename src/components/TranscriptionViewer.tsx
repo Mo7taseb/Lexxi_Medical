@@ -285,6 +285,8 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
 
                 if (!response.ok) {
                     let errorMessage = 'فشل في تفريغ الصوت من Cloudinary';
+                    let shouldFallback = false;
+                    
                     try {
                         const responseText = await response.text();
                         try {
@@ -294,6 +296,12 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                             console.error('Non-JSON error response:', responseText);
                             errorMessage = `خطأ في معالجة الملف من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
                         }
+                        
+                        // Check if it's a 401 (unauthorized) or URL access issue
+                        if (response.status === 401 || responseText.includes('401') || responseText.includes('unauthorized')) {
+                            console.log('Cloudinary URL access denied, falling back to direct upload...');
+                            shouldFallback = true;
+                        }
                     } catch (readError) {
                         console.error('Failed to read response:', readError);
                         errorMessage = `خطأ في قراءة الاستجابة من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
@@ -302,26 +310,38 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                     if (response.status === 429) {
                         throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
                     }
-                    throw new Error(errorMessage);
+                    
+                    // If URL access failed and we have the original file, fall back to direct upload
+                    if (shouldFallback && audioFile) {
+                        console.log('Falling back to direct upload due to Cloudinary URL access issue...');
+                        // Continue to direct upload logic below
+                    } else {
+                        throw new Error(errorMessage);
+                    }
+                } else {
+                    const data = await response.json();
+                    if (!data.transcript || data.transcript.trim() === '') {
+                        throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
+                    }
+
+                    // Set enhanced transcript as primary
+                    setTranscript(data.transcript);
+                    setEditedTranscript(data.transcript);
+                    setOriginalTranscript(data.originalTranscript || data.transcript);
+                    setEnhancement(data.enhancement || null);
+                    setTranscriptionSource(data.transcriptionSource || 'groq-whisper-cloudinary');
+
+                    console.log('Cloudinary retry transcription completed successfully');
+                    return; // Exit early for successful Cloudinary path
                 }
-
-                const data = await response.json();
-                if (!data.transcript || data.transcript.trim() === '') {
-                    throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
-                }
-
-                // Set enhanced transcript as primary
-                setTranscript(data.transcript);
-                setEditedTranscript(data.transcript);
-                setOriginalTranscript(data.originalTranscript || data.transcript);
-                setEnhancement(data.enhancement || null);
-                setTranscriptionSource(data.transcriptionSource || 'groq-whisper-cloudinary');
-
-                console.log('Cloudinary retry transcription completed successfully');
-                return; // Exit early for Cloudinary path
             }
 
-            // Direct file upload path (original logic)
+            // Direct file upload path (original logic) - also used as fallback
+            if (!audioFile) {
+                throw new Error('لم يتم العثور على الملف الصوتي. يرجى إعادة تحديد الملف.');
+            }
+            
+            console.log('Using direct file upload for transcription retry...');
             const formData = new FormData();
             formData.append('audio', audioFile);
             formData.append('language', targetLanguage); // Use the passed language directly

@@ -35,8 +35,8 @@ export class CloudinaryUploader {
     formData.append('folder', 'lexxi-audio');
     // Add timestamp and random string for unique naming
     formData.append('public_id', `${Date.now()}-${Math.random().toString(36).substring(2)}`);
-    // Remove access_mode since it's handled by upload preset
-    // formData.append('access_mode', 'token');
+    // For unsigned uploads, access_mode and type are controlled by the upload preset
+    // Remove explicit access_mode and type parameters
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${this.cloudName}/video/upload`,
@@ -53,6 +53,11 @@ export class CloudinaryUploader {
         const errorData = await response.json();
         errorMessage = errorData.error?.message || errorData.message || response.statusText;
         console.error('Cloudinary error details:', errorData);
+        
+        // If it's about upload parameters, provide more helpful message
+        if (errorMessage.includes('parameter is not allowed')) {
+          errorMessage = `إعدادات رفع Cloudinary تحتاج تحديث. يرجى التحقق من Upload Preset في لوحة تحكم Cloudinary أو التواصل مع المطور.`;
+        }
       } catch (e) {
         errorMessage = response.statusText;
       }

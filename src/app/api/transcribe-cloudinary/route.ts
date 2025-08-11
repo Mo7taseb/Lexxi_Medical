@@ -94,7 +94,16 @@ export async function POST(request: NextRequest) {
           statusText: audioResponse.statusText,
           url: audioUrl
         });
-        throw new Error(`فشل في تحميل الملف الصوتي من Cloudinary (${audioResponse.status}). يرجى التأكد من رابط الملف والمحاولة مرة أخرى.`);
+        
+        if (audioResponse.status === 401) {
+          throw new Error('انتهت صلاحية رابط الملف الصوتي. يرجى إعادة رفع الملف أو استخدام التحميل المباشر.');
+        } else if (audioResponse.status === 403) {
+          throw new Error('ليس لديك صلاحية للوصول إلى هذا الملف. يرجى التحقق من إعدادات الملف.');
+        } else if (audioResponse.status === 404) {
+          throw new Error('لم يتم العثور على الملف الصوتي. يرجى التحقق من رابط الملف.');
+        } else {
+          throw new Error(`فشل في تحميل الملف الصوتي من Cloudinary (${audioResponse.status}). يرجى التأكد من رابط الملف والمحاولة مرة أخرى.`);
+        }
       }
 
       const audioBuffer = await audioResponse.arrayBuffer();
