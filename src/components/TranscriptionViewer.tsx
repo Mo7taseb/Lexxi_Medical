@@ -286,7 +286,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                 if (!response.ok) {
                     let errorMessage = 'فشل في تفريغ الصوت من Cloudinary';
                     let shouldFallback = false;
-                    
+
                     try {
                         const responseText = await response.text();
                         try {
@@ -296,7 +296,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                             console.error('Non-JSON error response:', responseText);
                             errorMessage = `خطأ في معالجة الملف من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
                         }
-                        
+
                         // Check if it's a 401 (unauthorized) or URL access issue
                         if (response.status === 401 || responseText.includes('401') || responseText.includes('unauthorized')) {
                             console.log('Cloudinary URL access denied, falling back to direct upload...');
@@ -310,7 +310,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                     if (response.status === 429) {
                         throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
                     }
-                    
+
                     // If URL access failed and we have the original file, fall back to direct upload
                     if (shouldFallback && audioFile) {
                         console.log('Falling back to direct upload due to Cloudinary URL access issue...');
@@ -340,7 +340,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
             if (!audioFile) {
                 throw new Error('لم يتم العثور على الملف الصوتي. يرجى إعادة تحديد الملف.');
             }
-            
+
             console.log('Using direct file upload for transcription retry...');
             const formData = new FormData();
             formData.append('audio', audioFile);

@@ -109,9 +109,9 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
             {/* Share Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
+                className="w-full bg-green-600 text-white px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px]"
             >
-                <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Share2 className="h-4 w-4 md:h-4 md:w-4" />
                 <span className="truncate">
                     {isEnglish ? 'Share' : 'مشاركة'}
                 </span>
@@ -140,7 +140,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
                         {/* Email - Text Format */}
                         <button
                             onClick={handleEmailShare}
-                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${isEnglish ? 'text-left' : 'text-right flex-row-reverse'
+                            className={`w-full px-4 py-4 md:py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 min-h-[48px] md:min-h-auto ${isEnglish ? 'text-left' : 'text-right flex-row-reverse'
                                 }`}
                         >
                             <div className="p-2 bg-blue-100 rounded-lg">
@@ -162,7 +162,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
                         {/* WhatsApp */}
                         <button
                             onClick={handleWhatsAppShare}
-                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${isEnglish ? 'text-left' : 'text-right flex-row-reverse'
+                            className={`w-full px-4 py-4 md:py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 min-h-[48px] md:min-h-auto ${isEnglish ? 'text-left' : 'text-right flex-row-reverse'
                                 }`}
                         >
                             <div className="p-2 bg-green-100 rounded-lg">

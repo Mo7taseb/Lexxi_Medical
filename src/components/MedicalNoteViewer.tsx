@@ -252,25 +252,23 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className={`flex flex-col sm:flex-row gap-2 sm:gap-2 ${isEnglish ? 'sm:flex-row' : 'sm:flex-row-reverse'}`}>
+            <div className={`grid grid-cols-2 gap-3 md:flex md:flex-row md:gap-2 ${isEnglish ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
               {!isEditing && (
-                <>
-                  <button
-                    onClick={handleEdit}
-                    className="bg-gray-600 text-white px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
-                  >
-                    <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="truncate">{t.edit}</span>
-                  </button>
-                </>
+                <button
+                  onClick={handleEdit}
+                  className="bg-gray-600 text-white px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px] w-full md:w-auto"
+                >
+                  <Edit3 className="h-4 w-4 md:h-4 md:w-4" />
+                  <span className="truncate">{t.edit}</span>
+                </button>
               )}
 
               <button
                 onClick={handleCopy}
-                className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] sm:min-h-[40px] ${copySuccess ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+                className={`px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px] w-full md:w-auto ${copySuccess ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
               >
-                <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Copy className="h-4 w-4 md:h-4 md:w-4" />
                 <span className="truncate">{copySuccess ? t.copied : t.copy}</span>
               </button>
 
@@ -353,18 +351,18 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
       {/* Bottom Action Buttons */}
       {generatedNote && !isProcessing && !isEditing && (
-        <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 ${isEnglish ? 'sm:justify-between' : 'sm:justify-between sm:flex-row-reverse'}`}>
+        <div className={`flex flex-col md:flex-row gap-3 md:gap-4 ${isEnglish ? 'md:justify-between' : 'md:justify-between md:flex-row-reverse'}`}>
           <button
             onClick={onReset}
-            className="bg-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1 min-h-[48px]"
+            className="bg-gray-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base order-2 md:order-1 min-h-[48px] w-full md:w-auto"
           >
-            <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" />
+            <RotateCcw className="h-4 w-4 md:h-5 md:w-5" />
             <span className="truncate">{t.startNew}</span>
           </button>
 
           <button
             onClick={onGenerate}
-            className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base order-1 sm:order-2 min-h-[48px] flex items-center justify-center"
+            className="bg-blue-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm md:text-base order-1 md:order-2 min-h-[48px] flex items-center justify-center w-full md:w-auto"
           >
             <span className="truncate">{t.regenerate}</span>
           </button>

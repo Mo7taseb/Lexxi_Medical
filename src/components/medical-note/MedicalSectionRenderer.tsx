@@ -74,34 +74,36 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
         >
             {/* Section Header */}
             {section.title && (
-                <div className="medical-section-header flex justify-between items-center" style={{ '--section-color': section.color } as React.CSSProperties}>
+                <div className="medical-section-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0" style={{ '--section-color': section.color } as React.CSSProperties}>
                     <div className="section-title flex items-center">
                         {section.icon && <span className="section-icon">{section.icon}</span>}
                         <span>{section.title}:</span>
                     </div>
 
                     {isEditingThis && (
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                        <div className="flex flex-row gap-3 w-full mt-3 sm:mt-0 sm:w-auto">
                             <button
                                 onClick={handleSave}
-                                className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl text-base font-semibold flex items-center justify-center gap-2 shadow-lg min-h-[48px]"
+                                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg min-h-[48px] sm:min-h-[44px] sm:text-base"
                                 title="Save changes"
                             >
-                                <span className="text-lg">✓</span> Save
+                                <span className="text-base sm:text-lg">✓</span>
+                                <span>Save</span>
                             </button>
                             <button
                                 onClick={handleCancel}
-                                className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl text-base font-semibold flex items-center justify-center gap-2 shadow-lg min-h-[48px]"
+                                className="flex-1 px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg min-h-[48px] sm:min-h-[44px] sm:text-base"
                                 title="Cancel editing"
                             >
-                                <span className="text-lg">✕</span> Cancel
+                                <span className="text-base sm:text-lg">✕</span>
+                                <span>Cancel</span>
                             </button>
                         </div>
                     )}
 
                     {isInlineEditing && !isEditingThis && (
-                        <div className="text-xs sm:text-sm text-blue-600 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-blue-200 font-medium text-center">
-                            Tap to edit
+                        <div className="text-sm sm:text-sm text-blue-600 bg-blue-50 px-3 sm:px-3 py-2 sm:py-1.5 rounded-lg border border-blue-200 font-medium text-center min-w-[90px] flex items-center justify-center">
+                            <span className="whitespace-nowrap">Tap to edit</span>
                         </div>
                     )}
                 </div>
