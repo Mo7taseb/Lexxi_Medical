@@ -265,6 +265,63 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
         console.log(`🎯 Starting transcription with language: ${targetLanguage.toUpperCase()}`);
 
         try {
+            // Check if we should use Cloudinary endpoint instead of direct upload
+            const isCloudinaryUrl = audioUrl && audioUrl.includes('cloudinary.com');
+
+            if (isCloudinaryUrl) {
+                console.log('Using Cloudinary transcription for retry with language:', targetLanguage);
+
+                const response = await fetch('/api/transcribe-cloudinary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        audioUrl: audioUrl,
+                        language: targetLanguage,
+                        model: 'whisper-large-v3-turbo'
+                    }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = 'فشل في تفريغ الصوت من Cloudinary';
+                    try {
+                        const responseText = await response.text();
+                        try {
+                            const errorData = JSON.parse(responseText);
+                            errorMessage = errorData.error || 'فشل في تفريغ الصوت من Cloudinary';
+                        } catch (jsonError) {
+                            console.error('Non-JSON error response:', responseText);
+                            errorMessage = `خطأ في معالجة الملف من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
+                        }
+                    } catch (readError) {
+                        console.error('Failed to read response:', readError);
+                        errorMessage = `خطأ في قراءة الاستجابة من Cloudinary (${response.status}). يرجى المحاولة مرة أخرى.`;
+                    }
+
+                    if (response.status === 429) {
+                        throw new Error('العملية قيد التنفيذ بالفعل. يرجى انتظار انتهاء التفريغ الحالي أو المحاولة مرة أخرى بعد دقيقتين.');
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                if (!data.transcript || data.transcript.trim() === '') {
+                    throw new Error('لم يتم العثور على نص في التسجيل الصوتي');
+                }
+
+                // Set enhanced transcript as primary
+                setTranscript(data.transcript);
+                setEditedTranscript(data.transcript);
+                setOriginalTranscript(data.originalTranscript || data.transcript);
+                setEnhancement(data.enhancement || null);
+                setTranscriptionSource(data.transcriptionSource || 'groq-whisper-cloudinary');
+
+                console.log('Cloudinary retry transcription completed successfully');
+                return; // Exit early for Cloudinary path
+            }
+
+            // Direct file upload path (original logic)
             const formData = new FormData();
             formData.append('audio', audioFile);
             formData.append('language', targetLanguage); // Use the passed language directly
