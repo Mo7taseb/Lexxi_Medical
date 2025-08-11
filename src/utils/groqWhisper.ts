@@ -23,8 +23,14 @@ export class GroqWhisperTranscriber {
 
   constructor() {
     this.apiKey = process.env.GROQ_API_KEY || '';
+    console.log('🔑 Groq API Key check:', {
+      hasKey: !!this.apiKey,
+      keyLength: this.apiKey.length,
+      keyPreview: this.apiKey ? `${this.apiKey.substring(0, 8)}...` : 'NOT_SET'
+    });
+    
     if (!this.apiKey) {
-      throw new Error('GROQ_API_KEY environment variable is required');
+      throw new Error('GROQ_API_KEY environment variable is required for transcription');
     }
   }
 

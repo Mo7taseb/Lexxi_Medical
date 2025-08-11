@@ -27,6 +27,13 @@ export async function POST(request: NextRequest) {
   const requestId = Date.now().toString();
   console.log(`[${requestId}] New Groq Whisper transcription request received`);
   
+  // Debug environment variables
+  console.log(`[${requestId}] Environment check:`, {
+    hasGroqKey: !!process.env.GROQ_API_KEY,
+    groqKeyLength: process.env.GROQ_API_KEY?.length || 0,
+    nodeEnv: process.env.NODE_ENV
+  });
+  
   let transcriptionKey = '';
   
   try {
@@ -98,7 +105,8 @@ export async function POST(request: NextRequest) {
       const groqTranscriber = new GroqWhisperTranscriber();
       
       if (!groqTranscriber.isAvailable()) {
-        throw new Error('Groq API key not configured properly');
+        console.log(`[${requestId}] ❌ Groq API key not available`);
+        throw new Error('خطأ في إعدادات الخدمة. يرجى التحقق من مفتاح Groq API أو المحاولة مرة أخرى لاحقاً.');
       }
 
       const whisperResult = await groqTranscriber.transcribe(audioFile, {
@@ -172,8 +180,23 @@ export async function POST(request: NextRequest) {
       console.log(`[${requestId}] Cleaned up transcription key: ${transcriptionKey}`);
     }
     
+    // Provide more specific error messages
+    let errorMessage = 'فشل في تفريغ الصوت';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('GROQ_API_KEY') || error.message.includes('API key')) {
+        errorMessage = 'فشل في تفريغ الصوت. يرجى التحقق من مفتاح Groq API والمحاولة مرة أخرى';
+      } else if (error.message.includes('حجم الملف') || error.message.includes('size')) {
+        errorMessage = error.message; // Use the specific size error message
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = 'خطأ في الشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى';
+      } else {
+        errorMessage = `خطأ في التفريغ: ${error.message}`;
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to transcribe audio. Please check your Groq API key and try again.' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

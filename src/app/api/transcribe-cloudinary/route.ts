@@ -14,6 +14,13 @@ export async function POST(request: NextRequest) {
   const requestId = Date.now().toString();
   console.log(`[${requestId}] New Cloudinary transcription request received`);
   
+  // Debug environment variables
+  console.log(`[${requestId}] Environment check:`, {
+    hasGroqKey: !!process.env.GROQ_API_KEY,
+    groqKeyLength: process.env.GROQ_API_KEY?.length || 0,
+    nodeEnv: process.env.NODE_ENV
+  });
+  
   try {
     const body = await request.json();
     const { audioUrl, language = 'ar', model = 'whisper-large-v3-turbo' } = body;
@@ -57,13 +64,26 @@ export async function POST(request: NextRequest) {
       const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       const audioFile = new File([audioBlob], 'audio.mp3', { type: 'audio/mpeg' });
 
-      console.log(`[${requestId}] Audio downloaded successfully: ${audioFile.size} bytes`);
+      console.log(`[${requestId}] Audio downloaded successfully:`, {
+        size: audioFile.size,
+        sizeMB: (audioFile.size / 1024 / 1024).toFixed(2),
+        type: audioFile.type,
+        name: audioFile.name
+      });
+
+      // Check file size (100MB limit for Groq)
+      const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+      if (audioFile.size > MAX_SIZE) {
+        console.log(`[${requestId}] File too large: ${audioFile.size} bytes (max: ${MAX_SIZE})`);
+        throw new Error(`حجم الملف كبير جداً (${(audioFile.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى هو 100 MB.`);
+      }
 
       // Transcribe with Groq Whisper
       const groqTranscriber = new GroqWhisperTranscriber();
       
       if (!groqTranscriber.isAvailable()) {
-        throw new Error('Groq API key not configured properly');
+        console.log(`[${requestId}] ❌ Groq API key not available`);
+        throw new Error('خطأ في إعدادات الخدمة. يرجى التحقق من مفتاح Groq API أو المحاولة مرة أخرى لاحقاً.');
       }
 
       const whisperResult = await groqTranscriber.transcribe(audioFile, {
@@ -129,8 +149,23 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error(`[${requestId}] Transcription error:`, error);
     
+    // Provide more specific error messages
+    let errorMessage = 'فشل في تفريغ الصوت من Cloudinary';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('GROQ_API_KEY') || error.message.includes('API key')) {
+        errorMessage = 'فشل في تفريغ الصوت. يرجى التحقق من مفتاح Groq API والمحاولة مرة أخرى';
+      } else if (error.message.includes('حجم الملف') || error.message.includes('size')) {
+        errorMessage = error.message; // Use the specific size error message
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = 'خطأ في الشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى';
+      } else {
+        errorMessage = `خطأ في التفريغ: ${error.message}`;
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to transcribe audio from Cloudinary URL. Please check the URL and try again.' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
