@@ -66,6 +66,7 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 
     return (
         <div
+            id={`section-${section.id}`}
             className={`medical-section medical-section-${section.type} ${isInlineEditing && !isEditingThis ? 'cursor-pointer group' : ''
                 } ${isEditingThis ? 'ring-2 ring-blue-500 shadow-lg' : ''} relative`}
             onDoubleClick={handleDoubleClick}

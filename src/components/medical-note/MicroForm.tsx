@@ -5,6 +5,34 @@ import { X, Save, Mic, SkipForward, Calendar, Clock } from 'lucide-react';
 import { MicroFormProps } from './missingInfoTypes';
 import { missingInfoLanguageTexts, generateFieldSuggestions } from './missingInfoDetection';
 
+// TypeScript declaration for SpeechRecognition
+declare global {
+    interface Window {
+        webkitSpeechRecognition: any;
+        SpeechRecognition: any;
+    }
+}
+
+interface SpeechRecognition extends EventTarget {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start(): void;
+    stop(): void;
+    onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+    onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+    onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+    onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+}
+
+interface SpeechRecognitionEvent extends Event {
+    results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+    error: string;
+}
+
 const MicroForm: React.FC<MicroFormProps> = ({
     field,
     isOpen,
@@ -17,14 +45,84 @@ const MicroForm: React.FC<MicroFormProps> = ({
     const [value, setValue] = useState('');
     const [complexValues, setComplexValues] = useState<Record<string, string>>({});
     const [isVoiceMode, setIsVoiceMode] = useState(false);
+    const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+    const [isListening, setIsListening] = useState(false);
     const t = missingInfoLanguageTexts[language];
+
+    // Initialize speech recognition
+    useEffect(() => {
+        if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+            const speechRecognition = new (window as any).webkitSpeechRecognition();
+            speechRecognition.continuous = false;
+            speechRecognition.interimResults = false;
+            speechRecognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
+            
+            speechRecognition.onstart = () => {
+                setIsListening(true);
+                setIsVoiceMode(true);
+            };
+            
+            speechRecognition.onresult = (event: any) => {
+                const transcript = event.results[0][0].transcript;
+                setValue(prev => prev ? `${prev} ${transcript}` : transcript);
+                setIsListening(false);
+                setIsVoiceMode(false);
+                
+                // Show success feedback
+                const button = document.querySelector('[data-voice-button]') as HTMLElement;
+                if (button) {
+                    button.style.backgroundColor = '#dcfce7';
+                    button.style.borderColor = '#16a34a';
+                    button.style.color = '#15803d';
+                    setTimeout(() => {
+                        button.style.backgroundColor = '';
+                        button.style.borderColor = '';
+                        button.style.color = '';
+                    }, 1000);
+                }
+            };
+            
+            speechRecognition.onerror = (event: any) => {
+                console.error('Speech recognition error:', event.error);
+                setIsListening(false);
+                setIsVoiceMode(false);
+            };
+            
+            speechRecognition.onend = () => {
+                setIsListening(false);
+                setIsVoiceMode(false);
+            };
+            
+            setRecognition(speechRecognition);
+        }
+    }, [language]);
 
     // Reset form when field changes
     useEffect(() => {
         setValue('');
         setComplexValues({});
         setIsVoiceMode(false);
+        setIsListening(false);
     }, [field.id]);
+
+    // Scroll to medical note viewer when modal opens - same as ChecklistModal
+    useEffect(() => {
+        if (isOpen) {
+            // Find the medical note viewer container and scroll to it
+            const noteViewer = document.getElementById('medical-note-viewer');
+
+            if (noteViewer) {
+                noteViewer.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest'
+                });
+            } else {
+                // Fallback to scrolling to top of page if note viewer not found
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    }, [isOpen]);
 
     // Get suggestions for the current field
     const suggestions = generateFieldSuggestions(field, language);
@@ -49,9 +147,29 @@ const MicroForm: React.FC<MicroFormProps> = ({
     };
 
     const handleVoiceInput = () => {
-        setIsVoiceMode(true);
-        onVoiceInput();
-        // TODO: Implement actual voice recording logic
+        if (!recognition) {
+            alert(language === 'en' 
+                ? 'Voice recognition is not supported in this browser. Please try Chrome or Edge.' 
+                : 'التعرف على الصوت غير مدعوم في هذا المتصفح. يرجى استخدام Chrome أو Edge.'
+            );
+            return;
+        }
+
+        if (isListening) {
+            recognition.stop();
+            setIsListening(false);
+            setIsVoiceMode(false);
+        } else {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Error starting speech recognition:', error);
+                alert(language === 'en' 
+                    ? 'Could not start voice recognition. Please check your microphone permissions.' 
+                    : 'لا يمكن بدء التعرف على الصوت. يرجى التحقق من أذونات الميكروفون.'
+                );
+            }
+        }
     };
 
     const renderComplexFields = () => {
@@ -232,9 +350,9 @@ const MicroForm: React.FC<MicroFormProps> = ({
                 style={{ background: 'transparent' }}
             />
 
-            {/* Form Modal */}
-            <div className="fixed inset-x-4 top-1/2 transform -translate-y-1/2 z-[9999] max-w-lg mx-auto">
-                <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[80vh] overflow-hidden">
+            {/* Form Modal - positioned at top like ChecklistModal for seamless replacement */}
+            <div className="fixed inset-x-4 top-8 z-[9999] max-w-lg mx-auto">
+                <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[calc(100vh-4rem)] overflow-hidden">
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                         <div className="flex items-center gap-3">
@@ -273,7 +391,7 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         onChange={(e) => setValue(e.target.value)}
                                         placeholder={field.placeholder}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                         style={{ fontSize: '16px' }} // Prevent zoom on iOS
                                     />
                                 ) : field.type === 'date' ? (
@@ -281,19 +399,19 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         type="date"
                                         value={value}
                                         onChange={(e) => setValue(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         style={{ fontSize: '16px' }} // Prevent zoom on iOS
                                     />
                                 ) : field.type === 'dropdown' && field.options ? (
                                     <select
                                         value={value}
                                         onChange={(e) => setValue(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         style={{ fontSize: '16px' }} // Prevent zoom on iOS
                                     >
-                                        <option value="">{language === 'en' ? 'Select...' : 'اختر...'}</option>
+                                        <option value="" className="text-gray-500">{language === 'en' ? 'Select...' : 'اختر...'}</option>
                                         {field.options.map((option) => (
-                                            <option key={option} value={option}>
+                                            <option key={option} value={option} className="text-gray-900">
                                                 {option}
                                             </option>
                                         ))}
@@ -304,7 +422,7 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         value={value}
                                         onChange={(e) => setValue(e.target.value)}
                                         placeholder={field.placeholder}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         style={{ fontSize: '16px' }} // Prevent zoom on iOS
                                     />
                                 )}
@@ -312,17 +430,24 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 {/* Voice Input Button */}
                                 <div className="flex justify-center">
                                     <button
+                                        data-voice-button
                                         onClick={handleVoiceInput}
-                                        disabled={isVoiceMode}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isVoiceMode
-                                            ? 'bg-red-100 text-red-700 border border-red-200'
-                                            : 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
-                                            }`}
+                                        disabled={!recognition}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            isListening
+                                                ? 'bg-red-100 text-red-700 border border-red-200 animate-pulse'
+                                                : recognition
+                                                ? 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
+                                                : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                                        }`}
+                                        title={!recognition ? (language === 'en' ? 'Voice recognition not supported' : 'التعرف على الصوت غير مدعوم') : ''}
                                     >
-                                        <Mic className={`h-4 w-4 ${isVoiceMode ? 'animate-pulse' : ''}`} />
+                                        <Mic className={`h-4 w-4 ${isListening ? 'animate-pulse text-red-600' : ''}`} />
                                         <span>
-                                            {isVoiceMode
+                                            {isListening
                                                 ? (language === 'en' ? 'Recording...' : 'جاري التسجيل...')
+                                                : !recognition
+                                                ? (language === 'en' ? 'Voice not supported' : 'الصوت غير مدعوم')
                                                 : t.voiceInput
                                             }
                                         </span>

@@ -92,10 +92,58 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
     };
 
     const handleScrollToSection = (sectionId: string) => {
-        const element = document.getElementById(`section-${sectionId}`);
+        // First try to find by exact section ID
+        let element = document.getElementById(`section-${sectionId}`);
+        
+        if (!element) {
+            // If not found, try to find by section title using mapping
+            const sectionMappings: Record<string, string[]> = {
+                'subjective': ['History of Present Illness', 'history', 'chief complaint', 'subjective'],
+                'objective': ['Physical Examination', 'objective', 'examination', 'vital signs'],
+                'assessment': ['Assessment', 'assessment', 'diagnosis', 'impression'],
+                'plan': ['Plan', 'plan', 'treatment', 'recommendations'],
+                'consultation_details': ['Consultation Details', 'consultation details', 'consultation', 'details'],
+                'history': ['History', 'Past Medical History', 'history', 'medical history']
+            };
+
+            const possibleTitles = sectionMappings[sectionId] || [sectionId];
+            
+            // Try to find section by matching title text
+            for (const title of possibleTitles) {
+                const sections = document.querySelectorAll('.medical-section');
+                for (const section of sections) {
+                    const titleElement = section.querySelector('.section-title');
+                    if (titleElement && titleElement.textContent?.toLowerCase().includes(title.toLowerCase())) {
+                        element = section as HTMLElement;
+                        break;
+                    }
+                }
+                if (element) break;
+            }
+        }
+
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Add highlight effect
+            element.style.transition = 'all 0.3s ease';
+            element.style.backgroundColor = '#dbeafe';
+            element.style.border = '2px solid #60a5fa';
+            element.style.borderRadius = '8px';
+            
+            // Remove highlight after 2 seconds
+            setTimeout(() => {
+                element!.style.backgroundColor = '';
+                element!.style.border = '';
+                element!.style.borderRadius = '';
+            }, 2000);
+        } else {
+            // Fallback: scroll to the medical note viewer
+            const noteViewer = document.getElementById('medical-note-viewer');
+            if (noteViewer) {
+                noteViewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
+        
         setIsChecklistOpen(false);
     };
 
@@ -154,8 +202,7 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
                     onSave={(value: string | Record<string, string>) => handleFieldAdd(activeMicroForm, typeof value === 'string' ? value : JSON.stringify(value))}
                     onSkip={() => handleFieldSkip(activeMicroForm)}
                     onVoiceInput={() => {
-                        // TODO: Implement voice input functionality
-                        console.log('Voice input requested for field:', activeMicroForm);
+                        // Voice input is now handled directly in MicroForm component
                     }}
                     language={language}
                 />
