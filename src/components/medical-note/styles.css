@@ -409,7 +409,19 @@
 
 /* Modal Animations - Clean transitions without black backgrounds */
 .missing-info-modal {
-    animation: modalFadeIn 0.3s ease-out;
+    animation: modalSlideInFromTop 0.3s ease-out;
+}
+
+@keyframes modalSlideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 @keyframes modalFadeIn {

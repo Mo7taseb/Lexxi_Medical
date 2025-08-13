@@ -209,7 +209,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   // Inline editing is always enabled - removed toggle function
 
   return (
-    <div className="max-w-5xl mx-auto" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
+    <div id="medical-note-viewer" className="max-w-5xl mx-auto" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
       {/* Header Section */}
       <div className="text-center mb-4 sm:mb-6">
         <h2 className={`text-xl sm:text-2xl font-bold text-gray-800 mb-2 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>

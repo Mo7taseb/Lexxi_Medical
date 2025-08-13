@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, AlertCircle, ArrowRight, Plus, CheckCircle } from 'lucide-react';
 import { ChecklistDrawerProps } from './missingInfoTypes';
 import { missingInfoLanguageTexts } from './missingInfoDetection';
@@ -17,6 +17,25 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
 
     // Don't render anything if not open
     if (!isOpen) return null;
+
+    // Scroll to top when modal opens to ensure it's visible
+    useEffect(() => {
+        if (isOpen) {
+            // Find the medical note viewer container and scroll to it
+            const noteViewer = document.getElementById('medical-note-viewer');
+
+            if (noteViewer) {
+                noteViewer.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest'
+                });
+            } else {
+                // Fallback to scrolling to top of page if note viewer not found
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    }, [isOpen]);
 
     // Group items by section
     const itemsBySection = missingItems.reduce((acc, item) => {
@@ -41,7 +60,7 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div className="fixed top-0 left-0 w-full h-full z-[9999] flex items-start justify-center pt-8 px-4 overflow-y-auto">
             {/* Backdrop with blur effect only - NO BLACK BACKGROUND */}
             <div
                 className="absolute inset-0 backdrop-blur-md"
@@ -49,8 +68,8 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                 style={{ background: 'transparent' }}
             />
 
-            {/* Modal */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
+            {/* Modal - positioned at top of current viewport */}
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col missing-info-modal mb-8">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
                     <div className="flex items-center gap-3">
@@ -78,7 +97,7 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto max-h-[60vh]">
                     {missingItems.length === 0 ? (
                         <div className="text-center py-12 px-6">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
