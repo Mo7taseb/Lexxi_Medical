@@ -13,6 +13,7 @@ import { languageTexts } from './medical-note/constants';
 import { downloadDocx } from './medical-note/docxExport';
 import DownloadDropdown from './medical-note/DownloadDropdown';
 import ShareDropdown from './medical-note/ShareDropdown';
+import MissingInfoAssist from './medical-note/MissingInfoAssist';
 
 const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   transcript,
@@ -173,6 +174,38 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     console.log(`Canceling inline edit for section: ${sectionId}`);
   }, []);
 
+  // Handle missing info field addition
+  const handleMissingInfoFieldAdd = useCallback((sectionId: string, fieldName: string, value: string) => {
+    console.log(`Adding missing field: ${fieldName} to section: ${sectionId} with value: ${value}`);
+
+    // Find the section and append the new information
+    const updatedSections = formattedNote.sections.map(section => {
+      if (section.id.includes(sectionId) || section.title?.toLowerCase().includes(sectionId.toLowerCase())) {
+        const newContent = section.content
+          ? `${section.content}\n\n**${fieldName}:** ${value}`
+          : `**${fieldName}:** ${value}`;
+
+        return { ...section, content: newContent };
+      }
+      return section;
+    });
+
+    // Reconstruct the full note with the updated section
+    const reconstructedNote = updatedSections.map(section => {
+      const title = section.title ? `**${section.title}:**` : '';
+      const content = section.content || '';
+      return title + (title ? '\n' : '') + content;
+    }).join('\n\n');
+
+    setEditedNote(reconstructedNote);
+  }, [formattedNote.sections]);
+
+  // Handle missing info field skip
+  const handleMissingInfoFieldSkip = useCallback((fieldId: string) => {
+    console.log(`Skipping missing field: ${fieldId}`);
+    // This is handled internally by the MissingInfoAssist component
+  }, []);
+
   // Inline editing is always enabled - removed toggle function
 
   return (
@@ -242,6 +275,16 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       {/* Generated Note Display */}
       {generatedNote && !isProcessing && (
         <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+          {/* Missing Info Assist - Only show after note is generated */}
+          <MissingInfoAssist
+            transcript={transcript}
+            generatedNote={currentNote}
+            noteType={noteType}
+            language={detectedLanguage}
+            onFieldAdd={handleMissingInfoFieldAdd}
+            onSkipField={handleMissingInfoFieldSkip}
+          />
+
           {/* Header with actions */}
           <div className={`flex flex-col gap-3 sm:gap-4 mb-4 ${isEnglish ? 'sm:flex-row sm:items-center sm:justify-between' : 'sm:flex-row-reverse sm:items-center sm:justify-between'}`}>
             <div className={`flex items-center gap-2 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>

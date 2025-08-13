@@ -384,3 +384,205 @@
         padding: 12px 16px;
     }
 }
+
+/* Missing Info Modal Styles */
+.missing-info-assist {
+    position: relative;
+}
+
+/* Completion Pill Animations */
+.completion-pill {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Animations - Clean transitions without black backgrounds */
+.missing-info-modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Backdrop styling - ONLY BLUR, NO BLACK BACKGROUND */
+.missing-info-backdrop {
+    backdrop-filter: blur(8px);
+    background: transparent !important;
+}
+
+/* Ensure modals appear above everything */
+.missing-info-modal,
+.micro-form-modal {
+    z-index: 9999 !important;
+}
+
+/* Line clamp utilities for better text truncation */
+.line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+}
+
+.line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+/* RTL Support for Modal */
+.missing-info-modal[dir="rtl"] {
+    direction: rtl;
+}
+
+/* Inline Hint Animations */
+.inline-hint {
+    animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Micro Form Animations */
+.micro-form-backdrop {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.micro-form-modal {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Mobile-specific styles for missing info */
+@media (max-width: 640px) {
+    .missing-info-assist .completion-pill {
+        font-size: 0.875rem;
+    }
+
+    .missing-info-assist .completion-pill button {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .micro-form-modal {
+        position: fixed;
+        inset: 1rem;
+        top: 10%;
+        max-height: 80vh;
+        transform: none;
+    }
+
+    /* Mobile modal adjustments */
+    .missing-info-modal {
+        margin: 1rem;
+        max-width: calc(100vw - 2rem);
+        max-height: calc(100vh - 2rem);
+    }
+
+    .inline-hint {
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .inline-hint .add-button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.625rem;
+    }
+}
+
+/* Priority Color Indicators */
+.priority-high {
+    border-left: 4px solid #ef4444;
+}
+
+.priority-medium {
+    border-left: 4px solid #f59e0b;
+}
+
+.priority-low {
+    border-left: 4px solid #3b82f6;
+}
+
+/* Voice Input Indicator */
+.voice-input-active {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Smooth transitions for all missing info components */
+.missing-info-assist * {
+    transition: all 0.2s ease-out;
+}
+
+/* Focus styles for accessibility */
+.missing-info-assist button:focus-visible,
+.missing-info-assist input:focus-visible,
+.missing-info-assist textarea:focus-visible,
+.missing-info-assist select:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
