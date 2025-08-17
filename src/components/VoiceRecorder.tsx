@@ -181,10 +181,33 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
         }
     };
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         if (audioFile && audioURL) {
-            // Pass both the file and Cloudinary URL if available
-            onComplete(audioFile, cloudinaryUrl || audioURL);
+            // If we have a recording (not uploaded file) and no Cloudinary URL, upload it first
+            if (!cloudinaryUrl && audioFile.name.includes('recording-')) {
+                try {
+                    setIsUploading(true);
+                    setError(null);
+
+                    console.log('Uploading recorded audio to Cloudinary...');
+                    const cloudinary = new CloudinaryUploader();
+                    const uploadResult = await cloudinary.uploadAudio(audioFile);
+
+                    console.log('Recording uploaded to Cloudinary:', uploadResult.secure_url);
+                    setCloudinaryUrl(uploadResult.secure_url);
+
+                    // Pass the uploaded Cloudinary URL
+                    onComplete(audioFile, uploadResult.secure_url);
+                } catch (uploadError) {
+                    console.error('Failed to upload recording to Cloudinary:', uploadError);
+                    setError(`فشل في رفع التسجيل إلى Cloudinary: ${uploadError}`);
+                } finally {
+                    setIsUploading(false);
+                }
+            } else {
+                // Pass existing Cloudinary URL or local URL for uploaded files
+                onComplete(audioFile, cloudinaryUrl || audioURL);
+            }
         }
     };
 
@@ -426,15 +449,30 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                 <div className="text-center">
                     <button
                         onClick={handleComplete}
-                        className="group relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 transform hover:scale-105 w-full sm:w-auto"
+                        disabled={isUploading}
+                        className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl transform w-full sm:w-auto ${isUploading
+                                ? 'bg-gray-400 text-white cursor-not-allowed'
+                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105'
+                            }`}
                     >
                         <span className="flex items-center justify-center gap-3">
-                            متابعة إلى التفريغ
-                            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                                <FileText className="h-4 w-4" />
-                            </div>
+                            {isUploading ? (
+                                <>
+                                    جاري الرفع إلى Cloudinary...
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                </>
+                            ) : (
+                                <>
+                                    متابعة إلى التفريغ
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <FileText className="h-4 w-4" />
+                                    </div>
+                                </>
+                            )}
                         </span>
-                        <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {!isUploading && (
+                            <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        )}
                     </button>
                 </div>
             )}
