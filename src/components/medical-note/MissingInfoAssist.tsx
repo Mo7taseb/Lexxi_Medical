@@ -94,7 +94,7 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
     const handleScrollToSection = (sectionId: string) => {
         // First try to find by exact section ID
         let element = document.getElementById(`section-${sectionId}`);
-        
+
         if (!element) {
             // If not found, try to find by section title using mapping
             const sectionMappings: Record<string, string[]> = {
@@ -107,7 +107,7 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
             };
 
             const possibleTitles = sectionMappings[sectionId] || [sectionId];
-            
+
             // Try to find section by matching title text
             for (const title of possibleTitles) {
                 const sections = document.querySelectorAll('.medical-section');
@@ -129,7 +129,7 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
             element.style.backgroundColor = '#dbeafe';
             element.style.border = '2px solid #60a5fa';
             element.style.borderRadius = '8px';
-            
+
             // Remove highlight after 2 seconds
             setTimeout(() => {
                 element!.style.backgroundColor = '';
@@ -143,7 +143,7 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
                 noteViewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
-        
+
         setIsChecklistOpen(false);
     };
 

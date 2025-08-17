@@ -56,18 +56,18 @@ const MicroForm: React.FC<MicroFormProps> = ({
             speechRecognition.continuous = false;
             speechRecognition.interimResults = false;
             speechRecognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
-            
+
             speechRecognition.onstart = () => {
                 setIsListening(true);
                 setIsVoiceMode(true);
             };
-            
+
             speechRecognition.onresult = (event: any) => {
                 const transcript = event.results[0][0].transcript;
                 setValue(prev => prev ? `${prev} ${transcript}` : transcript);
                 setIsListening(false);
                 setIsVoiceMode(false);
-                
+
                 // Show success feedback
                 const button = document.querySelector('[data-voice-button]') as HTMLElement;
                 if (button) {
@@ -81,18 +81,18 @@ const MicroForm: React.FC<MicroFormProps> = ({
                     }, 1000);
                 }
             };
-            
+
             speechRecognition.onerror = (event: any) => {
                 console.error('Speech recognition error:', event.error);
                 setIsListening(false);
                 setIsVoiceMode(false);
             };
-            
+
             speechRecognition.onend = () => {
                 setIsListening(false);
                 setIsVoiceMode(false);
             };
-            
+
             setRecognition(speechRecognition);
         }
     }, [language]);
@@ -148,8 +148,8 @@ const MicroForm: React.FC<MicroFormProps> = ({
 
     const handleVoiceInput = () => {
         if (!recognition) {
-            alert(language === 'en' 
-                ? 'Voice recognition is not supported in this browser. Please try Chrome or Edge.' 
+            alert(language === 'en'
+                ? 'Voice recognition is not supported in this browser. Please try Chrome or Edge.'
                 : 'التعرف على الصوت غير مدعوم في هذا المتصفح. يرجى استخدام Chrome أو Edge.'
             );
             return;
@@ -164,8 +164,8 @@ const MicroForm: React.FC<MicroFormProps> = ({
                 recognition.start();
             } catch (error) {
                 console.error('Error starting speech recognition:', error);
-                alert(language === 'en' 
-                    ? 'Could not start voice recognition. Please check your microphone permissions.' 
+                alert(language === 'en'
+                    ? 'Could not start voice recognition. Please check your microphone permissions.'
                     : 'لا يمكن بدء التعرف على الصوت. يرجى التحقق من أذونات الميكروفون.'
                 );
             }
@@ -433,13 +433,12 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         data-voice-button
                                         onClick={handleVoiceInput}
                                         disabled={!recognition}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                                            isListening
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isListening
                                                 ? 'bg-red-100 text-red-700 border border-red-200 animate-pulse'
                                                 : recognition
-                                                ? 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
-                                                : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
-                                        }`}
+                                                    ? 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
+                                                    : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                                            }`}
                                         title={!recognition ? (language === 'en' ? 'Voice recognition not supported' : 'التعرف على الصوت غير مدعوم') : ''}
                                     >
                                         <Mic className={`h-4 w-4 ${isListening ? 'animate-pulse text-red-600' : ''}`} />
@@ -447,8 +446,8 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                             {isListening
                                                 ? (language === 'en' ? 'Recording...' : 'جاري التسجيل...')
                                                 : !recognition
-                                                ? (language === 'en' ? 'Voice not supported' : 'الصوت غير مدعوم')
-                                                : t.voiceInput
+                                                    ? (language === 'en' ? 'Voice not supported' : 'الصوت غير مدعوم')
+                                                    : t.voiceInput
                                             }
                                         </span>
                                     </button>

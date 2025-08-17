@@ -581,49 +581,255 @@ export const fieldValidators: Record<string, FieldValidator> = {
 
   physical_examination: (value, transcript, note) => {
     const examKeywords = [
-      'examination', 'exam', 'physical', 'palpation', 'auscultation', 'inspection',
-      'general appearance', 'head', 'neck', 'chest', 'heart', 'lungs', 'abdomen',
-      'الفحص', 'فحص بدني', 'الفحص السريري', 'القلب', 'الرئتين', 'البطن'
+      'physical exam', 'examination', 'vital signs', 'blood pressure', 'temperature', 'pulse',
+      'heart rate', 'respiratory rate', 'oxygen saturation', 'auscultation', 'palpation',
+      'inspection', 'percussion', 'abdomen', 'chest', 'heart', 'lungs', 'neurological'
     ];
     
-    const hasExam = examKeywords.some(keyword => 
-      transcript.toLowerCase().includes(keyword.toLowerCase()) ||
-      note.toLowerCase().includes(keyword.toLowerCase())
+    const hasPhysicalExamInTranscript = examKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
     );
     
+    // Check for specific examination findings
+    const hasExamFindings = transcript.match(/normal|abnormal|clear|tender|enlarged|murmur|rash|swelling/i);
+    
+    // Check for vital signs in transcript
+    const hasVitals = transcript.match(/\d+\/\d+|\d+\s*bpm|\d+\s*°[CF]|\d+\s*mmHg/i);
+    
     return {
-      isMissing: !hasExam,
-      confidence: hasExam ? 0.8 : 0.85,
-      reason: hasExam ? 'Physical examination documented' : 'No physical examination findings noted',
-      suggestion: hasExam ? undefined : 'Document relevant physical examination findings'
+      isMissing: !hasPhysicalExamInTranscript && !hasExamFindings && !hasVitals,
+      confidence: hasPhysicalExamInTranscript ? 0.9 : (hasExamFindings || hasVitals ? 0.8 : 0.95),
+      reason: hasPhysicalExamInTranscript ? 'Physical examination documented in transcript' :
+              hasExamFindings || hasVitals ? 'Some examination details present' :
+              'No physical examination findings documented in transcript',
+      suggestion: hasPhysicalExamInTranscript ? undefined : 
+                 'Include physical examination findings: vital signs, general appearance, and relevant system examinations'
     };
   },
 
   imaging: (value, transcript, note) => {
     const imagingKeywords = [
-      'x-ray', 'xray', 'ct scan', 'mri', 'ultrasound', 'imaging', 'radiology',
-      'أشعة', 'تصوير', 'أشعة سينية', 'رنين مغناطيسي', 'موجات فوق صوتية'
+      'x-ray', 'xray', 'ct scan', 'ct', 'mri', 'ultrasound', 'echo', 'imaging',
+      'radiology', 'chest x-ray', 'abdominal ct', 'scan'
     ];
     
-    const hasImaging = imagingKeywords.some(keyword => 
-      transcript.toLowerCase().includes(keyword.toLowerCase()) ||
-      note.toLowerCase().includes(keyword.toLowerCase())
+    const hasImagingInTranscript = imagingKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
     );
-
-    // Check for complete imaging info (date, type, site, result)
-    const dateKeywords = ['date', 'dated', 'today', 'yesterday', 'تاريخ', 'اليوم', 'أمس'];
-    const hasDate = dateKeywords.some(keyword =>
-      transcript.toLowerCase().includes(keyword.toLowerCase()) ||
-      note.toLowerCase().includes(keyword.toLowerCase())
-    );
-
+    
     return {
-      isMissing: hasImaging && !hasDate,
-      confidence: hasImaging ? (hasDate ? 0.9 : 0.6) : 1.0,
-      reason: hasImaging ? 
-        (hasDate ? 'Complete imaging information' : 'Imaging mentioned but incomplete details') :
-        'No imaging studies mentioned',
-      suggestion: hasImaging && !hasDate ? 'Include date, type, site, and results for imaging studies' : undefined
+      isMissing: !hasImagingInTranscript,
+      confidence: hasImagingInTranscript ? 0.9 : 0.8,
+      reason: hasImagingInTranscript ? 'Imaging studies mentioned in transcript' :
+              'No imaging studies mentioned in transcript',
+      suggestion: hasImagingInTranscript ? undefined : 
+                 'Include imaging studies performed or planned (X-ray, CT, MRI, ultrasound)'
+    };
+  },
+
+  reason_for_consultation: (value, transcript, note) => {
+    const reasonKeywords = [
+      'reason for consultation', 'reason for consult', 'reason for visit', 'referred for',
+      'consultation for', 'chief complaint', 'presenting complaint', 'main concern',
+      'السبب في الاستشارة', 'سبب الزيارة', 'الشكوى الرئيسية'
+    ];
+    
+    const hasReason = reasonKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase()) ||
+      note.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Also check for any specific complaint or problem description
+    const hasSymptomDescription = transcript.length > 50 && note.length > 50;
+    
+    return {
+      isMissing: !hasReason && !hasSymptomDescription,
+      confidence: hasReason ? 0.95 : (hasSymptomDescription ? 0.8 : 0.9),
+      reason: hasReason ? 'Reason for consultation clearly stated' : 
+              hasSymptomDescription ? 'Symptoms described but reason could be clearer' :
+              'No clear reason for consultation identified',
+      suggestion: hasReason ? undefined : 'Clearly state the reason for consultation or referral'
+    };
+  },
+
+  history_present_illness: (value, transcript, note) => {
+    // Check if HPI is present in the ORIGINAL TRANSCRIPT (more reliable than generated note)
+    const hpiKeywords = [
+      'symptoms', 'started', 'began', 'onset', 'duration', 'pain', 'ache', 'feel',
+      'experiencing', 'complain', 'problem', 'issue', 'concern', 'sick', 'ill',
+      'hurt', 'sore', 'tender', 'discomfort', 'trouble', 'difficulty'
+    ];
+    
+    const hasHPIInTranscript = hpiKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check for actual symptom descriptions in transcript
+    const hasSymptomDetails = transcript.match(/pain|ache|hurt|feel|sick|nausea|vomit|fever|cough|breath/i) &&
+                             (transcript.match(/\d+\s*(day|week|month|hour|minute)/i) ||
+                              transcript.match(/mild|moderate|severe|sharp|dull|aching|burning|throbbing/i) ||
+                              transcript.match(/\d+\/10|scale/i));
+    
+    // Check if transcript actually describes a medical problem (not just demographic info)
+    const transcriptLength = transcript.replace(/patient|male|female|years|old|married|children|work|teacher|identification/gi, '').length;
+    const hasSubstantialContent = transcriptLength > 200; // After removing demographic words
+    
+    // If generated note has HPI section but transcript doesn't have symptoms, it's likely hallucinated
+    const generatedHasHPI = note.toLowerCase().includes('history of presenting illness') || 
+                           note.toLowerCase().includes('history of present illness');
+    const possibleHallucination = generatedHasHPI && !hasHPIInTranscript && !hasSymptomDetails;
+    
+    return {
+      isMissing: !hasHPIInTranscript || !hasSymptomDetails || possibleHallucination,
+      confidence: hasHPIInTranscript && hasSymptomDetails ? 0.95 : 
+                 possibleHallucination ? 0.9 : 0.85,
+      reason: hasHPIInTranscript && hasSymptomDetails ? 'History of present illness documented in transcript' :
+              possibleHallucination ? 'Generated note contains HPI but transcript lacks symptom details' :
+              !hasHPIInTranscript ? 'No symptoms or presenting complaint described in transcript' :
+              'Incomplete symptom details in transcript',
+      suggestion: hasHPIInTranscript && hasSymptomDetails ? undefined : 
+                 'Include detailed description of patient symptoms, when they started, severity, character, and progression'
+    };
+  },
+
+  recommendations: (value, transcript, note) => {
+    const recommendationKeywords = [
+      'recommendations', 'plan', 'treatment plan', 'management plan', 'next steps',
+      'follow up', 'follow-up', 'advised', 'recommend', 'suggest', 'instructions',
+      'discharge plan', 'care plan', 'therapy', 'medication', 'referral',
+      'التوصيات', 'الخطة', 'خطة العلاج', 'المتابعة', 'ينصح', 'يوصى'
+    ];
+    
+    const hasRecommendations = recommendationKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase()) ||
+      note.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check for specific actionable items
+    const hasActionableItems = transcript.match(/scheduled|order|prescribe|refer|return|continue|stop|start/i) ||
+                              note.match(/scheduled|order|prescribe|refer|return|continue|stop|start/i);
+    
+    return {
+      isMissing: !hasRecommendations && !hasActionableItems,
+      confidence: hasRecommendations ? 0.9 : (hasActionableItems ? 0.8 : 0.85),
+      reason: hasRecommendations ? 'Recommendations documented' :
+              hasActionableItems ? 'Some actions mentioned but recommendations could be clearer' :
+              'No clear recommendations or treatment plan found',
+      suggestion: hasRecommendations ? undefined : 'Include specific recommendations for treatment, follow-up, and patient instructions'
+    };
+  },
+
+  investigations: (value, transcript, note) => {
+    const investigationKeywords = [
+      'lab', 'laboratory', 'blood test', 'urine test', 'x-ray', 'ct scan', 'mri', 'ultrasound',
+      'ecg', 'ekg', 'blood work', 'culture', 'biopsy', 'imaging', 'radiology'
+    ];
+    
+    const hasInvestigationsInTranscript = investigationKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check for specific test results
+    const hasResults = transcript.match(/result|normal|abnormal|elevated|low|high|positive|negative/i);
+    
+    return {
+      isMissing: !hasInvestigationsInTranscript,
+      confidence: hasInvestigationsInTranscript ? 0.9 : 0.8,
+      reason: hasInvestigationsInTranscript ? 'Investigations mentioned in transcript' :
+              'No investigations or diagnostic tests mentioned in transcript',
+      suggestion: hasInvestigationsInTranscript ? undefined : 
+                 'Include relevant investigations: lab work, imaging, or diagnostic tests performed or planned'
+    };
+  },
+
+  clinical_impression: (value, transcript, note) => {
+    const assessmentKeywords = [
+      'diagnosis', 'impression', 'assessment', 'likely', 'probable', 'suspect', 'differential',
+      'condition', 'disease', 'syndrome', 'disorder', 'rule out', 'consider'
+    ];
+    
+    const hasAssessmentInTranscript = assessmentKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check for medical conditions mentioned
+    const hasMedicalConditions = transcript.match(/itis|osis|pathy|syndrome|disease|infection|injury/i);
+    
+    return {
+      isMissing: !hasAssessmentInTranscript && !hasMedicalConditions,
+      confidence: hasAssessmentInTranscript ? 0.9 : (hasMedicalConditions ? 0.7 : 0.85),
+      reason: hasAssessmentInTranscript ? 'Clinical assessment documented in transcript' :
+              hasMedicalConditions ? 'Some medical conditions mentioned' :
+              'No clinical assessment or diagnostic impression in transcript',
+      suggestion: hasAssessmentInTranscript ? undefined : 
+                 'Include clinical impression, working diagnosis, and differential diagnoses'
+    };
+  },
+
+  referring_physician: (value, transcript, note) => {
+    const referringKeywords = [
+      'referring', 'referred by', 'sent by', 'from dr', 'from doctor',
+      'consultation requested by', 'referral from',
+      'محول من', 'أرسل من', 'طلب استشارة من'
+    ];
+    
+    const hasReferring = referringKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase()) ||
+      note.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check for doctor names or medical departments
+    const hasDoctorName = transcript.match(/dr\.?\s+[a-z]+|doctor\s+[a-z]+/i) ||
+                         note.match(/dr\.?\s+[a-z]+|doctor\s+[a-z]+/i);
+    
+    return {
+      isMissing: !hasReferring && !hasDoctorName,
+      confidence: hasReferring ? 0.85 : (hasDoctorName ? 0.7 : 0.6),
+      reason: hasReferring ? 'Referring physician mentioned' :
+              hasDoctorName ? 'Doctor name mentioned but referral context unclear' :
+              'No referring physician information found',
+      suggestion: hasReferring ? undefined : 'Include name and contact of referring physician if this is a referral consultation'
+    };
+  },
+
+  // Specific field ID validators
+  lab_work: (value, transcript, note) => {
+    const labKeywords = [
+      'lab', 'laboratory', 'blood test', 'blood work', 'cbc', 'complete blood count',
+      'chemistry', 'glucose', 'creatinine', 'electrolytes', 'liver function'
+    ];
+    
+    const hasLabInTranscript = labKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    return {
+      isMissing: !hasLabInTranscript,
+      confidence: hasLabInTranscript ? 0.9 : 0.9,
+      reason: hasLabInTranscript ? 'Laboratory work mentioned in transcript' :
+              'No laboratory tests mentioned in transcript',
+      suggestion: hasLabInTranscript ? undefined : 
+                 'Include laboratory tests performed or planned (CBC, chemistry panel, etc.)'
+    };
+  },
+
+  lab_results: (value, transcript, note) => {
+    const labKeywords = [
+      'lab', 'laboratory', 'blood test', 'blood work', 'cbc', 'complete blood count',
+      'chemistry', 'glucose', 'creatinine', 'electrolytes', 'liver function', 'results'
+    ];
+    
+    const hasLabInTranscript = labKeywords.some(keyword => 
+      transcript.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    return {
+      isMissing: !hasLabInTranscript,
+      confidence: hasLabInTranscript ? 0.9 : 0.9,
+      reason: hasLabInTranscript ? 'Laboratory results mentioned in transcript' :
+              'No laboratory results mentioned in transcript',
+      suggestion: hasLabInTranscript ? undefined : 
+                 'Include laboratory test results and interpretation'
     };
   },
 
