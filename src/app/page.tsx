@@ -1,55 +1,92 @@
 'use client';
 
 import React, { useState, lazy, Suspense } from 'react';
-import { Mic, Upload, FileText, Stethoscope, AlertCircle, CheckCircle } from 'lucide-react';
+import {
+  Mic,
+  Upload,
+  FileText,
+  Stethoscope,
+  AlertCircle,
+  CheckCircle,
+  User,
+  Plus,
+  Clock,
+  Edit,
+  Play,
+  Pause,
+  Square
+} from 'lucide-react';
 import { FastLoadingSpinner } from '@/components/LoadingOptimization';
 import Image from 'next/image';
 import '@/components/medical-note/styles.css';
+import {
+  useSession,
+  SessionManager,
+  SessionSummary,
+  NoteEditor,
+  SessionVoiceRecorder
+} from '@/components/patient-session';
+import { PatientSession } from '@/components/patient-session/types';
 
 // Lazy load components to reduce initial bundle size
-const VoiceRecorder = lazy(() => import('@/components/VoiceRecorder'));
 const TranscriptionViewer = lazy(() => import('@/components/TranscriptionViewer'));
 const NoteTypeSelector = lazy(() => import('@/components/NoteTypeSelector'));
 const MedicalNoteViewer = lazy(() => import('@/components/MedicalNoteViewer'));
 
-export default function Home() {
+// Main App Component
+function MainApp() {
   const [currentStep, setCurrentStep] = useState(1);
   const [inputMode, setInputMode] = useState<'conversation' | 'summary' | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null); // Add Cloudinary URL state
+  const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>('');
-  const [selectedLanguage, setSelectedLanguage] = useState<'ar' | 'en'>('ar'); // Add language state
+  const [selectedLanguage, setSelectedLanguage] = useState<'ar' | 'en'>('ar');
   const [noteType, setNoteType] = useState<string>('soap');
   const [generatedNote, setGeneratedNote] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [patientConsent, setPatientConsent] = useState(false);
+  const [currentSession, setCurrentSession] = useState<PatientSession | null>(null);
+
+  const { sessions, createNewSession, updateSession } = useSession();
 
   const steps = [
-    { id: 1, title: 'اختر نوع الإدخال', titleEn: 'Choose Input Mode', icon: Mic },
-    { id: 2, title: 'سجل الصوت', titleEn: 'Record Audio', icon: Upload },
-    { id: 3, title: 'راجع النص', titleEn: 'Review Transcript', icon: FileText },
-    { id: 4, title: 'اختر نوع التقرير', titleEn: 'Select Note Type', icon: Stethoscope },
-    { id: 5, title: 'مراجعة التقرير', titleEn: 'Review Note', icon: CheckCircle },
+    { id: 1, title: 'معلومات المريض', titleEn: 'Patient Information', icon: User },
+    { id: 2, title: 'ملاحظات الجلسة', titleEn: 'Session Notes', icon: FileText },
+    { id: 3, title: 'تسجيل الصوت', titleEn: 'Voice Recording', icon: Mic },
+    { id: 4, title: 'راجع النص', titleEn: 'Review Transcript', icon: FileText },
+    { id: 5, title: 'اختر نوع التقرير', titleEn: 'Select Note Type', icon: Stethoscope },
+    { id: 6, title: 'مراجعة التقرير', titleEn: 'Review Note', icon: CheckCircle },
   ];
+
+  const handleSessionReady = (session: PatientSession) => {
+    setCurrentSession(session);
+    setCurrentStep(2);
+  };
+
+  const handleSessionUpdate = (updates: Partial<PatientSession>) => {
+    if (currentSession) {
+      updateSession(currentSession.id, updates);
+      setCurrentSession({ ...currentSession, ...updates });
+    }
+  };
 
   const handleAudioComplete = (file: File, url: string) => {
     setAudioFile(file);
     setAudioUrl(url);
 
-    // Check if it's a Cloudinary URL and store it separately
     if (url.includes('cloudinary.com')) {
       setCloudinaryUrl(url);
     } else {
       setCloudinaryUrl(null);
     }
 
-    setCurrentStep(3);
+    setCurrentStep(4);
   };
 
   const handleTranscriptionComplete = (text: string) => {
     setTranscript(text);
-    setCurrentStep(4);
+    setCurrentStep(5);
   };
 
   const handleLanguageDetected = (language: 'ar' | 'en') => {
@@ -59,7 +96,7 @@ export default function Home() {
 
   const handleNoteTypeSelect = (type: string) => {
     setNoteType(type);
-    setCurrentStep(5);
+    setCurrentStep(6);
   };
 
   const handleGenerateNote = async () => {
@@ -97,6 +134,11 @@ export default function Home() {
     setNoteType('soap');
     setGeneratedNote('');
     setPatientConsent(false);
+    setCurrentSession(null);
+  };
+
+  const goToRecording = () => {
+    setCurrentStep(3);
   };
 
   // Loading component for better UX
@@ -153,7 +195,7 @@ export default function Home() {
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#4f78b9ff' }}></div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>Real-time Processing</span>
+              <span>AI Transcription</span>
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#0c4a74ff' }}></div>
             </div>
           </div>
@@ -175,7 +217,6 @@ export default function Home() {
                       background: `linear-gradient(135deg, #3e74c9, #6cb7e8)`,
                       boxShadow: '0 8px 25px -5px rgba(62, 116, 201, 0.3)'
                     } : {}}>
-                    {/* Always show original icon, never replace with checkmark */}
                     <step.icon className="h-6 w-6" />
                     {currentStep >= step.id && (
                       <div className="absolute inset-0 rounded-2xl animate-pulse bg-gradient-to-r from-blue-400/20 to-blue-600/20" />
@@ -213,7 +254,6 @@ export default function Home() {
                         background: `linear-gradient(135deg, #3e74c9, #6cb7e8)`,
                         boxShadow: '0 12px 25px -5px rgba(62, 116, 201, 0.3)'
                       } : {}}>
-                      {/* Always show original icon, never replace with checkmark */}
                       <step.icon className="h-7 w-7 lg:h-8 lg:w-8" />
                       {currentStep >= step.id && (
                         <div className="absolute inset-0 rounded-2xl lg:rounded-3xl animate-pulse bg-gradient-to-r from-blue-400/20 to-blue-600/20" />
@@ -239,182 +279,81 @@ export default function Home() {
 
         {/* Main Content - Mobile Optimized */}
         <div className="max-w-5xl mx-auto">
-          {/* Step 1: Choose Input Mode */}
+          {/* Step 1: Patient Information */}
           {currentStep === 1 && (
             <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 lg:p-10 border border-white/30">
               <div className="text-center mb-8 sm:mb-10">
+              </div>
+              <SessionManager
+                onSessionReady={handleSessionReady}
+                currentStep={currentStep}
+                language={selectedLanguage}
+              />
+            </div>
+          )}
+
+          {/* Step 2: Session Notes */}
+          {currentStep === 2 && currentSession && (
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 lg:p-10 border border-white/30">
+              <div className="text-center mb-8 sm:mb-10">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
-                  اختر نوع الإدخال
+                  ملاحظات الجلسة
                 </h2>
                 <p className="text-gray-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto">
-                  اختر طريقة التسجيل المناسبة لاحتياجاتك الطبية
+                  أضف ملاحظات سريعة أثناء الجلسة لتذكر النقاط المهمة
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
-                <div
-                  className={`group relative p-6 sm:p-8 border-3 rounded-2xl sm:rounded-3xl cursor-pointer transition-all duration-500 transform hover:scale-102 ${inputMode === 'conversation'
-                    ? 'shadow-2xl scale-105 border-blue-400'
-                    : 'border-gray-200 hover:shadow-xl bg-white hover:border-gray-300'
-                    }`}
-                  style={inputMode === 'conversation' ? {
-                    background: `linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 50%, #81d4fa 100%)`,
-                    boxShadow: '0 25px 50px -12px rgba(62, 116, 201, 0.25)'
-                  } : {}}
-                  onClick={() => setInputMode('conversation')}
-                >
-                  <div className="text-center">
-                    <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-all duration-500 ${inputMode === 'conversation'
-                      ? 'text-white shadow-2xl transform rotate-3'
-                      : 'text-white hover:scale-110'
-                      }`}
-                      style={inputMode === 'conversation' ? {
-                        background: `linear-gradient(135deg, #1e40af, #3b82f6, #60a5fa)`,
-                        boxShadow: '0 20px 25px -5px rgba(30, 64, 175, 0.4)'
-                      } : {
-                        background: `linear-gradient(135deg, #6366f1, #8b5cf6)`
-                      }}>
-                      <Mic className="h-8 w-8 sm:h-10 sm:w-10" />
-                    </div>
-                    <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 ${inputMode === 'conversation' ? 'text-blue-900' : 'text-gray-800'
-                      }`}>
-                      محادثة كاملة
-                    </h3>
-                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed px-2">
-                      تسجيل المحادثة الكاملة بين الطبيب والمريض
-                      <br />
-                      <span className="text-xs sm:text-sm text-gray-500 mt-2 block font-medium">Full doctor-patient conversation</span>
-                    </p>
-                  </div>
-                  {inputMode === 'conversation' && (
-                    <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                        <CheckCircle className="h-5 w-5 text-white" />
-                      </div>
-                    </div>
-                  )}
-                  {/* Decorative gradient overlay */}
-                  <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Session Summary */}
+                <div className="lg:col-span-1">
+                  <SessionSummary
+                    session={currentSession}
+                    language={selectedLanguage}
+                    onEdit={() => setCurrentStep(1)}
+                    onContinue={goToRecording}
+                  />
                 </div>
 
-                <div
-                  className={`group relative p-6 sm:p-8 border-3 rounded-2xl sm:rounded-3xl cursor-pointer transition-all duration-500 transform hover:scale-102 ${inputMode === 'summary'
-                    ? 'shadow-2xl scale-105 border-indigo-400'
-                    : 'border-gray-200 hover:shadow-xl bg-white hover:border-gray-300'
-                    }`}
-                  style={inputMode === 'summary' ? {
-                    background: `linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 50%, #ddd6fe 100%)`,
-                    boxShadow: '0 25px 50px -12px rgba(99, 102, 241, 0.25)'
-                  } : {}}
-                  onClick={() => setInputMode('summary')}
-                >
-                  <div className="text-center">
-                    <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-all duration-500 ${inputMode === 'summary'
-                      ? 'text-white shadow-2xl transform -rotate-3'
-                      : 'text-white hover:scale-110'
-                      }`}
-                      style={inputMode === 'summary' ? {
-                        background: `linear-gradient(135deg, #7c3aed, #8b5cf6, #a78bfa)`,
-                        boxShadow: '0 20px 25px -5px rgba(124, 58, 237, 0.4)'
-                      } : {
-                        background: `linear-gradient(135deg, #06b6d4, #0891b2)`
-                      }}>
-                      <FileText className="h-8 w-8 sm:h-10 sm:w-10" />
-                    </div>
-                    <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 ${inputMode === 'summary' ? 'text-indigo-900' : 'text-gray-800'
-                      }`}>
-                      ملخص الطبيب
-                    </h3>
-                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed px-2">
-                      تسجيل ملخص من الطبيب فقط
-                      <br />
-                      <span className="text-xs sm:text-sm text-gray-500 mt-2 block font-medium">Doctor's summary only</span>
-                    </p>
-                  </div>
-                  {inputMode === 'summary' && (
-                    <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
-                      <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-                        <CheckCircle className="h-5 w-5 text-white" />
-                      </div>
-                    </div>
-                  )}
-                  {/* Decorative gradient overlay */}
-                  <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {/* Note Editor */}
+                <div className="lg:col-span-3">
+                  <NoteEditor
+                    session={currentSession}
+                    onUpdateSession={handleSessionUpdate}
+                    language={selectedLanguage}
+                  />
                 </div>
-              </div>
-
-              {inputMode === 'conversation' && (
-                <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl sm:rounded-2xl">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                        <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-amber-800 font-semibold mb-2 text-sm sm:text-base">
-                        تنبيه مهم - Patient Consent Required
-                      </h4>
-                      <p className="text-amber-700 text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed">
-                        يتطلب تسجيل المحادثة الكاملة موافقة المريض المسبقة وفقاً لقوانين الخصوصية الطبية
-                      </p>
-                      <label className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={patientConsent}
-                          onChange={(e) => setPatientConsent(e.target.checked)}
-                          className="mt-1 rounded border-amber-300 text-amber-600 focus:ring-amber-500 focus:ring-2 flex-shrink-0"
-                        />
-                        <span className="text-amber-800 group-hover:text-amber-900 transition-colors leading-relaxed">
-                          أؤكد حصولي على موافقة المريض الخطية لتسجيل المحادثة ومعالجة البيانات الطبية
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-8 sm:mt-10 text-center">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  disabled={inputMode === null || (inputMode === 'conversation' && !patientConsent)}
-                  className={`relative px-8 sm:px-12 py-4 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-500 w-full sm:w-auto transform ${inputMode === null || (inputMode === 'conversation' && !patientConsent)
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'text-white shadow-2xl hover:shadow-3xl hover:scale-105'
-                    }`}
-                  style={!(inputMode === null || (inputMode === 'conversation' && !patientConsent)) ? {
-                    background: `linear-gradient(135deg, #3b82f6, #1d4ed8, #1e40af)`,
-                    boxShadow: '0 20px 25px -5px rgba(59, 130, 246, 0.3), 0 10px 10px -5px rgba(59, 130, 246, 0.1)'
-                  } : {}}
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <span>متابعة إلى التسجيل</span>
-                    <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </span>
-                  {!(inputMode === null || (inputMode === 'conversation' && !patientConsent)) && (
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/10 to-white/5 opacity-0 hover:opacity-100 transition-all duration-300" />
-                  )}
-                </button>
               </div>
             </div>
           )}
 
-          {/* Step 2: Record Audio */}
-          {currentStep === 2 && (
+          {/* Step 3: Voice Recording */}
+          {currentStep === 3 && currentSession && (
             <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-white/20">
-              <Suspense fallback={<LoadingSpinner />}>
-                <VoiceRecorder onComplete={handleAudioComplete} />
-              </Suspense>
+              <div className="text-center mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
+                  تسجيل الصوت
+                </h2>
+                <p className="text-gray-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto">
+                  سجل ملخص الجلسة أو المحادثة الكاملة
+                </p>
+              </div>
+
+              <SessionVoiceRecorder
+                onComplete={handleAudioComplete}
+                session={currentSession}
+                language={selectedLanguage}
+              />
             </div>
           )}
 
-          {/* Step 3: Review Transcript */}
-          {currentStep === 3 && audioFile && (
+          {/* Step 4: Review Transcript */}
+          {currentStep === 4 && audioFile && (
             <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-white/20">
               <Suspense fallback={<LoadingSpinner />}>
                 <TranscriptionViewer
                   audioFile={audioFile}
-                  audioUrl={cloudinaryUrl || undefined} // Pass Cloudinary URL if available
+                  audioUrl={cloudinaryUrl || undefined}
                   onComplete={handleTranscriptionComplete}
                   onLanguageDetected={handleLanguageDetected}
                 />
@@ -422,8 +361,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Step 4: Select Note Type */}
-          {currentStep === 4 && (
+          {/* Step 5: Select Note Type */}
+          {currentStep === 5 && (
             <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-white/20">
               <Suspense fallback={<LoadingSpinner />}>
                 <NoteTypeSelector
@@ -434,8 +373,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Step 5: Review Generated Note */}
-          {currentStep === 5 && (
+          {/* Step 6: Review Generated Note */}
+          {currentStep === 6 && (
             <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-white/20">
               <Suspense fallback={<LoadingSpinner />}>
                 <MedicalNoteViewer
@@ -454,4 +393,9 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+// Main app component
+export default function Home() {
+  return <MainApp />;
 }

@@ -40,6 +40,8 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
     const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null);
     const [showNotes, setShowNotes] = useState(true);
     const [showSessionSummary, setShowSessionSummary] = useState(true);
+    const [patientConsent, setPatientConsent] = useState(false);
+    const [recordingMode, setRecordingMode] = useState<'summary' | 'conversation'>('summary');
 
     const { updateSession } = useSession();
 
@@ -387,18 +389,94 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                             </div>
                         </div>
 
+                        {/* Recording Mode Selection */}
+                        {!isRecording && !audioURL && (
+                            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+                                    {language === 'ar' ? 'نوع التسجيل' : 'Recording Type'}
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => setRecordingMode('summary')}
+                                        className={`p-4 rounded-xl border-2 transition-all duration-200 ${recordingMode === 'summary'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <div className="text-center">
+                                            <FileText className="h-8 w-8 mx-auto mb-2" />
+                                            <div className="font-semibold">
+                                                {language === 'ar' ? 'ملخص الطبيب' : 'Doctor Summary'}
+                                            </div>
+                                            <div className="text-sm opacity-75">
+                                                {language === 'ar' ? 'ملخص من الطبيب فقط' : 'Summary from doctor only'}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <button
+                                        onClick={() => setRecordingMode('conversation')}
+                                        className={`p-4 rounded-xl border-2 transition-all duration-200 ${recordingMode === 'conversation'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <div className="text-center">
+                                            <Mic className="h-8 w-8 mx-auto mb-2" />
+                                            <div className="font-semibold">
+                                                {language === 'ar' ? 'محادثة كاملة' : 'Full Conversation'}
+                                            </div>
+                                            <div className="text-sm opacity-75">
+                                                {language === 'ar' ? 'محادثة كاملة مع المريض' : 'Full conversation with patient'}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                {/* Consent Checkbox for Full Conversation */}
+                                {recordingMode === 'conversation' && (
+                                    <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                        <label className="flex items-start gap-3 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={patientConsent}
+                                                onChange={(e) => setPatientConsent(e.target.checked)}
+                                                className="mt-1 rounded border-amber-300 text-amber-600 focus:ring-amber-500 focus:ring-2"
+                                            />
+                                            <div className="text-sm text-amber-800">
+                                                <div className="font-semibold mb-1">
+                                                    {language === 'ar' ? 'موافقة المريض مطلوبة' : 'Patient Consent Required'}
+                                                </div>
+                                                <div>
+                                                    {language === 'ar'
+                                                        ? 'أؤكد حصولي على موافقة المريض الخطية لتسجيل المحادثة الكاملة'
+                                                        : 'I confirm that I have obtained written patient consent for full conversation recording'
+                                                    }
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* Recording Controls */}
                         <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8">
                             {!isRecording && !audioURL && (
                                 <button
                                     onClick={startRecording}
-                                    className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105 w-full sm:w-auto"
+                                    disabled={recordingMode === 'conversation' && !patientConsent}
+                                    className={`group relative px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 shadow-lg transform w-full sm:w-auto ${recordingMode === 'conversation' && !patientConsent
+                                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed shadow-gray-400/25'
+                                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 shadow-blue-500/25'
+                                        }`}
                                 >
                                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
                                         <Mic className="h-3 w-3 sm:h-4 sm:w-4" />
                                     </div>
                                     {language === 'ar' ? 'ابدأ التسجيل' : 'Start Recording'}
-                                    <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    {!(recordingMode === 'conversation' && !patientConsent) && (
+                                        <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    )}
                                 </button>
                             )}
 
@@ -630,7 +708,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                     {showNotes && (
                         <NoteEditor
                             session={session}
-                            onUpdateSession={() => {/* Session will be updated through context */ }}
+                            onUpdateSession={(updates) => updateSession(session.id, updates)}
                             language={language}
                             className="max-h-96 overflow-y-auto"
                         />

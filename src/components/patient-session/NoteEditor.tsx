@@ -372,25 +372,16 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       )}
 
       {/* Notes List */}
-      <div className="space-y-4">
+      <div className="space-y-4 relative">
         {session.notes.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <Edit className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h4 className="text-lg font-medium text-gray-600 mb-2">
+          <div className="text-center py-8 bg-white rounded-xl border border-gray-200">
+            <Edit className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+            <h4 className="text-base font-medium text-gray-600 mb-1">
               {t.noNotes}
             </h4>
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-500 text-sm">
               {t.addFirstNote}
             </p>
-            {!isAddingNote && (
-              <button
-                onClick={() => setIsAddingNote(true)}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 mx-auto"
-              >
-                <Plus className="h-5 w-5" />
-                {t.addNote}
-              </button>
-            )}
           </div>
         ) : (
           session.notes
@@ -482,6 +473,19 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             ))
         )}
       </div>
+
+      {/* Floating Action Button for Empty State */}
+      {session.notes.length === 0 && !isAddingNote && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={() => setIsAddingNote(true)}
+            className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-xl transform hover:scale-110"
+            title={t.addNote}
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

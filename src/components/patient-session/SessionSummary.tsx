@@ -319,7 +319,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
       <div className="mt-4 pt-4 border-t border-blue-200">
         <button
           onClick={onContinue}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           <Stethoscope className="h-5 w-5" />
           {t.continueToRecording}
