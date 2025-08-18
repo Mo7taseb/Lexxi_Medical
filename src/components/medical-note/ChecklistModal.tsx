@@ -175,11 +175,21 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                                                     }}
                                                 >
                                                     <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                                            <h5 className="font-medium text-gray-900 text-sm">
+                                                        <div
+                                                            className="flex items-center justify-between mb-2"
+                                                            style={{
+                                                                direction: language === 'en' ? 'ltr' : 'rtl'
+                                                            }}
+                                                        >
+                                                            <h5
+                                                                className="font-medium text-gray-900 text-sm"
+                                                                style={{
+                                                                    textAlign: language === 'en' ? 'left' : 'right'
+                                                                }}
+                                                            >
                                                                 {item.field.displayName}
                                                             </h5>
-                                                            <div className="flex gap-1">
+                                                            <div className="flex gap-1 flex-shrink-0">
                                                                 <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(item.field.priority)}`}>
                                                                     {t.priorities[item.field.priority]}
                                                                 </span>
@@ -191,14 +201,40 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                                                             </div>
                                                         </div>
 
-                                                        <p className="text-xs text-gray-600 mb-2 leading-relaxed">
+                                                        <p
+                                                            className="text-xs text-gray-600 mb-2 leading-relaxed"
+                                                            style={{
+                                                                textAlign: language === 'en' ? 'left' : 'right',
+                                                                direction: language === 'en' ? 'ltr' : 'rtl'
+                                                            }}
+                                                        >
                                                             {item.reason}
                                                         </p>
 
                                                         {item.suggestion && (
-                                                            <p className="text-xs text-blue-600 italic bg-blue-50 p-2 rounded-lg">
-                                                                💡 {item.suggestion}
-                                                            </p>
+                                                            <div
+                                                                className="text-xs text-blue-600 italic bg-blue-50 p-2 rounded-lg flex items-start gap-2"
+                                                                style={{
+                                                                    flexDirection: language === 'en' ? 'row' : 'row-reverse',
+                                                                    textAlign: language === 'en' ? 'left' : 'right',
+                                                                    direction: language === 'en' ? 'ltr' : 'rtl'
+                                                                }}
+                                                            >
+                                                                <span
+                                                                    className="flex-shrink-0"
+                                                                    style={{ order: language === 'en' ? 1 : 2 }}
+                                                                >
+                                                                    💡
+                                                                </span>
+                                                                <span
+                                                                    style={{
+                                                                        order: language === 'en' ? 2 : 1,
+                                                                        flex: 1
+                                                                    }}
+                                                                >
+                                                                    {item.suggestion}
+                                                                </span>
+                                                            </div>
                                                         )}
                                                     </div>
 
