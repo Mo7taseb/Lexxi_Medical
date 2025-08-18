@@ -186,7 +186,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 placeholder="120/80 mmHg"
                                 value={complexValues.bp || ''}
                                 onChange={(e) => handleComplexFieldChange('bp', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                dir="ltr"
+                                style={{
+                                    textAlign: 'left',
+                                    direction: 'ltr',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                         <div>
@@ -198,7 +204,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 placeholder="72 bpm"
                                 value={complexValues.hr || ''}
                                 onChange={(e) => handleComplexFieldChange('hr', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                dir="ltr"
+                                style={{
+                                    textAlign: 'left',
+                                    direction: 'ltr',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                         <div>
@@ -210,7 +222,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 placeholder="36.5°C"
                                 value={complexValues.temp || ''}
                                 onChange={(e) => handleComplexFieldChange('temp', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                dir="ltr"
+                                style={{
+                                    textAlign: 'left',
+                                    direction: 'ltr',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                         <div>
@@ -222,7 +240,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 placeholder="98%"
                                 value={complexValues.o2sat || ''}
                                 onChange={(e) => handleComplexFieldChange('o2sat', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                dir="ltr"
+                                style={{
+                                    textAlign: 'left',
+                                    direction: 'ltr',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                     </div>
@@ -241,7 +265,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 placeholder={language === 'en' ? 'e.g., Metformin' : 'مثال: ميتفورمين'}
                                 value={complexValues.medication || ''}
                                 onChange={(e) => handleComplexFieldChange('medication', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                dir="ltr"
+                                style={{
+                                    textAlign: 'left',
+                                    direction: 'ltr',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
@@ -254,7 +284,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                     placeholder="500mg"
                                     value={complexValues.dosage || ''}
                                     onChange={(e) => handleComplexFieldChange('dosage', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                    dir="ltr"
+                                    style={{
+                                        textAlign: 'left',
+                                        direction: 'ltr',
+                                        color: '#111827'
+                                    }}
                                 />
                             </div>
                             <div>
@@ -266,13 +302,77 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                     onChange={(e) => handleComplexFieldChange('frequency', e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 >
-                                    <option value="">{language === 'en' ? 'Select...' : 'اختر...'}</option>
+                                    <option value="">{language === 'en' ? 'Select' : 'اختر...'}</option>
                                     <option value="once_daily">{language === 'en' ? 'Once daily' : 'مرة يومياً'}</option>
                                     <option value="twice_daily">{language === 'en' ? 'Twice daily' : 'مرتين يومياً'}</option>
                                     <option value="three_times">{language === 'en' ? 'Three times daily' : 'ثلاث مرات يومياً'}</option>
                                     <option value="as_needed">{language === 'en' ? 'As needed' : 'عند الحاجة'}</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                );
+
+            case 'lab_work':
+                return (
+                    <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    {language === 'en' ? 'Lab Test' : 'الفحص المطلوب'}
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder={language === 'en' ? 'CBC, CMP, Lipid Panel, etc.' : 'صورة دم، كيمياء، دهون، إلخ'}
+                                    value={complexValues.test || ''}
+                                    onChange={(e) => handleComplexFieldChange('test', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                    dir="ltr"
+                                    style={{
+                                        textAlign: 'left',
+                                        direction: 'ltr',
+                                        color: '#111827'
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    {language === 'en' ? 'Priority' : 'الأولوية'}
+                                </label>
+                                <select
+                                    value={complexValues.priority || ''}
+                                    onChange={(e) => handleComplexFieldChange('priority', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                                    dir="ltr"
+                                    style={{
+                                        textAlign: 'left',
+                                        direction: 'ltr'
+                                    }}
+                                >
+                                    <option value="" className="text-gray-500">{language === 'en' ? 'Select...' : 'اختر...'}</option>
+                                    <option value="routine" className="text-gray-900">{language === 'en' ? 'Routine' : 'عادي'}</option>
+                                    <option value="urgent" className="text-gray-900">{language === 'en' ? 'Urgent' : 'عاجل'}</option>
+                                    <option value="stat" className="text-gray-900">{language === 'en' ? 'STAT' : 'فوري'}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {language === 'en' ? 'Clinical Indication' : 'السبب السريري'}
+                            </label>
+                            <textarea
+                                placeholder={language === 'en' ? 'Reason for ordering this test...' : 'سبب طلب هذا الفحص...'}
+                                value={complexValues.indication || ''}
+                                onChange={(e) => handleComplexFieldChange('indication', e.target.value)}
+                                rows={2}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none placeholder:text-gray-600 text-gray-900"
+                                dir={language === 'en' ? 'ltr' : 'rtl'}
+                                style={{
+                                    textAlign: language === 'en' ? 'left' : 'right',
+                                    direction: language === 'en' ? 'ltr' : 'rtl',
+                                    color: '#111827'
+                                }}
+                            />
                         </div>
                     </div>
                 );
@@ -303,7 +403,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                     placeholder={field.id === 'imaging' ? 'X-ray, CT, MRI' : field.id === 'lab_results' ? 'CBC, CMP' : 'Culture'}
                                     value={complexValues.type || ''}
                                     onChange={(e) => handleComplexFieldChange('type', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                    dir="ltr"
+                                    style={{
+                                        textAlign: 'left',
+                                        direction: 'ltr',
+                                        color: '#111827'
+                                    }}
                                 />
                             </div>
                         </div>
@@ -316,7 +422,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 placeholder={language === 'en' ? 'Chest, Abdomen, Blood, etc.' : 'الصدر، البطن، الدم، إلخ'}
                                 value={complexValues.site || ''}
                                 onChange={(e) => handleComplexFieldChange('site', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 text-gray-900"
+                                dir={language === 'en' ? 'ltr' : 'rtl'}
+                                style={{
+                                    textAlign: language === 'en' ? 'left' : 'right',
+                                    direction: language === 'en' ? 'ltr' : 'rtl',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                         <div>
@@ -328,7 +440,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                 value={complexValues.result || ''}
                                 onChange={(e) => handleComplexFieldChange('result', e.target.value)}
                                 rows={2}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none placeholder:text-gray-600 text-gray-900"
+                                dir={language === 'en' ? 'ltr' : 'rtl'}
+                                style={{
+                                    textAlign: language === 'en' ? 'left' : 'right',
+                                    direction: language === 'en' ? 'ltr' : 'rtl',
+                                    color: '#111827'
+                                }}
                             />
                         </div>
                     </div>
@@ -351,10 +469,20 @@ const MicroForm: React.FC<MicroFormProps> = ({
             />
 
             {/* Form Modal - positioned at top like ChecklistModal for seamless replacement */}
-            <div className="fixed inset-x-4 top-8 z-[9999] max-w-lg mx-auto">
+            <div
+                className="fixed inset-x-4 top-8 z-[9999] max-w-lg mx-auto"
+                dir={language === 'en' ? 'ltr' : 'rtl'}
+                style={{ direction: language === 'en' ? 'ltr' : 'rtl' }}
+            >
                 <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[calc(100vh-4rem)] overflow-hidden">
                     {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <div
+                        className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50"
+                        style={{
+                            textAlign: language === 'en' ? 'left' : 'right',
+                            direction: language === 'en' ? 'ltr' : 'rtl'
+                        }}
+                    >
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                                 {field.type === 'date' ? <Calendar className="h-4 w-4 text-blue-600" /> :
@@ -379,7 +507,13 @@ const MicroForm: React.FC<MicroFormProps> = ({
                     </div>
 
                     {/* Content */}
-                    <div className="p-4 max-h-[60vh] overflow-y-auto">
+                    <div
+                        className="p-4 max-h-[60vh] overflow-y-auto"
+                        style={{
+                            textAlign: language === 'en' ? 'left' : 'right',
+                            direction: language === 'en' ? 'ltr' : 'rtl'
+                        }}
+                    >
                         {field.type === 'complex' ? (
                             renderComplexFields()
                         ) : (
@@ -391,23 +525,41 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         onChange={(e) => setValue(e.target.value)}
                                         placeholder={field.placeholder}
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                                        style={{ fontSize: '16px' }} // Prevent zoom on iOS
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                        style={{
+                                            fontSize: '16px',
+                                            color: '#111827',
+                                            textAlign: language === 'en' ? 'left' : 'right',
+                                            direction: language === 'en' ? 'ltr' : 'rtl'
+                                        }}
+                                        dir={language === 'en' ? 'ltr' : 'rtl'}
                                     />
                                 ) : field.type === 'date' ? (
                                     <input
                                         type="date"
                                         value={value}
                                         onChange={(e) => setValue(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        style={{ fontSize: '16px' }} // Prevent zoom on iOS
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        style={{
+                                            fontSize: '16px',
+                                            color: '#111827',
+                                            textAlign: 'left',
+                                            direction: 'ltr'
+                                        }}
+                                        dir="ltr"
                                     />
                                 ) : field.type === 'dropdown' && field.options ? (
                                     <select
                                         value={value}
                                         onChange={(e) => setValue(e.target.value)}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        style={{ fontSize: '16px' }} // Prevent zoom on iOS
+                                        style={{
+                                            fontSize: '16px',
+                                            color: '#111827',
+                                            textAlign: language === 'en' ? 'left' : 'right',
+                                            direction: language === 'en' ? 'ltr' : 'rtl'
+                                        }}
+                                        dir={language === 'en' ? 'ltr' : 'rtl'}
                                     >
                                         <option value="" className="text-gray-500">{language === 'en' ? 'Select...' : 'اختر...'}</option>
                                         {field.options.map((option) => (
@@ -422,8 +574,14 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         value={value}
                                         onChange={(e) => setValue(e.target.value)}
                                         placeholder={field.placeholder}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        style={{ fontSize: '16px' }} // Prevent zoom on iOS
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        style={{
+                                            fontSize: '16px',
+                                            color: '#111827',
+                                            textAlign: language === 'en' ? 'left' : 'right',
+                                            direction: language === 'en' ? 'ltr' : 'rtl'
+                                        }}
+                                        dir={language === 'en' ? 'ltr' : 'rtl'}
                                     />
                                 )}
 
@@ -434,10 +592,10 @@ const MicroForm: React.FC<MicroFormProps> = ({
                                         onClick={handleVoiceInput}
                                         disabled={!recognition}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isListening
-                                                ? 'bg-red-100 text-red-700 border border-red-200 animate-pulse'
-                                                : recognition
-                                                    ? 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
-                                                    : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                                            ? 'bg-red-100 text-red-700 border border-red-200 animate-pulse'
+                                            : recognition
+                                                ? 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
+                                                : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
                                             }`}
                                         title={!recognition ? (language === 'en' ? 'Voice recognition not supported' : 'التعرف على الصوت غير مدعوم') : ''}
                                     >

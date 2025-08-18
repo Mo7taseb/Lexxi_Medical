@@ -69,9 +69,19 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
             />
 
             {/* Modal - positioned at top of current viewport */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col missing-info-modal mb-8">
+            <div
+                className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col missing-info-modal mb-8"
+                dir={language === 'en' ? 'ltr' : 'rtl'}
+                style={{ direction: language === 'en' ? 'ltr' : 'rtl' }}
+            >
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div
+                    className="flex items-center justify-between p-6 border-b border-gray-200"
+                    style={{
+                        textAlign: language === 'en' ? 'left' : 'right',
+                        direction: language === 'en' ? 'ltr' : 'rtl'
+                    }}
+                >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                             <AlertCircle className="h-6 w-6 text-blue-600" />
@@ -97,7 +107,13 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto max-h-[60vh]">
+                <div
+                    className="flex-1 overflow-y-auto max-h-[60vh]"
+                    style={{
+                        textAlign: language === 'en' ? 'left' : 'right',
+                        direction: language === 'en' ? 'ltr' : 'rtl'
+                    }}
+                >
                     {missingItems.length === 0 ? (
                         <div className="text-center py-12 px-6">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -115,7 +131,13 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                             {Object.entries(itemsBySection).map(([sectionName, items]) => (
                                 <div key={sectionName} className="bg-gray-50 rounded-xl p-4">
                                     {/* Section Header */}
-                                    <div className="flex items-center justify-between mb-4">
+                                    <div
+                                        className="flex items-center justify-between mb-4"
+                                        style={{
+                                            textAlign: language === 'en' ? 'left' : 'right',
+                                            direction: language === 'en' ? 'ltr' : 'rtl'
+                                        }}
+                                    >
                                         <h4 className="font-semibold text-gray-900 capitalize flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                                             {sectionName.replace('_', ' ')}
@@ -133,13 +155,25 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                                     </div>
 
                                     {/* Missing Items */}
-                                    <div className="space-y-3">
+                                    <div
+                                        className="space-y-3"
+                                        style={{
+                                            textAlign: language === 'en' ? 'left' : 'right',
+                                            direction: language === 'en' ? 'ltr' : 'rtl'
+                                        }}
+                                    >
                                         {items.slice(0, 3).map((item) => (
                                             <div
                                                 key={item.field.id}
                                                 className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200"
                                             >
-                                                <div className="flex items-start justify-between gap-3">
+                                                <div
+                                                    className="flex items-start justify-between gap-3"
+                                                    style={{
+                                                        textAlign: language === 'en' ? 'left' : 'right',
+                                                        direction: language === 'en' ? 'ltr' : 'rtl'
+                                                    }}
+                                                >
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                                                             <h5 className="font-medium text-gray-900 text-sm">
