@@ -145,14 +145,14 @@ function MainApp() {
   const LoadingSpinner = () => <FastLoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir={selectedLanguage === 'ar' ? 'rtl' : 'ltr'}>
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
 
       {/* Modern Header with Logo - Mobile Optimized */}
       <div className="relative bg-white/90 backdrop-blur-md border-b border-white/30 mb-4 sm:mb-6 lg:mb-8">
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 lg:py-6 max-w-6xl">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
               {/* Logo - Responsive sizing */}
               <div className="relative group">
@@ -165,6 +165,33 @@ function MainApp() {
                   className="sm:w-[200px] lg:w-[230px] rounded-lg sm:rounded-xl object-contain bg-transparent drop-shadow-md"
                   priority
                 />
+              </div>
+            </div>
+
+            {/* Language Toggle */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                {selectedLanguage === 'ar' ? 'اللغة:' : 'Language:'}
+              </span>
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setSelectedLanguage('ar')}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${selectedLanguage === 'ar'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                >
+                  العربية
+                </button>
+                <button
+                  onClick={() => setSelectedLanguage('en')}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${selectedLanguage === 'en'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                >
+                  English
+                </button>
               </div>
             </div>
           </div>

@@ -174,7 +174,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
     } else {
       return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
         month: 'short',
-        day: 'numeric',
+        day: 'numeric'
+      }) + ' ' + date.toLocaleTimeString(language === 'ar' ? 'ar-SA' : 'en-US', {
         hour: '2-digit',
         minute: '2-digit'
       });
@@ -269,7 +270,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 <select
                   value={newNote.type}
                   onChange={(e) => setNewNote(prev => ({ ...prev, type: e.target.value as NoteType }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="placeholder-gray-600 text-gray-900 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                   <option value="general">{t.general}</option>
                   <option value="observation">{t.observation}</option>
@@ -285,7 +286,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 <select
                   value={newNote.priority}
                   onChange={(e) => setNewNote(prev => ({ ...prev, priority: e.target.value as NotePriority }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="placeholder-gray-600 text-gray-900 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                   <option value="low">{t.low}</option>
                   <option value="medium">{t.medium}</option>
@@ -304,7 +305,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 value={newNote.content}
                 onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
                 rows={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none placeholder-gray-600 text-gray-900"
                 placeholder={language === 'ar' ? 'اكتب ملاحظتك هنا...' : 'Write your note here...'}
               />
             </div>
@@ -337,7 +338,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm placeholder-gray-600 text-gray-900"
                   placeholder={language === 'ar' ? 'إضافة علامة' : 'Add tag'}
                 />
                 <button
@@ -402,9 +403,9 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                         {t[note.priority]}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Clock className="h-3 w-3" />
-                      {formatDateTime(note.timestamp)}
+                    <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+                      <Clock className="h-3 w-3 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{formatDateTime(note.timestamp)}</span>
                     </div>
                   </div>
 

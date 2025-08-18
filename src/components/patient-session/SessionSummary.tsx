@@ -45,13 +45,23 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    const now = new Date();
+    const diffInHours = Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+      return date.toLocaleTimeString(language === 'ar' ? 'ar-SA' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } else {
+      return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+        month: 'short',
+        day: 'numeric'
+      }) + ' ' + date.toLocaleTimeString(language === 'ar' ? 'ar-SA' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
   };
 
   const truncateText = (text: string, maxLength: number = 80) => {
@@ -88,7 +98,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 sm:p-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 sm:p-6 shadow-lg" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -133,7 +143,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
           <Stethoscope className="h-4 w-4 text-blue-600" />
           <span className="text-sm font-medium text-blue-800">{t.chiefComplaint}:</span>
         </div>
-        <p className="text-sm text-gray-700 bg-white rounded-lg p-3 border border-blue-100">
+        <p className="text-sm text-gray-900 bg-white rounded-lg p-3 border border-blue-100 font-medium">
           {session.patientInfo.chiefComplaint}
         </p>
       </div>
@@ -153,9 +163,9 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
         {session.notes.length > 0 ? (
           <div className="space-y-2">
             {session.notes.slice(0, isExpanded ? session.notes.length : 2).map((note) => (
-              <div key={note.id} className="bg-white rounded-lg p-3 border border-blue-100">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+              <div key={note.id} className="bg-white rounded-lg p-3 border border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded border ${getTypeColor(note.type)}`}>
                       {t[note.type as keyof typeof t] || note.type}
                     </span>
@@ -163,15 +173,15 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
                       {t[note.priority as keyof typeof t] || note.priority}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {formatDateTime(note.timestamp)}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs text-gray-600 flex items-center gap-1 font-medium">
+                      <Clock className="h-3 w-3 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{formatDateTime(note.timestamp)}</span>
                     </span>
                     {note.content.length > 80 && (
                       <button
                         onClick={() => toggleNoteExpansion(note.id)}
-                        className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                        className="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex-shrink-0"
                       >
                         {expandedNotes.has(note.id) ? (
                           <EyeOff className="h-4 w-4" />
@@ -182,7 +192,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 whitespace-pre-line">
+                <p className="text-sm text-gray-900 whitespace-pre-line font-medium">
                   {expandedNotes.has(note.id) || note.content.length <= 80
                     ? note.content
                     : truncateText(note.content, 80)
@@ -193,7 +203,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
                     {note.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs"
+                        className="inline-flex items-center gap-1 bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium"
                       >
                         <Tag className="h-3 w-3" />
                         {tag}
@@ -224,23 +234,23 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
 
       {/* Expanded Patient Details */}
       {isExpanded && (
-        <div className="space-y-4 bg-white rounded-lg p-4 border border-blue-100">
+        <div className="space-y-4 bg-white rounded-lg p-4 border border-blue-100 shadow-sm">
           <h4 className="font-semibold text-gray-800 mb-3">{t.patientInfo}</h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {session.patientInfo.age && (
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-600">{t.age}:</span>
-                <span className="font-medium">{session.patientInfo.age}</span>
+                <span className="text-gray-700 font-medium">{t.age}:</span>
+                <span className="font-semibold text-gray-900">{session.patientInfo.age}</span>
               </div>
             )}
 
             {session.patientInfo.gender && (
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-600">{t.gender}:</span>
-                <span className="font-medium">
+                <span className="text-gray-700 font-medium">{t.gender}:</span>
+                <span className="font-semibold text-gray-900">
                   {t[session.patientInfo.gender as keyof typeof t] || session.patientInfo.gender}
                 </span>
               </div>
@@ -249,16 +259,16 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
             {session.patientInfo.phoneNumber && (
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-600">{t.phoneNumber}:</span>
-                <span className="font-medium">{session.patientInfo.phoneNumber}</span>
+                <span className="text-gray-700 font-medium">{t.phoneNumber}:</span>
+                <span className="font-semibold text-gray-900">{session.patientInfo.phoneNumber}</span>
               </div>
             )}
 
             {session.patientInfo.medicalRecordNumber && (
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-600">{t.medicalRecordNumber}:</span>
-                <span className="font-medium">{session.patientInfo.medicalRecordNumber}</span>
+                <span className="text-gray-700 font-medium">{t.medicalRecordNumber}:</span>
+                <span className="font-semibold text-gray-900">{session.patientInfo.medicalRecordNumber}</span>
               </div>
             )}
           </div>
@@ -267,7 +277,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Heart className="h-4 w-4 text-red-600" />
-                <span className="text-gray-600 font-medium">{t.allergies}:</span>
+                <span className="text-gray-700 font-semibold">{t.allergies}:</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {session.patientInfo.allergies.map((allergy, index) => (
@@ -286,7 +296,7 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Pill className="h-4 w-4 text-green-600" />
-                <span className="text-gray-600 font-medium">{t.medications}:</span>
+                <span className="text-gray-700 font-semibold">{t.medications}:</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {session.patientInfo.medications.map((medication, index) => (
@@ -305,9 +315,9 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-600 font-medium">{t.medicalHistory}:</span>
+                <span className="text-gray-700 font-semibold">{t.medicalHistory}:</span>
               </div>
-              <p className="text-sm text-gray-700 bg-gray-50 rounded p-3">
+              <p className="text-sm text-gray-900 bg-gray-50 rounded p-3 font-medium">
                 {session.patientInfo.medicalHistory}
               </p>
             </div>
