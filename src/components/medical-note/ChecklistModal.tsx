@@ -60,7 +60,27 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
     };
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full z-[9999] flex items-start justify-center pt-8 px-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto">
+            {/* Add CSS to force modal width */}
+            <style>{`
+                @media (min-width: 640px) {
+                    .force-modal-width {
+                        width: 600px !important;
+                        max-width: 90vw !important;
+                    }
+                }
+                @media (min-width: 768px) {
+                    .force-modal-width {
+                        width: 700px !important;
+                    }
+                }
+                @media (min-width: 1024px) {
+                    .force-modal-width {
+                        width: 800px !important;
+                    }
+                }
+            `}</style>
+
             {/* Backdrop with blur effect only - NO BLACK BACKGROUND */}
             <div
                 className="absolute inset-0 backdrop-blur-md"
@@ -68,29 +88,31 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                 style={{ background: 'transparent' }}
             />
 
-            {/* Modal - positioned at top of current viewport */}
+            {/* Modal - FORCED WIDER WITH CSS */}
             <div
-                className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col missing-info-modal mb-8"
+                className="force-modal-width relative bg-white w-full h-full sm:h-auto sm:mx-4 sm:mt-8 sm:mb-8 sm:rounded-2xl shadow-2xl flex flex-col missing-info-modal"
                 dir={language === 'en' ? 'ltr' : 'rtl'}
-                style={{ direction: language === 'en' ? 'ltr' : 'rtl' }}
+                style={{
+                    direction: language === 'en' ? 'ltr' : 'rtl'
+                }}
             >
                 {/* Header */}
                 <div
-                    className="flex items-center justify-between p-6 border-b border-gray-200"
+                    className="flex items-center justify-between p-4 sm:p-6 md:p-8 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50"
                     style={{
                         textAlign: language === 'en' ? 'left' : 'right',
                         direction: language === 'en' ? 'ltr' : 'rtl'
                     }}
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <AlertCircle className="h-6 w-6 text-blue-600" />
+                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-blue-600" />
                         </div>
-                        <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                        <div className="min-w-0 flex-1">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 truncate">
                                 {t.missingInfo}
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-xs sm:text-sm md:text-base text-gray-500 mt-1 truncate">
                                 {language === 'en'
                                     ? `${missingItems.length} field${missingItems.length === 1 ? '' : 's'} need attention`
                                     : `${missingItems.length} حقل يحتاج انتباه`
@@ -100,63 +122,72 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                        className="p-1.5 sm:p-2 md:p-3 hover:bg-gray-100 rounded-full transition-colors duration-200 flex-shrink-0 ml-2"
                     >
-                        <X className="h-6 w-6 text-gray-600" />
+                        <X className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-gray-600" />
                     </button>
                 </div>
 
                 {/* Content */}
                 <div
-                    className="flex-1 overflow-y-auto max-h-[60vh]"
+                    className="flex-1 overflow-y-auto sm:max-h-[60vh] md:max-h-[70vh]"
                     style={{
                         textAlign: language === 'en' ? 'left' : 'right',
                         direction: language === 'en' ? 'ltr' : 'rtl'
                     }}
                 >
                     {missingItems.length === 0 ? (
-                        <div className="text-center py-12 px-6">
-                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <CheckCircle className="h-8 w-8 text-green-600" />
+                        <div className="text-center py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-8">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-green-600" />
                             </div>
-                            <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h4 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2">
                                 {t.noMissingInfo}
                             </h4>
-                            <p className="text-gray-600">
+                            <p className="text-sm sm:text-base md:text-lg text-gray-600">
                                 {t.allFieldsComplete}
                             </p>
                         </div>
                     ) : (
-                        <div className="p-6 space-y-4">
+                        <div className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 md:space-y-8">
                             {Object.entries(itemsBySection).map(([sectionName, items]) => (
-                                <div key={sectionName} className="bg-gray-50 rounded-xl p-4">
+                                <div key={sectionName} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 border border-gray-200/50">
                                     {/* Section Header */}
                                     <div
-                                        className="flex items-center justify-between mb-4"
+                                        className="flex items-center justify-between mb-3 sm:mb-4 md:mb-6"
                                         style={{
-                                            textAlign: language === 'en' ? 'left' : 'right',
                                             direction: language === 'en' ? 'ltr' : 'rtl'
                                         }}
                                     >
-                                        <h4 className="font-semibold text-gray-900 capitalize flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                            {sectionName.replace('_', ' ')}
-                                        </h4>
+                                        <div
+                                            className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-1 min-w-0"
+                                            style={{
+                                                textAlign: language === 'en' ? 'left' : 'right',
+                                                justifyContent: language === 'en' ? 'flex-start' : 'flex-end',
+                                                flexDirection: language === 'en' ? 'row' : 'row-reverse'
+                                            }}
+                                        >
+                                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                            <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 capitalize truncate">
+                                                {sectionName.replace('_', ' ')}
+                                            </h4>
+                                        </div>
                                         <button
                                             onClick={() => {
                                                 onScrollToSection(sectionName);
                                                 onClose();
                                             }}
-                                            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200 px-3 py-1 rounded-full hover:bg-blue-50"
+                                            className="flex items-center gap-1 text-xs sm:text-sm md:text-base text-blue-600 hover:text-blue-800 transition-colors duration-200 px-2 sm:px-3 md:px-4 py-1 md:py-2 rounded-full hover:bg-blue-50 flex-shrink-0"
                                         >
-                                            <span>{language === 'en' ? 'Go to section' : 'انتقل للقسم'}</span>
-                                            <ArrowRight className="h-4 w-4" />
+                                            <span className="hidden sm:inline">{language === 'en' ? 'Go to section' : 'انتقل للقسم'}</span>
+                                            <span className="sm:hidden">{language === 'en' ? 'Go' : 'انتقل'}</span>
+                                            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                                         </button>
                                     </div>
 
                                     {/* Missing Items */}
                                     <div
-                                        className="space-y-3"
+                                        className="space-y-3 md:space-y-4"
                                         style={{
                                             textAlign: language === 'en' ? 'left' : 'right',
                                             direction: language === 'en' ? 'ltr' : 'rtl'
@@ -165,44 +196,45 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                                         {items.slice(0, 3).map((item) => (
                                             <div
                                                 key={item.field.id}
-                                                className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200"
+                                                className="bg-white p-3 sm:p-4 md:p-6 rounded-lg md:rounded-xl border border-gray-200 hover:shadow-sm transition-all duration-200"
                                             >
                                                 <div
-                                                    className="flex items-start justify-between gap-3"
+                                                    className="flex items-start justify-between gap-2 sm:gap-3 md:gap-4"
                                                     style={{
-                                                        textAlign: language === 'en' ? 'left' : 'right',
                                                         direction: language === 'en' ? 'ltr' : 'rtl'
                                                     }}
                                                 >
                                                     <div className="flex-1 min-w-0">
                                                         <div
-                                                            className="flex items-center justify-between mb-2"
+                                                            className="flex items-start sm:items-center justify-between mb-2 md:mb-3 gap-2"
                                                             style={{
                                                                 direction: language === 'en' ? 'ltr' : 'rtl'
                                                             }}
                                                         >
                                                             <h5
-                                                                className="font-medium text-gray-900 text-sm"
+                                                                className="font-medium text-gray-900 text-sm sm:text-base md:text-lg leading-tight flex-1"
                                                                 style={{
                                                                     textAlign: language === 'en' ? 'left' : 'right'
                                                                 }}
                                                             >
                                                                 {item.field.displayName}
                                                             </h5>
-                                                            <div className="flex gap-1 flex-shrink-0">
-                                                                <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(item.field.priority)}`}>
-                                                                    {t.priorities[item.field.priority]}
+                                                            <div className="flex flex-wrap gap-1 flex-shrink-0 justify-end">
+                                                                <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full border ${getPriorityColor(item.field.priority)}`}>
+                                                                    <span className="sm:hidden">{t.priorities[item.field.priority].charAt(0)}</span>
+                                                                    <span className="hidden sm:inline">{t.priorities[item.field.priority]}</span>
                                                                 </span>
                                                                 {item.field.isRequired && (
-                                                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200">
-                                                                        {t.required}
+                                                                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200">
+                                                                        <span className="sm:hidden">R</span>
+                                                                        <span className="hidden sm:inline">{t.required}</span>
                                                                     </span>
                                                                 )}
                                                             </div>
                                                         </div>
 
                                                         <p
-                                                            className="text-xs text-gray-600 mb-2 leading-relaxed"
+                                                            className="text-xs sm:text-sm text-gray-600 mb-2 leading-relaxed"
                                                             style={{
                                                                 textAlign: language === 'en' ? 'left' : 'right',
                                                                 direction: language === 'en' ? 'ltr' : 'rtl'
@@ -213,7 +245,7 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
 
                                                         {item.suggestion && (
                                                             <div
-                                                                className="text-xs text-blue-600 italic bg-blue-50 p-2 rounded-lg flex items-start gap-2"
+                                                                className="text-xs sm:text-sm text-blue-600 italic bg-blue-50 p-2 rounded-lg flex items-start gap-1.5 sm:gap-2"
                                                                 style={{
                                                                     flexDirection: language === 'en' ? 'row' : 'row-reverse',
                                                                     textAlign: language === 'en' ? 'left' : 'right',
@@ -243,9 +275,9 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                                                             onFillField(item.field.id);
                                                             onClose();
                                                         }}
-                                                        className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex-shrink-0 shadow-lg hover:shadow-xl"
+                                                        className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex-shrink-0 shadow-lg hover:shadow-xl"
                                                     >
-                                                        <Plus className="h-5 w-5" />
+                                                        <Plus className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -268,17 +300,23 @@ const ChecklistModal: React.FC<ChecklistDrawerProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-600">
-                            {language === 'en'
+                <div className="p-4 sm:p-6 md:p-8 border-t border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 sm:rounded-b-2xl">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 md:gap-4">
+                        <div
+                            className="text-xs sm:text-sm md:text-base text-gray-700 font-medium text-center sm:text-left"
+                            style={{
+                                textAlign: language === 'en' ? 'left' : 'right',
+                                direction: language === 'en' ? 'ltr' : 'rtl'
+                            }}
+                        >
+                            💡 {language === 'en'
                                 ? 'Tap the + button to add missing information'
                                 : 'انقر على زر + لإضافة المعلومات المفقودة'
                             }
                         </div>
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
+                            className="w-full sm:w-auto px-4 md:px-6 py-2 md:py-3 bg-white border border-gray-300 text-gray-700 rounded-lg md:rounded-xl hover:bg-gray-50 transition-colors duration-200 font-medium shadow-sm text-sm md:text-base"
                         >
                             {language === 'en' ? 'Close' : 'إغلاق'}
                         </button>
