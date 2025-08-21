@@ -282,30 +282,21 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
     };
 
     return (
-        <div className="max-w-7xl mx-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="max-w-7xl mx-auto overflow-x-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-x-hidden">
                 {/* Main Recording Interface */}
                 <div className="lg:col-span-8">
-                    <div className="text-center mb-6 sm:mb-8">
-                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 sm:mb-3">
-                            {language === 'ar' ? 'تسجيل الصوت' : 'Audio Recording'}
-                        </h2>
-                        <p className="text-gray-600 text-sm sm:text-base px-2">
-                            {language === 'ar'
-                                ? 'سجل المحادثة الطبية أو ارفع ملف صوتي موجود'
-                                : 'Record medical conversation or upload existing audio file'
-                            }
-                        </p>
+                    {/* Compact header: keep patient badge and cloud info; remove duplicate page title */}
+                    <div className="mb-4 sm:mb-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            {/* Patient Name Badge */}
+                            <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-200 rounded-lg px-4 py-2">
+                                <span className="text-blue-800 font-medium">
+                                    {language === 'ar' ? 'المريض:' : 'Patient:'} {session.patientInfo.name}
+                                </span>
+                            </div>
 
-                        {/* Patient Name Badge */}
-                        <div className="mt-4 inline-flex items-center gap-2 bg-blue-100 border border-blue-200 rounded-lg px-4 py-2">
-                            <span className="text-blue-800 font-medium">
-                                {language === 'ar' ? 'المريض:' : 'Patient:'} {session.patientInfo.name}
-                            </span>
-                        </div>
-
-                        {/* Cloudinary indicator */}
-                        <div className="mt-3 sm:mt-4">
+                            {/* Cloudinary indicator */}
                             <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
                                 <span className="text-blue-600 text-xs font-medium">☁️ Cloudinary Upload</span>
                                 <span className="text-blue-500 text-xs">
@@ -509,41 +500,45 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                             )}
                         </div>
 
-                        {/* File Upload Option */}
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300"></div>
-                            </div>
-                            <div className="relative flex justify-center text-xs sm:text-sm">
-                                <span className="px-3 sm:px-4 bg-gray-50 text-gray-500 font-medium">
-                                    {language === 'ar' ? 'أو' : 'or'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center">
-                            <label className={`group relative bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 lg:gap-3 shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/30 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
-                                    {isUploading ? (
-                                        <Cloud className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse" />
-                                    ) : (
-                                        <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
-                                    )}
+                        {/* File Upload Option - show only when not recording and no audio yet */}
+                        {!isRecording && !audioURL && (
+                            <>
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-gray-300"></div>
+                                    </div>
+                                    <div className="relative flex justify-center text-xs sm:text-sm">
+                                        <span className="px-3 sm:px-4 bg-gray-50 text-gray-500 font-medium">
+                                            {language === 'ar' ? 'أو' : 'or'}
+                                        </span>
+                                    </div>
                                 </div>
-                                {isUploading ?
-                                    (language === 'ar' ? 'جاري الرفع إلى Cloudinary...' : 'Uploading to Cloudinary...') :
-                                    (language === 'ar' ? 'رفع ملف صوتي' : 'Upload Audio File')
-                                }
-                                <input
-                                    type="file"
-                                    accept="audio/*"
-                                    onChange={handleFileUpload}
-                                    disabled={isUploading}
-                                    className="hidden"
-                                />
-                                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            </label>
-                        </div>
+
+                                <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center">
+                                    <label className={`group relative bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 lg:gap-3 shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/30 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                            {isUploading ? (
+                                                <Cloud className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse" />
+                                            ) : (
+                                                <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            )}
+                                        </div>
+                                        {isUploading ?
+                                            (language === 'ar' ? 'جاري الرفع إلى Cloudinary...' : 'Uploading to Cloudinary...') :
+                                            (language === 'ar' ? 'رفع ملف صوتي' : 'Upload Audio File')
+                                        }
+                                        <input
+                                            type="file"
+                                            accept="audio/*"
+                                            onChange={handleFileUpload}
+                                            disabled={isUploading}
+                                            className="hidden"
+                                        />
+                                        <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    </label>
+                                </div>
+                            </>
+                        )}
 
                         {/* Upload Progress */}
                         {isUploading && uploadProgress > 0 && (
@@ -659,7 +654,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                 </div>
 
                 {/* Side Panel */}
-                <div className="lg:col-span-4 space-y-6">
+                <div className="lg:col-span-4 space-y-6 overflow-x-hidden">
                     {/* Session Summary Toggle */}
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800">
@@ -683,7 +678,8 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                             session={session}
                             language={language}
                             onEdit={() => {/* Handle edit - could open a modal or navigate */ }}
-                            onContinue={() => {/* Handle continue if needed */ }}
+                            onContinue={() => {/* already on recording */ }}
+                            showContinueButton={false}
                         />
                     )}
 
@@ -710,7 +706,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                             session={session}
                             onUpdateSession={(updates) => updateSession(session.id, updates)}
                             language={language}
-                            className="max-h-96 overflow-y-auto"
+                            className="overflow-visible"
                         />
                     )}
                 </div>

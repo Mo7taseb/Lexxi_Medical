@@ -14,7 +14,10 @@ import {
   Save,
   X,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Trash2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { PatientFormData, SessionManagerProps } from './types';
 import { sessionLanguageTexts } from './constants';
@@ -25,8 +28,9 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   currentStep,
   language
 }) => {
-  const { createNewSession, currentSession, sessions } = useSession();
+  const { createNewSession, currentSession, sessions, deleteSession } = useSession();
   const [showForm, setShowForm] = useState(false);
+  const [sessionsExpanded, setSessionsExpanded] = useState(false);
   const [formData, setFormData] = useState<PatientFormData>({
     name: '',
     age: '',
@@ -116,7 +120,6 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   const getRecentSessions = () => {
     return sessions
       .filter(session => session.status === 'active' || session.status === 'paused')
-      .slice(0, 3)
       .sort((a, b) => new Date(b.lastAccessedAt).getTime() - new Date(a.lastAccessedAt).getTime());
   };
 
@@ -176,45 +179,87 @@ const SessionManager: React.FC<SessionManagerProps> = ({
         </div>
       )}
 
-      {/* Recent Sessions */}
-      {!currentSession && getRecentSessions().length > 0 && (
+      {/* All Sessions List */}
+      {getRecentSessions().length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            {t.recentSessions}
-          </h3>
-          <div className="grid gap-4">
-            {getRecentSessions().map((session) => (
-              <div
-                key={session.id}
-                className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                onClick={() => onSessionReady(session)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="h-6 w-6 text-blue-600" />
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-gray-800">
+              {t.recentSessions} <span className="text-gray-500 text-base">({getRecentSessions().length})</span>
+            </h3>
+            <button
+              type="button"
+              onClick={() => setSessionsExpanded(prev => !prev)}
+              className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+              aria-expanded={sessionsExpanded}
+            >
+              {sessionsExpanded ? (
+                <>
+                  {language === 'ar' ? 'إخفاء' : 'Collapse'}
+                  <ChevronUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  {language === 'ar' ? 'عرض' : 'Expand'}
+                  <ChevronDown className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </div>
+
+          {sessionsExpanded && (
+            <div className="grid gap-4">
+              {getRecentSessions().map((session) => (
+                <div
+                  key={session.id}
+                  className={`bg-white border rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer ${session.id === currentSession?.id ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'}`}
+                  onClick={() => onSessionReady(session)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${session.status === 'active' ? 'bg-green-100' : 'bg-blue-100'}`}>
+                        <User className={`h-6 w-6 ${session.status === 'active' ? 'text-green-600' : 'text-blue-600'}`} />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">
+                          {session.patientInfo.name || (language === 'ar' ? 'بدون اسم' : 'Unnamed')}
+                        </h4>
+                        <p className="text-sm text-gray-600 truncate max-w-[300px]">
+                          {session.patientInfo.chiefComplaint}
+                        </p>
+                        <div className="text-xs mt-1">
+                          <span className={`px-2 py-0.5 rounded-full border ${session.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                            {session.status === 'active' ? (language === 'ar' ? 'نشطة' : 'Active') : (language === 'ar' ? 'متوقفة مؤقتًا' : 'Paused')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">
-                        {session.patientInfo.name}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {session.patientInfo.chiefComplaint}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-gray-500">
-                      {new Date(session.lastAccessedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                    </div>
-                    <div className="text-sm font-medium text-blue-600">
-                      {session.notes.length} {language === 'ar' ? 'ملاحظة' : 'notes'}
+                    <div className="text-right flex items-center gap-3">
+                      <div className="text-sm text-gray-500 whitespace-nowrap">
+                        {new Date(session.lastAccessedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                      </div>
+                      <div className="text-sm font-medium text-blue-600">
+                        {session.notes.length} {language === 'ar' ? 'ملاحظة' : 'notes'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const confirmMsg = language === 'ar' ? 'هل تريد حذف هذه الجلسة؟' : 'Delete this session?';
+                          if (window.confirm(confirmMsg)) {
+                            deleteSession(session.id);
+                          }
+                        }}
+                        className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
+                        title={t.deleteSession}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

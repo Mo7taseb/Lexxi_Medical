@@ -81,6 +81,7 @@ export interface SessionSummaryProps {
   language: 'ar' | 'en';
   onEdit: () => void;
   onContinue: () => void;
+  showContinueButton?: boolean;
 }
 
 export interface SessionLanguageTexts {

@@ -213,7 +213,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   ];
 
   return (
-    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 ${className}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 overflow-x-hidden ${className}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
@@ -259,7 +259,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
       {/* Add/Edit Note Form */}
       {(isAddingNote || editingNoteId) && (
-        <div className="bg-white rounded-xl p-6 mb-6 border border-gray-200 shadow-sm">
+        <div className="bg-white rounded-xl p-6 mb-6 border border-gray-200 shadow-sm overflow-hidden">
           <div className="space-y-4">
             {/* Note Type and Priority */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -351,18 +351,18 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={editingNoteId ? handleSaveEdit : handleAddNote}
                 disabled={!newNote.content.trim()}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto"
               >
                 <Save className="h-4 w-4" />
                 {editingNoteId ? t.saveNote : t.addNote}
               </button>
               <button
                 onClick={handleCancelEdit}
-                className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2"
+                className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto"
               >
                 <X className="h-4 w-4" />
                 {t.cancel}
@@ -390,12 +390,12 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             .map((note) => (
               <div
                 key={note.id}
-                className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200"
+                className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200 overflow-hidden"
               >
                 {/* Note Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0 flex-wrap">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getTypeColor(note.type)}`}>
                         {t[note.type]}
                       </span>
@@ -409,7 +409,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => toggleNoteExpansion(note.id)}
                       className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
@@ -440,7 +440,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
                 {/* Note Content */}
                 <div className="mb-4">
-                  <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap break-words">
                     {expandedNotes.has(note.id) || note.content.length <= 100
                       ? note.content
                       : truncateText(note.content, 100)

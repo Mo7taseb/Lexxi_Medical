@@ -67,7 +67,14 @@ function MainApp() {
   const handleSessionUpdate = (updates: Partial<PatientSession>) => {
     if (currentSession) {
       updateSession(currentSession.id, updates);
-      setCurrentSession({ ...currentSession, ...updates });
+      // Find the latest session from context after update
+      const updated = sessions.find(s => s.id === currentSession.id);
+      if (updated) {
+        setCurrentSession(updated);
+      } else {
+        // fallback if not found (shouldn't happen)
+        setCurrentSession({ ...currentSession, ...updates });
+      }
     }
   };
 
@@ -140,6 +147,15 @@ function MainApp() {
   const goToRecording = () => {
     setCurrentStep(3);
   };
+
+
+  // Keep currentSession in sync with context when sessions change
+  React.useEffect(() => {
+    if (currentSession) {
+      const updated = sessions.find(s => s.id === currentSession.id);
+      if (updated) setCurrentSession(updated);
+    }
+  }, [sessions]);
 
   // Loading component for better UX
   const LoadingSpinner = () => <FastLoadingSpinner />;
@@ -339,6 +355,7 @@ function MainApp() {
                     language={selectedLanguage}
                     onEdit={() => setCurrentStep(1)}
                     onContinue={goToRecording}
+                    showContinueButton={true}
                   />
                 </div>
 

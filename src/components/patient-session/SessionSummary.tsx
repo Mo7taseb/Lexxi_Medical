@@ -24,7 +24,8 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
   session,
   language,
   onEdit,
-  onContinue
+  onContinue,
+  showContinueButton = true
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
@@ -148,9 +149,9 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
         </p>
       </div>
 
-      {/* Notes Summary */}
+      {/* Notes Summary (collapsed by default to avoid redundancy with NoteEditor) */}
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-blue-600" />
             <span className="text-sm font-medium text-blue-800">{t.sessionNotes}:</span>
@@ -160,75 +161,36 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
           </span>
         </div>
 
-        {session.notes.length > 0 ? (
-          <div className="space-y-2">
-            {session.notes.slice(0, isExpanded ? session.notes.length : 2).map((note) => (
-              <div key={note.id} className="bg-white rounded-lg p-3 border border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-200">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded border ${getTypeColor(note.type)}`}>
-                      {t[note.type as keyof typeof t] || note.type}
-                    </span>
-                    <span className={`px-2 py-1 text-xs font-medium rounded border ${getPriorityColor(note.priority)}`}>
-                      {t[note.priority as keyof typeof t] || note.priority}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+        {isExpanded && (
+          <div className="mt-2 space-y-2">
+            {session.notes.length > 0 ? (
+              session.notes.map((note) => (
+                <div key={note.id} className="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded border ${getTypeColor(note.type)}`}>
+                        {t[note.type as keyof typeof t] || note.type}
+                      </span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded border ${getPriorityColor(note.priority)}`}>
+                        {t[note.priority as keyof typeof t] || note.priority}
+                      </span>
+                    </div>
                     <span className="text-xs text-gray-600 flex items-center gap-1 font-medium">
                       <Clock className="h-3 w-3 flex-shrink-0" />
                       <span className="whitespace-nowrap">{formatDateTime(note.timestamp)}</span>
                     </span>
-                    {note.content.length > 80 && (
-                      <button
-                        onClick={() => toggleNoteExpansion(note.id)}
-                        className="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex-shrink-0"
-                      >
-                        {expandedNotes.has(note.id) ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    )}
                   </div>
+                  <p className="text-sm text-gray-900 whitespace-pre-line font-medium">
+                    {truncateText(note.content, 80)}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-900 whitespace-pre-line font-medium">
-                  {expandedNotes.has(note.id) || note.content.length <= 80
-                    ? note.content
-                    : truncateText(note.content, 80)
-                  }
-                </p>
-                {note.tags && note.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {note.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium"
-                      >
-                        <Tag className="h-3 w-3" />
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            {!isExpanded && session.notes.length > 2 && (
-              <button
-                onClick={() => setIsExpanded(true)}
-                className="w-full text-center text-sm text-blue-600 hover:text-blue-800 py-2"
-              >
-                {language === 'ar'
-                  ? `عرض ${session.notes.length - 2} ملاحظة إضافية`
-                  : `Show ${session.notes.length - 2} more notes`
-                }
-              </button>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 italic">
+                {t.noNotes}
+              </p>
             )}
           </div>
-        ) : (
-          <p className="text-sm text-gray-500 italic">
-            {t.noNotes}
-          </p>
         )}
       </div>
 
@@ -237,40 +199,34 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
         <div className="space-y-4 bg-white rounded-lg p-4 border border-blue-100 shadow-sm">
           <h4 className="font-semibold text-gray-800 mb-3">{t.patientInfo}</h4>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            {session.patientInfo.age && (
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-700 font-medium">{t.age}:</span>
-                <span className="font-semibold text-gray-900">{session.patientInfo.age}</span>
-              </div>
-            )}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            {/* Age */}
+            <div className="flex items-center gap-1 whitespace-nowrap">
+              <Calendar className="h-4 w-4 text-gray-600" />
+              <span className="text-gray-700 font-medium">{t.age}:</span>
+            </div>
+            <div className="font-semibold text-gray-900">{session.patientInfo.age || <span className='text-gray-400'>-</span>}</div>
 
-            {session.patientInfo.gender && (
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-700 font-medium">{t.gender}:</span>
-                <span className="font-semibold text-gray-900">
-                  {t[session.patientInfo.gender as keyof typeof t] || session.patientInfo.gender}
-                </span>
-              </div>
-            )}
+            {/* Gender */}
+            <div className="flex items-center gap-1 whitespace-nowrap">
+              <User className="h-4 w-4 text-gray-600" />
+              <span className="text-gray-700 font-medium">{t.gender}:</span>
+            </div>
+            <div className="font-semibold text-gray-900">{t[session.patientInfo.gender as keyof typeof t] || session.patientInfo.gender || <span className='text-gray-400'>-</span>}</div>
 
-            {session.patientInfo.phoneNumber && (
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-700 font-medium">{t.phoneNumber}:</span>
-                <span className="font-semibold text-gray-900">{session.patientInfo.phoneNumber}</span>
-              </div>
-            )}
+            {/* Phone Number */}
+            <div className="flex items-center gap-1 whitespace-nowrap">
+              <Phone className="h-4 w-4 text-gray-600" />
+              <span className="text-gray-700 font-medium">{t.phoneNumber}:</span>
+            </div>
+            <div className="font-semibold text-gray-900 break-all">{session.patientInfo.phoneNumber || <span className='text-gray-400'>-</span>}</div>
 
-            {session.patientInfo.medicalRecordNumber && (
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-700 font-medium">{t.medicalRecordNumber}:</span>
-                <span className="font-semibold text-gray-900">{session.patientInfo.medicalRecordNumber}</span>
-              </div>
-            )}
+            {/* Medical Record Number */}
+            <div className="flex items-center gap-1 whitespace-nowrap">
+              <FileText className="h-4 w-4 text-gray-600" />
+              <span className="text-gray-700 font-medium">{t.medicalRecordNumber}:</span>
+            </div>
+            <div className="font-semibold text-gray-900 break-all">{session.patientInfo.medicalRecordNumber || <span className='text-gray-400'>-</span>}</div>
           </div>
 
           {session.patientInfo.allergies && session.patientInfo.allergies.length > 0 && (
@@ -326,15 +282,17 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
       )}
 
       {/* Action Button */}
-      <div className="mt-4 pt-4 border-t border-blue-200">
-        <button
-          onClick={onContinue}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
-        >
-          <Stethoscope className="h-5 w-5" />
-          {t.continueToRecording}
-        </button>
-      </div>
+      {showContinueButton && (
+        <div className="mt-4 pt-4 border-t border-blue-200">
+          <button
+            onClick={onContinue}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <Stethoscope className="h-5 w-5" />
+            {t.continueToRecording}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

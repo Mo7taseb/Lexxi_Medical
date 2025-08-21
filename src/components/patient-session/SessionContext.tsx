@@ -99,7 +99,11 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
       finalNoteGenerated: false
     };
 
-    setSessions(prev => [newSession, ...prev]);
+    // Pause any previously active sessions and prepend the new one
+    setSessions(prev => [
+      newSession,
+      ...prev.map(s => (s.status === 'active' ? { ...s, status: 'paused' as const } : s))
+    ]);
     setCurrentSession(newSession);
   };
 
