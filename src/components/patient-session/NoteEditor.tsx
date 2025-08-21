@@ -475,18 +475,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         )}
       </div>
 
-      {/* Floating Action Button for Empty State */}
-      {session.notes.length === 0 && !isAddingNote && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <button
-            onClick={() => setIsAddingNote(true)}
-            className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-xl transform hover:scale-110"
-            title={t.addNote}
-          >
-            <Plus className="h-6 w-6" />
-          </button>
-        </div>
-      )}
+
     </div>
   );
 };
