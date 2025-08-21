@@ -211,33 +211,37 @@ const SessionManager: React.FC<SessionManagerProps> = ({
               {getRecentSessions().map((session) => (
                 <div
                   key={session.id}
-                  className={`bg-white border rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer ${session.id === currentSession?.id ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'}`}
+                  className={`bg-white border rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer ${session.id === currentSession?.id ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'}`}
                   onClick={() => onSessionReady(session)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${session.status === 'active' ? 'bg-green-100' : 'bg-blue-100'}`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${session.status === 'active' ? 'bg-green-100' : 'bg-blue-100'}`}>
                         <User className={`h-6 w-6 ${session.status === 'active' ? 'text-green-600' : 'text-blue-600'}`} />
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">
                           {session.patientInfo.name || (language === 'ar' ? 'بدون اسم' : 'Unnamed')}
                         </h4>
-                        <p className="text-sm text-gray-600 truncate max-w-[300px]">
-                          {session.patientInfo.chiefComplaint}
+                        <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-2">
+                          {session.patientInfo.chiefComplaint || (language === 'ar' ? 'لا توجد شكوى مسجلة' : 'No complaint recorded')}
                         </p>
-                        <div className="text-xs mt-1">
-                          <span className={`px-2 py-0.5 rounded-full border ${session.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`px-2 py-0.5 rounded-full border text-xs ${session.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
                             {session.status === 'active' ? (language === 'ar' ? 'نشطة' : 'Active') : (language === 'ar' ? 'متوقفة مؤقتًا' : 'Paused')}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(session.lastAccessedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right flex items-center gap-3">
-                      <div className="text-sm text-gray-500 whitespace-nowrap">
-                        {new Date(session.lastAccessedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                      </div>
-                      <div className="text-sm font-medium text-blue-600">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 flex-shrink-0">
+                      <div className="text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                         {session.notes.length} {language === 'ar' ? 'ملاحظة' : 'notes'}
                       </div>
                       <button
@@ -249,7 +253,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                             deleteSession(session.id);
                           }
                         }}
-                        className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
+                        className="p-1.5 sm:p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
                         title={t.deleteSession}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -281,23 +285,23 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
       {/* Patient Information Form */}
       {showForm && (
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-              <User className="h-8 w-8 text-blue-600" />
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-200">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
+              <User className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
               {t.patientInfo}
             </h3>
             <button
               onClick={() => setShowForm(false)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
             >
-              <X className="h-6 w-6 text-gray-600" />
+              <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Name and Age Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   {t.patientName} <span className="text-red-500">*</span>
@@ -308,7 +312,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={`text-gray-900 w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${formErrors.name ? 'border-red-500' : 'border-gray-300'
+                    className={`text-gray-900 w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base ${formErrors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
                     placeholder={language === 'ar' ? 'أدخل اسم المريض' : 'Enter patient name'}
                   />
@@ -333,7 +337,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                     max="150"
                     value={formData.age}
                     onChange={(e) => handleInputChange('age', e.target.value)}
-                    className={`text-gray-900 w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${formErrors.age ? 'border-red-500' : 'border-gray-300'
+                    className={`text-gray-900 w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base ${formErrors.age ? 'border-red-500' : 'border-gray-300'
                       }`}
                     placeholder={language === 'ar' ? 'العمر' : 'Age'}
                   />
@@ -348,7 +352,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             </div>
 
             {/* Gender and MRN Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   {t.gender} <span className="text-gray-500">({t.optional})</span>
@@ -356,7 +360,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                 <select
                   value={formData.gender}
                   onChange={(e) => handleInputChange('gender', e.target.value)}
-                  className="text-gray-900 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="text-gray-900 w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                 >
                   <option value="">{language === 'ar' ? 'اختر الجنس' : 'Select gender'}</option>
                   <option value="male">{t.male}</option>
@@ -375,7 +379,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                     type="text"
                     value={formData.medicalRecordNumber}
                     onChange={(e) => handleInputChange('medicalRecordNumber', e.target.value)}
-                    className="text-gray-900 w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="text-gray-900 w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                     placeholder={language === 'ar' ? 'رقم السجل الطبي' : 'Medical record number'}
                   />
                 </div>
@@ -393,7 +397,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                   type="tel"
                   value={formData.phoneNumber}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="text-gray-900 w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="text-gray-900 w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                   placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone number'}
                 />
               </div>
@@ -501,3 +505,4 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 };
 
 export default SessionManager;
+
