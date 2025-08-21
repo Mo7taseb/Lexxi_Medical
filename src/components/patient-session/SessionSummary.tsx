@@ -199,34 +199,50 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
         <div className="space-y-4 bg-white rounded-lg p-4 border border-blue-100 shadow-sm">
           <h4 className="font-semibold text-gray-800 mb-3">{t.patientInfo}</h4>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <div className="space-y-3">
             {/* Age */}
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <Calendar className="h-4 w-4 text-gray-600" />
-              <span className="text-gray-700 font-medium">{t.age}:</span>
+            <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-700 font-medium text-sm">{t.age}:</span>
+              </div>
+              <span className="font-semibold text-gray-900 text-sm">{session.patientInfo.age || <span className='text-gray-400'>-</span>}</span>
             </div>
-            <div className="font-semibold text-gray-900">{session.patientInfo.age || <span className='text-gray-400'>-</span>}</div>
 
             {/* Gender */}
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <User className="h-4 w-4 text-gray-600" />
-              <span className="text-gray-700 font-medium">{t.gender}:</span>
+            <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-700 font-medium text-sm">{t.gender}:</span>
+              </div>
+              <span className="font-semibold text-gray-900 text-sm">{t[session.patientInfo.gender as keyof typeof t] || session.patientInfo.gender || <span className='text-gray-400'>-</span>}</span>
             </div>
-            <div className="font-semibold text-gray-900">{t[session.patientInfo.gender as keyof typeof t] || session.patientInfo.gender || <span className='text-gray-400'>-</span>}</div>
 
             {/* Phone Number */}
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <Phone className="h-4 w-4 text-gray-600" />
-              <span className="text-gray-700 font-medium">{t.phoneNumber}:</span>
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Phone className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-700 font-medium text-sm">
+                  {language === 'ar' ? 'الجوال:' : t.phoneNumber}
+                </span>
+              </div>
+              <div className="font-semibold text-gray-900 text-sm font-mono text-center">
+                {session.patientInfo.phoneNumber || <span className='text-gray-400'>-</span>}
+              </div>
             </div>
-            <div className="font-semibold text-gray-900 break-all">{session.patientInfo.phoneNumber || <span className='text-gray-400'>-</span>}</div>
 
             {/* Medical Record Number */}
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <FileText className="h-4 w-4 text-gray-600" />
-              <span className="text-gray-700 font-medium">{t.medicalRecordNumber}:</span>
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-700 font-medium text-sm">
+                  {language === 'ar' ? 'الرقم:' : t.medicalRecordNumber}
+                </span>
+              </div>
+              <div className="font-semibold text-gray-900 text-sm font-mono text-center">
+                {session.patientInfo.medicalRecordNumber || <span className='text-gray-400'>-</span>}
+              </div>
             </div>
-            <div className="font-semibold text-gray-900 break-all">{session.patientInfo.medicalRecordNumber || <span className='text-gray-400'>-</span>}</div>
           </div>
 
           {session.patientInfo.allergies && session.patientInfo.allergies.length > 0 && (
