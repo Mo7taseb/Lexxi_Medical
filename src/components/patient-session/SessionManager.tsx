@@ -20,8 +20,8 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { PatientFormData, SessionManagerProps } from './types';
-import { sessionLanguageTexts } from './constants';
 import { useSession } from './SessionContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const SessionManager: React.FC<SessionManagerProps> = ({
   onSessionReady,
@@ -44,19 +44,18 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   });
   const [formErrors, setFormErrors] = useState<Partial<PatientFormData>>({});
 
-  const t = sessionLanguageTexts[language];
-
+  const { t, direction } = useLanguage();
 
 
   const validateForm = (): boolean => {
     const errors: Partial<PatientFormData> = {};
 
     if (!formData.name.trim()) {
-      errors.name = t.required;
+      errors.name = t('required');
     }
 
     if (!formData.chiefComplaint.trim()) {
-      errors.chiefComplaint = t.required;
+      errors.chiefComplaint = t('required');
     }
 
     if (formData.age && (isNaN(Number(formData.age)) || Number(formData.age) < 0 || Number(formData.age) > 150)) {
@@ -128,11 +127,11 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   }
 
   return (
-    <div className="max-w-4xl mx-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="max-w-4xl mx-auto" dir={direction}>
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">
-          {t.newSession}
+          {t('newSession')}
         </h2>
         <p className="text-gray-600 text-lg leading-relaxed">
           {language === 'ar'
@@ -163,17 +162,17 @@ const SessionManager: React.FC<SessionManagerProps> = ({
               onClick={handleContinueSession}
               className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
             >
-              {t.continueToRecording}
+              {t('continueToRecording')}
               <CheckCircle className="h-5 w-5" />
             </button>
           </div>
 
           <div className="text-sm text-green-700">
-            <span className="font-medium">{t.chiefComplaint}:</span> {currentSession.patientInfo.chiefComplaint}
+            <span className="font-medium">{t('chiefComplaint')}:</span> {currentSession.patientInfo.chiefComplaint}
           </div>
           {currentSession.notes.length > 0 && (
             <div className="text-sm text-green-700 mt-1">
-              <span className="font-medium">{t.notesCount}:</span> {currentSession.notes.length}
+              <span className="font-medium">{t('notesCount')}:</span> {currentSession.notes.length}
             </div>
           )}
         </div>
@@ -184,7 +183,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-gray-800">
-              {t.recentSessions} <span className="text-gray-500 text-base">({getRecentSessions().length})</span>
+              {t('recentSessions')} <span className="text-gray-500 text-base">({getRecentSessions().length})</span>
             </h3>
             <button
               type="button"
@@ -254,7 +253,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                           }
                         }}
                         className="p-1.5 sm:p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
-                        title={t.deleteSession}
+                        title={t('deleteSession')}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -276,7 +275,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
           >
             <span className="flex items-center justify-center gap-3">
               <Plus className="h-6 w-6" />
-              {t.newSession}
+              {t('newSession')}
             </span>
             <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
@@ -289,7 +288,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
           <div className="flex items-center justify-between mb-6 sm:mb-8">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
               <User className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-              {t.patientInfo}
+              {t('patientInfo')}
             </h3>
             <button
               onClick={() => setShowForm(false)}
@@ -304,7 +303,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.patientName} <span className="text-red-500">*</span>
+                  {t('patientName')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -327,7 +326,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.age} <span className="text-gray-500">({t.optional})</span>
+                  {t('age')} <span className="text-gray-500">({t('optional')})</span>
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -355,7 +354,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.gender} <span className="text-gray-500">({t.optional})</span>
+                  {t('gender')} <span className="text-gray-500">({t('optional')})</span>
                 </label>
                 <select
                   value={formData.gender}
@@ -363,15 +362,15 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                   className="text-gray-900 w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
                 >
                   <option value="">{language === 'ar' ? 'اختر الجنس' : 'Select gender'}</option>
-                  <option value="male">{t.male}</option>
-                  <option value="female">{t.female}</option>
-                  <option value="other">{t.other}</option>
+                  <option value="male">{t('male')}</option>
+                  <option value="female">{t('female')}</option>
+                  <option value="other">{t('other')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.medicalRecordNumber} <span className="text-gray-500">({t.optional})</span>
+                  {t('medicalRecordNumber')} <span className="text-gray-500">({t('optional')})</span>
                 </label>
                 <div className="relative">
                   <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -389,7 +388,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t.phoneNumber} <span className="text-gray-500">({t.optional})</span>
+                {t('phoneNumber')} <span className="text-gray-500">({t('optional')})</span>
               </label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -406,7 +405,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             {/* Chief Complaint */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t.chiefComplaint} <span className="text-red-500">*</span>
+                {t('chiefComplaint')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Stethoscope className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
@@ -431,7 +430,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.allergies} <span className="text-gray-500">({t.optional})</span>
+                  {t('allergies')} <span className="text-gray-500">({t('optional')})</span>
                 </label>
                 <div className="relative">
                   <Heart className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
@@ -447,7 +446,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.medications} <span className="text-gray-500">({t.optional})</span>
+                  {t('medications')} <span className="text-gray-500">({t('optional')})</span>
                 </label>
                 <div className="relative">
                   <Pill className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
@@ -464,8 +463,8 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
             {/* Medical History */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t.medicalHistory} <span className="text-gray-500">({t.optional})</span>
+              <label className="block text sm font-semibold text-gray-700 mb-2">
+                {t('medicalHistory')} <span className="text-gray-500">({t('optional')})</span>
               </label>
               <div className="relative">
                 <FileText className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
@@ -486,7 +485,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                 className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
               >
                 <Save className="h-5 w-5" />
-                {t.startSession}
+                {t('startSession')}
               </button>
               <button
                 type="button"
@@ -494,7 +493,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                 className="flex-1 sm:flex-none bg-gray-500 text-white py-4 px-6 rounded-xl font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center gap-3"
               >
                 <X className="h-5 w-5" />
-                {t.cancel}
+                {t('cancel')}
               </button>
             </div>
           </form>

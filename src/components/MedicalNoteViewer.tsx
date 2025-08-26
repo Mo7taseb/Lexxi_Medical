@@ -9,11 +9,12 @@ import { detectLanguage, getTextStats, copyToClipboard, downloadFile, normalizeT
 import { parseNoteToSections } from './medical-note/templates';
 import MedicalSectionRenderer from './medical-note/MedicalSectionRenderer';
 import RichTextEditor from './medical-note/RichTextEditor';
-import { languageTexts } from './medical-note/constants';
 import { downloadDocx } from './medical-note/docxExport';
 import DownloadDropdown from './medical-note/DownloadDropdown';
 import ShareDropdown from './medical-note/ShareDropdown';
 import MissingInfoAssist from './medical-note/MissingInfoAssist';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { translations } from '@/utils/i18n';
 
 const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   transcript,
@@ -30,13 +31,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   const [copySuccess, setCopySuccess] = useState(false);
   const [editedSections, setEditedSections] = useState<{ [key: string]: string }>({});
 
+  const { t, direction, language: currentLanguage } = useLanguage();
+
   // Memoized language detection and text selection
   const detectedLanguage: Language = useMemo(() => {
     return (language as Language) || detectLanguage(transcript);
   }, [language, transcript]);
 
   const isEnglish = detectedLanguage === 'en';
-  const t = languageTexts[detectedLanguage];
 
   // Memoized note content
   const currentNote = useMemo(() => {
@@ -209,15 +211,15 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   // Inline editing is always enabled - removed toggle function
 
   return (
-    <div id="medical-note-viewer" className="max-w-5xl mx-auto" dir="ltr" style={{ direction: 'ltr', textAlign: 'left' }}>
+    <div id="medical-note-viewer" className="max-w-5xl mx-auto" dir={direction}>
       {/* Header Section */}
       <div className="text-center mb-4 sm:mb-6">
         <h2 className={`text-xl sm:text-2xl font-bold text-gray-800 mb-2 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>
-          {t.noteTypeNames[noteType] || (isEnglish ? 'Medical Report' : 'التقرير الطبي')}
+          {translations[currentLanguage].noteTypeNames[noteType] || (isEnglish ? 'Medical Report' : 'التقرير الطبي')}
         </h2>
-        {t.noteTypeDescriptions[noteType] && (
+        {translations[currentLanguage].noteTypeDescriptions[noteType] && (
           <p className={`text-xs sm:text-sm text-gray-600 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>
-            {t.noteTypeDescriptions[noteType]}
+            {translations[currentLanguage].noteTypeDescriptions[noteType]}
           </p>
         )}
       </div>
@@ -225,7 +227,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       {/* Original Transcript Preview */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
         <h3 className={`text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 ${isEnglish ? 'text-left' : 'text-right'}`}>
-          {t.originalText}
+          {t('originalText')}
         </h3>
         <div className="bg-white rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
           <p className={`text-xs sm:text-sm text-gray-700 whitespace-pre-wrap ${isEnglish ? 'text-left' : 'text-right'}`}>
@@ -242,7 +244,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             className="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg sm:rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto w-full sm:w-auto text-sm sm:text-base"
           >
             <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
-            {t.generateReport}
+            {t('generateReport')}
           </button>
         </div>
       )}
@@ -251,8 +253,8 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       {isProcessing && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6 lg:p-8 text-center mb-4 sm:mb-6">
           <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-3 sm:mb-4 animate-spin" />
-          <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-2">{t.generating}</h3>
-          <p className="text-blue-600 mb-3 text-sm sm:text-base px-2">{t.generatingDesc}</p>
+          <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-2">{t('generating')}</h3>
+          <p className="text-blue-600 mb-3 text-sm sm:text-base px-2">{t('generatingDesc')}</p>
 
           {/* Enhanced loading indicators */}
           <div className="mt-3 sm:mt-4 space-y-2">
@@ -290,7 +292,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             <div className={`flex items-center gap-2 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
               <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
               <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
-                {t.noteTypeNames[noteType] || noteType} - {t.reportGenerated}
+                {translations[currentLanguage].noteTypeNames[noteType] || noteType} - {t('reportGenerated')}
               </h3>
             </div>
 
@@ -302,7 +304,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                   className="bg-gray-600 text-white px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px] w-full md:w-auto"
                 >
                   <Edit3 className="h-4 w-4 md:h-4 md:w-4" />
-                  <span className="truncate">{t.edit}</span>
+                  <span className="truncate">{t('edit')}</span>
                 </button>
               )}
 
@@ -312,14 +314,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                   }`}
               >
                 <Copy className="h-4 w-4 md:h-4 md:w-4" />
-                <span className="truncate">{copySuccess ? t.copied : t.copy}</span>
+                <span className="truncate">{copySuccess ? t('copied') : t('copy')}</span>
               </button>
 
               <DownloadDropdown
                 onDownloadTxt={handleDownload}
                 onDownloadDocx={handleDownloadDocx}
-                downloadText={t.download}
-                downloadDocxText={t.downloadDocx}
+                downloadText={t('download')}
+                downloadDocxText={t('downloadDocx')}
               />
 
               <ShareDropdown
@@ -340,7 +342,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
               value={editedNote}
               onChange={handleEditorChange}
               language={detectedLanguage}
-              placeholder={t.editPlaceholder}
+              placeholder={t('editPlaceholder')}
               onSave={handleSave}
               onCancel={handleCancel}
             />
@@ -375,9 +377,9 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
           {/* Statistics */}
           <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
             <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 ${isEnglish ? '' : 'text-right'}`}>
-              <span className="truncate py-1">{t.wordCount}: {formattedNote.metadata.wordCount}</span>
-              <span className="truncate py-1">{t.charCount}: {formattedNote.metadata.charCount}</span>
-              <span className="truncate py-1">{t.reportType}: {t.noteTypeNames[noteType] || noteType}</span>
+              <span className="truncate py-1">{t('wordCount')}: {formattedNote.metadata.wordCount}</span>
+              <span className="truncate py-1">{t('charCount')}: {formattedNote.metadata.charCount}</span>
+              <span className="truncate py-1">{t('reportType')}: {translations[currentLanguage].noteTypeNames[noteType] || noteType}</span>
             </div>
 
             {/* Quality indicators */}
@@ -400,14 +402,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             className="bg-gray-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base order-2 md:order-1 min-h-[48px] w-full md:w-auto"
           >
             <RotateCcw className="h-4 w-4 md:h-5 md:w-5" />
-            <span className="truncate">{t.startNew}</span>
+            <span className="truncate">{t('startNew')}</span>
           </button>
 
           <button
             onClick={onGenerate}
             className="bg-blue-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm md:text-base order-1 md:order-2 min-h-[48px] flex items-center justify-center w-full md:w-auto"
           >
-            <span className="truncate">{t.regenerate}</span>
+            <span className="truncate">{t('regenerate')}</span>
           </button>
         </div>
       )}

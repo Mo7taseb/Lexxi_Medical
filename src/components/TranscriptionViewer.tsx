@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FileText, Loader2, AlertCircle, CheckCircle, Volume2, Edit3, Save, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TranscriptionViewerProps {
     audioFile: File;
@@ -19,13 +20,14 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
     const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedTranscript, setEditedTranscript] = useState<string>('');
-    const [language, setLanguage] = useState<'ar' | 'en'>('ar');
     const [hasTranscribed, setHasTranscribed] = useState(false);
     const [processedAudioFile, setProcessedAudioFile] = useState<File | null>(null);
     const [transcriptionSource, setTranscriptionSource] = useState<string>('');
     const [showLanguageSelection, setShowLanguageSelection] = useState(false);
     const [isReadyToTranscribe, setIsReadyToTranscribe] = useState(false);
     const isTranscribingRef = useRef(false);
+
+    const { language, setLanguage, t, direction } = useLanguage();
 
     const transcribeAudio = useCallback(async () => {
         // Prevent multiple simultaneous calls using ref
@@ -507,9 +509,9 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto" dir={direction}>
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                تفريغ الصوت
+                {t('transcriptionTitle')}
             </h2>
 
             {/* Language Selection Modal - Shown First */}
@@ -521,10 +523,10 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                                 <FileText className="w-8 h-8 text-blue-600" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-800 mb-2">
-                                اختر لغة التسجيل الصوتي
+                                {t('selectLanguage')}
                             </h3>
                             <p className="text-gray-600 text-sm">
-                                حدد اللغة المستخدمة في التسجيل الصوتي للحصول على أفضل نتائج التفريغ مع نماذج محسنة لكل لغة
+                                {t('selectTranscriptionLanguage')}
                             </p>
                         </div>
 
@@ -597,7 +599,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                     {/* Language Selection - Mobile responsive */}
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {language === 'ar' ? 'اختر لغة التفريغ' : 'Select Transcription Language'}
+                            {t('selectTranscriptionLanguage')}
                         </label>
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                             <button
@@ -627,14 +629,10 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                             <span className="text-blue-600 text-lg flex-shrink-0">☁️</span>
                             <div className="min-w-0 flex-1">
                                 <p className="text-sm font-medium text-blue-800">
-                                    {language === 'ar'
-                                        ? 'تفريغ سحابي بتقنية Groq Whisper'
-                                        : 'Cloud Transcription with Groq Whisper'}
+                                    {t('aiTranscription')}
                                 </p>
                                 <p className="text-xs text-blue-600 mt-1">
-                                    {language === 'ar'
-                                        ? 'سرعة فائقة (5-15 ثانية) مع تصحيح المصطلحات الطبية العربية'
-                                        : 'Ultra-fast (5-15 seconds) with medical terminology correction'}
+                                    {t('processingAudio')}
                                 </p>
                             </div>
                         </div>
@@ -656,12 +654,10 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
                             <Loader2 className="h-12 w-12 text-blue-600 mx-auto mb-4 animate-spin" />
                             <h3 className="text-lg font-semibold text-blue-800 mb-2">
-                                {language === 'ar' ? 'جاري تفريغ الصوت...' : 'Transcribing audio...'}
+                                {t('transcriptionStarted')}
                             </h3>
                             <p className="text-blue-600">
-                                {language === 'ar'
-                                    ? 'قد تستغرق هذه العملية بضع دقائق حسب طول التسجيل'
-                                    : 'This process may take a few minutes depending on the recording length'}
+                                {t('processingAudio')}
                             </p>
                         </div>
                     )}
@@ -673,7 +669,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                                 <AlertCircle className="h-6 w-6 text-red-600" />
                                 <div>
                                     <h3 className="text-lg font-semibold text-red-800">
-                                        {language === 'ar' ? 'خطأ في التفريغ' : 'Transcription Error'}
+                                        {t('transcriptionError')}
                                     </h3>
                                     <p className="text-red-600">{error}</p>
                                 </div>
@@ -683,7 +679,7 @@ const TranscriptionViewer: React.FC<TranscriptionViewerProps> = ({ audioFile, au
                                     onClick={retryTranscription}
                                     className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
                                 >
-                                    {language === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+                                    {t('retry')}
                                 </button>
                             </div>
                         </div>

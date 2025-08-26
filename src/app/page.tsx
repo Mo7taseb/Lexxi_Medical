@@ -27,6 +27,7 @@ import {
   SessionVoiceRecorder
 } from '@/components/patient-session';
 import { PatientSession } from '@/components/patient-session/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Lazy load components to reduce initial bundle size
 const TranscriptionViewer = lazy(() => import('@/components/TranscriptionViewer'));
@@ -41,7 +42,6 @@ function MainApp() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>('');
-  const [selectedLanguage, setSelectedLanguage] = useState<'ar' | 'en'>('ar');
   const [noteType, setNoteType] = useState<string>('soap');
   const [generatedNote, setGeneratedNote] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,14 +49,15 @@ function MainApp() {
   const [currentSession, setCurrentSession] = useState<PatientSession | null>(null);
 
   const { sessions, createNewSession, updateSession } = useSession();
+  const { language, setLanguage, t, direction } = useLanguage();
 
   const steps = [
-    { id: 1, title: 'معلومات المريض', titleEn: 'Patient Information', icon: User },
-    { id: 2, title: 'ملاحظات الجلسة', titleEn: 'Session Notes', icon: FileText },
-    { id: 3, title: 'تسجيل الصوت', titleEn: 'Voice Recording', icon: Mic },
-    { id: 4, title: 'راجع النص', titleEn: 'Review Transcript', icon: FileText },
-    { id: 5, title: 'اختر نوع التقرير', titleEn: 'Select Note Type', icon: Stethoscope },
-    { id: 6, title: 'مراجعة التقرير', titleEn: 'Review Note', icon: CheckCircle },
+    { id: 1, title: t('patientInformation'), icon: User },
+    { id: 2, title: t('sessionNotes'), icon: FileText },
+    { id: 3, title: t('voiceRecording'), icon: Mic },
+    { id: 4, title: t('reviewTranscript'), icon: FileText },
+    { id: 5, title: t('selectNoteType'), icon: Stethoscope },
+    { id: 6, title: t('reviewNote'), icon: CheckCircle },
   ];
 
   const handleSessionReady = (session: PatientSession) => {
@@ -96,9 +97,9 @@ function MainApp() {
     setCurrentStep(5);
   };
 
-  const handleLanguageDetected = (language: 'ar' | 'en') => {
-    setSelectedLanguage(language);
-    console.log(`🌍 Language detected in main page: ${language.toUpperCase()}`);
+  const handleLanguageDetected = (detectedLanguage: 'ar' | 'en') => {
+    setLanguage(detectedLanguage);
+    console.log(`🌍 Language detected in main page: ${detectedLanguage.toUpperCase()}`);
   };
 
   const handleNoteTypeSelect = (type: string) => {
@@ -109,14 +110,14 @@ function MainApp() {
   const handleGenerateNote = async () => {
     setIsProcessing(true);
     try {
-      console.log(`🏥 Generating note with language: ${selectedLanguage.toUpperCase()}`);
+      console.log(`🏥 Generating note with language: ${language.toUpperCase()}`);
       const response = await fetch('/api/generate-note', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript,
           noteType,
-          language: selectedLanguage
+          language
         }),
       });
 
@@ -161,53 +162,81 @@ function MainApp() {
   const LoadingSpinner = () => <FastLoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir={selectedLanguage === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir={direction}>
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
 
-      {/* Modern Header with Logo - Mobile Optimized */}
-      <div className="relative bg-white/90 backdrop-blur-md border-b border-white/30 mb-4 sm:mb-6 lg:mb-8">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 lg:py-6 max-w-6xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
-              {/* Logo - Responsive sizing */}
-              <div className="relative group">
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl blur-sm sm:blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300" />
-                <Image
-                  src="/logo.png"
-                  alt="Lexxi Medical Logo"
-                  width={160}
-                  height={25}
-                  className="sm:w-[200px] lg:w-[230px] rounded-lg sm:rounded-xl object-contain bg-transparent drop-shadow-md"
-                  priority
-                />
-              </div>
-            </div>
+      {/* Floating Glass Header - Centered Logo */}
+      <div className="sticky top-0 z-50 mb-6 sm:mb-8 lg:mb-10">
+        <div className="relative">
+          {/* Scroll-triggered background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10 backdrop-blur-2xl transition-opacity duration-500 opacity-0 hover:opacity-100" />
 
-            {/* Language Toggle */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                {selectedLanguage === 'ar' ? 'اللغة:' : 'Language:'}
-              </span>
-              <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setSelectedLanguage('ar')}
-                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${selectedLanguage === 'ar'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                >
-                  العربية
-                </button>
-                <button
-                  onClick={() => setSelectedLanguage('en')}
-                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${selectedLanguage === 'en'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                >
-                  English
-                </button>
+          {/* Animated gradient border using logo colors */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-blue-500/20 to-indigo-600/20 rounded-3xl blur-xl animate-pulse transition-opacity duration-500 opacity-0 hover:opacity-100" />
+
+          {/* Main header container */}
+          <div className="relative bg-white/20 backdrop-blur-3xl border border-white/30 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl shadow-blue-500/10 transition-all duration-500 hover:bg-white/30">
+            <div className="container mx-auto px-6 sm:px-8 py-4 sm:py-5 max-w-7xl">
+              <div className="flex items-center justify-center relative">
+                {/* Logo - Centered with glow */}
+                <div className="flex items-center">
+                  <div className="relative group">
+                    {/* Animated glow rings using logo colors */}
+                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/40 via-blue-500/40 to-indigo-600/40 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse" />
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-indigo-500/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500" />
+
+                    {/* Logo container with glass effect */}
+                    <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-3 sm:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-105">
+                      <Image
+                        src="/logo.png"
+                        alt="Lexxi"
+                        width={120}
+                        height={19}
+                        className="sm:w-[140px] lg:w-[160px] xl:w-[180px] object-contain transition-all duration-500 group-hover:scale-110"
+                        priority
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Language Toggle - Positioned absolutely on the right */}
+                <div className="absolute right-0 flex items-center">
+                  <div className="relative group">
+                    {/* Button glow effect using logo colors */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/30 to-indigo-600/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500" />
+
+                    {/* Button container */}
+                    <div className="relative flex bg-white/30 backdrop-blur-xl rounded-2xl p-1.5 border border-white/40 shadow-xl shadow-blue-500/20">
+                      <button
+                        onClick={() => setLanguage('ar')}
+                        className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${language === 'ar'
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50'
+                          }`}
+                      >
+                        {/* Active button shine effect */}
+                        {language === 'ar' && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
+                        )}
+                        <span className="relative z-10">العربية</span>
+                      </button>
+                      <button
+                        onClick={() => setLanguage('en')}
+                        className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${language === 'en'
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50'
+                          }`}
+                      >
+                        {/* Active button shine effect */}
+                        {language === 'en' && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
+                        )}
+                        <span className="relative z-10">English</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -219,26 +248,26 @@ function MainApp() {
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <div className="mb-6 sm:mb-8">
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2 leading-tight" style={{ color: '#0f3143' }}>
-              تحويل الأصوات الطبية إلى تقارير احترافية باستخدام الذكاء الاصطناعي
+              {t('heroTitle')}
             </h2>
           </div>
 
           {/* Features badges - Mobile responsive */}
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-8 text-xs sm:text-sm text-gray-500 px-2">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>Arabic Support</span>
+              <span>{t('arabicSupport')}</span>
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#85cef7' }}></div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>SeHE Compliant</span>
+              <span>{t('seheCompliant')}</span>
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#6f91c7ff' }}></div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>PDPL Compliant</span>
+              <span>{t('pdplCompliant')}</span>
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#4f78b9ff' }}></div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>AI Transcription</span>
+              <span>{t('aiTranscription')}</span>
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#0c4a74ff' }}></div>
             </div>
           </div>
@@ -272,7 +301,6 @@ function MainApp() {
                       }`}>
                       {step.title}
                     </h3>
-                    <p className="text-xs text-gray-400 truncate">{step.titleEn}</p>
                   </div>
 
                   {/* Connection Line for Mobile */}
@@ -306,7 +334,6 @@ function MainApp() {
                       }`}>
                       {step.title}
                     </span>
-                    <span className="text-xs text-gray-400 text-center hidden lg:block">{step.titleEn}</span>
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`flex-1 h-1 mx-4 lg:mx-8 rounded-full transition-all duration-500 ${currentStep > step.id
@@ -330,7 +357,7 @@ function MainApp() {
               <SessionManager
                 onSessionReady={handleSessionReady}
                 currentStep={currentStep}
-                language={selectedLanguage}
+                language={language}
               />
             </div>
           )}
@@ -340,10 +367,10 @@ function MainApp() {
             <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 lg:p-10 border border-white/30">
               <div className="text-center mb-8 sm:mb-10">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
-                  ملاحظات الجلسة
+                  {t('sessionNotesTitle')}
                 </h2>
                 <p className="text-gray-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto">
-                  أضف ملاحظات سريعة أثناء الجلسة لتذكر النقاط المهمة
+                  {t('sessionNotesSubtitle')}
                 </p>
               </div>
 
@@ -352,7 +379,7 @@ function MainApp() {
                 <div className="lg:col-span-1">
                   <SessionSummary
                     session={currentSession}
-                    language={selectedLanguage}
+                    language={language}
                     onEdit={() => setCurrentStep(1)}
                     onContinue={goToRecording}
                     showContinueButton={true}
@@ -364,7 +391,7 @@ function MainApp() {
                   <NoteEditor
                     session={currentSession}
                     onUpdateSession={handleSessionUpdate}
-                    language={selectedLanguage}
+                    language={language}
                   />
                 </div>
               </div>
@@ -376,17 +403,17 @@ function MainApp() {
             <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-white/20">
               <div className="text-center mb-8">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
-                  تسجيل الصوت
+                  {t('voiceRecordingTitle')}
                 </h2>
                 <p className="text-gray-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto">
-                  سجل ملخص الجلسة أو المحادثة الكاملة
+                  {t('voiceRecordingSubtitle')}
                 </p>
               </div>
 
               <SessionVoiceRecorder
                 onComplete={handleAudioComplete}
                 session={currentSession}
-                language={selectedLanguage}
+                language={language}
               />
             </div>
           )}
@@ -426,7 +453,7 @@ function MainApp() {
                   noteType={noteType}
                   generatedNote={generatedNote}
                   isProcessing={isProcessing}
-                  language={selectedLanguage}
+                  language={language}
                   onGenerate={handleGenerateNote}
                   onReset={resetApp}
                 />

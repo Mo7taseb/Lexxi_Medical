@@ -114,7 +114,9 @@ body {
   }
 }
 
-/* Language-specific text direction and number formatting */
+/* Comprehensive RTL/LTR Support */
+
+/* Base direction support */
 [dir="ltr"] {
   text-align: left;
   direction: ltr;
@@ -125,7 +127,118 @@ body {
   direction: rtl;
 }
 
-/* Force LTR for numbers in English content */
+/* Font family support */
+[dir="ltr"] {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+[dir="rtl"] {
+  font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+}
+
+/* Flexbox direction support */
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex-col {
+  flex-direction: column;
+}
+
+/* Text alignment support */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="ltr"] .text-left {
+  text-align: left;
+}
+
+[dir="ltr"] .text-right {
+  text-align: right;
+}
+
+/* Margin and padding support */
+[dir="rtl"] .ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+
+[dir="rtl"] .ml-0 {
+  margin-left: unset;
+  margin-right: 0;
+}
+
+[dir="rtl"] .mr-0 {
+  margin-right: unset;
+  margin-left: 0;
+}
+
+/* Position support */
+[dir="rtl"] .right-0 {
+  right: unset;
+  left: 0;
+}
+
+[dir="rtl"] .left-0 {
+  left: unset;
+  right: 0;
+}
+
+/* Border support */
+[dir="rtl"] .border-l {
+  border-left: unset;
+  border-right: 1px solid;
+}
+
+[dir="rtl"] .border-r {
+  border-right: unset;
+  border-left: 1px solid;
+}
+
+/* Input and form support */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+[dir="ltr"] input,
+[dir="ltr"] textarea,
+[dir="ltr"] select {
+  text-align: left;
+}
+
+/* Button and icon positioning */
+[dir="rtl"] .absolute.right-0 {
+  right: unset;
+  left: 0;
+}
+
+[dir="rtl"] .absolute.left-0 {
+  left: unset;
+  right: 0;
+}
+
+/* Grid and layout support */
+[dir="rtl"] .grid-cols-1>*:first-child {
+  order: 1;
+}
+
+[dir="rtl"] .grid-cols-1>*:last-child {
+  order: 0;
+}
+
+/* Medical note content specific RTL/LTR support */
 [dir="ltr"] .medical-note-content {
   direction: ltr !important;
   text-align: left !important;
@@ -179,6 +292,10 @@ body {
   background: #f8fafc !important;
   padding: 8px 0 8px 12px !important;
   margin: 16px 0 8px 0 !important;
+}
+
+[dir="rtl"] .medical-header strong {
+  padding: 8px 12px 8px 0 !important;
 }
 
 /* Override any RTL styling for English numbered lists */

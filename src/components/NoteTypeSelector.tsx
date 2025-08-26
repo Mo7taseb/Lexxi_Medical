@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { FileText, Clipboard, Heart, PenTool, ChevronRight } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NoteType {
     id: string;
     title: string;
-    titleEn: string;
     description: string;
     icon: React.ComponentType<{ className?: string }>;
     color: string;
@@ -20,12 +20,13 @@ interface NoteTypeSelectorProps {
 }
 
 const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSelect }) => {
+    const { t, direction } = useLanguage();
+
     const noteTypes: NoteType[] = [
         {
             id: 'soap',
-            title: 'تقرير SOAP',
-            titleEn: 'SOAP Note',
-            description: 'تقرير منظم يتضمن الأعراض، الفحص، التشخيص، والعلاج',
+            title: t('soap'),
+            description: t('soapDescription'),
             icon: Clipboard,
             color: 'text-blue-600',
             bgColor: 'bg-blue-50 border-blue-200',
@@ -33,9 +34,8 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
         },
         {
             id: 'progress',
-            title: 'تقرير متابعة',
-            titleEn: 'Progress Note',
-            description: 'تقرير لمتابعة حالة المريض والتطور في العلاج',
+            title: t('progress'),
+            description: t('progressDescription'),
             icon: Heart,
             color: 'text-green-600',
             bgColor: 'bg-green-50 border-green-200',
@@ -43,9 +43,8 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
         },
         {
             id: 'consultation',
-            title: 'تقرير استشارة',
-            titleEn: 'Consultation Note',
-            description: 'تقرير للاستشارة الطبية أو الإحالة لطبيب آخر',
+            title: t('consultation'),
+            description: t('consultationDescription'),
             icon: PenTool,
             color: 'text-purple-600',
             bgColor: 'bg-purple-50 border-purple-200',
@@ -53,9 +52,8 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
         },
         {
             id: 'discharge',
-            title: 'تقرير خروج',
-            titleEn: 'Discharge Summary',
-            description: 'ملخص شامل لحالة المريض عند الخروج من المستشفى',
+            title: t('discharge'),
+            description: t('dischargeDescription'),
             icon: FileText,
             color: 'text-red-600',
             bgColor: 'bg-red-50 border-red-200',
@@ -63,9 +61,8 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
         },
         {
             id: 'freeform',
-            title: 'تقرير حر',
-            titleEn: 'Free Form Note',
-            description: 'تقرير مفتوح بدون تنسيق محدد',
+            title: t('freeform'),
+            description: t('freeformDescription'),
             icon: PenTool,
             color: 'text-gray-600',
             bgColor: 'bg-gray-50 border-gray-200',
@@ -78,13 +75,13 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
     };
 
     return (
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto" dir={direction}>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center px-2">
-                اختر نوع التقرير الطبي
+                {t('selectNoteTypeTitle')}
             </h2>
 
             <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-base px-2">
-                اختر نوع التقرير الذي تريد إنشاءه من النص المفرغ
+                {t('selectNoteTypeSubtitle')}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
@@ -98,69 +95,25 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
                         onClick={() => handleSelect(noteType.id)}
                     >
                         <div className="text-center">
-                            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ${noteType.bgColor} flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
-                                <noteType.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${noteType.color}`} />
+                            <div className={`w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center ${noteType.bgColor}`}>
+                                <noteType.icon className={`w-6 h-6 ${noteType.color}`} />
                             </div>
-
-                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 px-1">
+                            <h3 className={`font-semibold text-lg mb-2 ${noteType.color}`}>
                                 {noteType.title}
                             </h3>
-
-                            <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                                {noteType.titleEn}
-                            </p>
-
-                            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed px-1">
+                            <p className="text-gray-600 text-sm leading-relaxed">
                                 {noteType.description}
                             </p>
-
-                            <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-right">
-                                <p className="text-xs text-gray-500 mb-1">مثال:</p>
-                                <p className="text-xs text-gray-700 whitespace-pre-line leading-relaxed">
-                                    {noteType.example}
-                                </p>
-                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Selected Note Details - Mobile optimized */}
-            {selectedType && (
-                <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
-                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                        </div>
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-                            التقرير المختار: {noteTypes.find(type => type.id === selectedType)?.title}
-                        </h3>
-                    </div>
-
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-                        <p className="text-xs sm:text-sm text-blue-800 mb-2">
-                            <strong>الوصف:</strong> {noteTypes.find(type => type.id === selectedType)?.description}
-                        </p>
-
-                        <div className="bg-white rounded-lg p-2 sm:p-3 mt-2 sm:mt-3">
-                            <p className="text-xs text-gray-500 mb-2">هيكل التقرير:</p>
-                            <p className="text-xs sm:text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                                {noteTypes.find(type => type.id === selectedType)?.example}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Continue Button - Mobile optimized */}
             <div className="text-center">
-                <button
-                    onClick={() => handleSelect(selectedType)}
-                    disabled={!selectedType}
-                    className="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg sm:rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors w-full sm:w-auto text-sm sm:text-base"
-                >
-                    متابعة إلى إنشاء التقرير
-                </button>
+                <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+                    <span>💡</span>
+                    <span>اختر نوع التقرير المناسب لنوع الاستشارة الطبية</span>
+                </div>
             </div>
         </div>
     );
