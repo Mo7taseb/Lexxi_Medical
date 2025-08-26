@@ -213,32 +213,32 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   ];
 
   return (
-    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 overflow-x-hidden ${className}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 sm:p-6 border border-gray-200 overflow-x-hidden ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
-          <Edit className="h-6 w-6 text-blue-600" />
-          {t.sessionNotes}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mb-6">
+        <h3 className={`text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3 flex-shrink-0 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+          <Edit className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 flex-shrink-0" />
+          <span className="whitespace-nowrap min-w-0">{t.sessionNotes}</span>
         </h3>
         {!isAddingNote && !editingNoteId && (
           <button
             onClick={() => setIsAddingNote(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
+            className="bg-blue-600 text-white px-4 sm:px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm flex-shrink-0"
           >
             <Plus className="h-4 w-4" />
-            {t.addNote}
+            <span className="whitespace-nowrap">{t.addNote}</span>
           </button>
         )}
       </div>
 
       {/* Quick Templates */}
       {isAddingNote && !editingNoteId && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb className="h-5 w-5 text-blue-600" />
-            <h4 className="font-semibold text-blue-800">{t.templates}</h4>
+            <h4 className="font-semibold text-blue-800 text-sm sm:text-base">{t.templates}</h4>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {quickTemplates.map((template, index) => (
               <button
                 key={index}
@@ -259,12 +259,12 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
       {/* Add/Edit Note Form */}
       {(isAddingNote || editingNoteId) && (
-        <div className="bg-white rounded-xl p-6 mb-6 border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl p-4 sm:p-6 mb-6 border border-gray-200 shadow-sm overflow-hidden">
           <div className="space-y-4">
             {/* Note Type and Priority */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className={language === 'ar' ? 'order-2 sm:order-1' : ''}>
+                <label className={`block text-sm font-semibold text-gray-700 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                   {t.noteType}
                 </label>
                 <select
@@ -279,8 +279,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className={language === 'ar' ? 'order-1 sm:order-2' : ''}>
+                <label className={`block text-sm font-semibold text-gray-700 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                   {t.priority}
                 </label>
                 <select
@@ -297,7 +297,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
             {/* Note Content */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className={`block text-sm font-semibold text-gray-700 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                 {t.noteContent}
               </label>
               <textarea
@@ -312,14 +312,14 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className={`block text-sm font-semibold text-gray-700 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                 {t.tags}
               </label>
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className={`flex flex-wrap gap-2 mb-2 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                 {newNote.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm border border-blue-200"
+                    className={`inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm border border-blue-200 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
                   >
                     <Tag className="h-3 w-3" />
                     {tag}
@@ -332,13 +332,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                   </span>
                 ))}
               </div>
-              <div className="flex gap-2">
+              <div className={`flex gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                 <input
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm placeholder-gray-600 text-gray-900"
+                  className={`flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm placeholder-gray-600 text-gray-900 ${language === 'ar' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'ar' ? 'إضافة علامة' : 'Add tag'}
                 />
                 <button
@@ -351,21 +351,21 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 ${language === 'ar' ? 'sm:flex-row-reverse' : ''}`}>
               <button
                 onClick={editingNoteId ? handleSaveEdit : handleAddNote}
                 disabled={!newNote.content.trim()}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto"
+                className="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <Save className="h-4 w-4" />
-                {editingNoteId ? t.saveNote : t.addNote}
+                <span className="whitespace-nowrap">{editingNoteId ? t.saveNote : t.addNote}</span>
               </button>
               <button
                 onClick={handleCancelEdit}
-                className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 w-full sm:w-auto"
+                className="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <X className="h-4 w-4" />
-                {t.cancel}
+                <span className="whitespace-nowrap">{t.cancel}</span>
               </button>
             </div>
           </div>
@@ -375,12 +375,12 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       {/* Notes List */}
       <div className="space-y-4 relative">
         {session.notes.length === 0 ? (
-          <div className="text-center py-8 bg-white rounded-xl border border-gray-200">
-            <Edit className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-            <h4 className="text-base font-medium text-gray-600 mb-1">
+          <div className="text-center py-6 sm:py-8 bg-white rounded-xl border border-gray-200">
+            <Edit className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 mx-auto mb-2 sm:mb-3" />
+            <h4 className="text-sm sm:text-base font-medium text-gray-600 mb-1">
               {t.noNotes}
             </h4>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-xs sm:text-sm">
               {t.addFirstNote}
             </p>
           </div>
@@ -390,56 +390,60 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             .map((note) => (
               <div
                 key={note.id}
-                className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200 overflow-hidden"
+                className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200 overflow-hidden"
               >
                 {/* Note Header */}
-                <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
-                  <div className="flex items-center gap-3 flex-1 min-w-0 flex-wrap">
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getTypeColor(note.type)}`}>
-                        {t[note.type]}
-                      </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(note.priority)}`}>
-                        {t[note.priority]}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
-                      <Clock className="h-3 w-3 flex-shrink-0" />
-                      <span className="whitespace-nowrap">{formatDateTime(note.timestamp)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4">
+                  {/* Left side - Action buttons with better spacing */}
+                  <div className={`flex items-center gap-3 flex-shrink-0 self-start ${language === 'ar' ? 'order-last sm:order-first' : 'order-first sm:order-last'}`}>
                     <button
                       onClick={() => toggleNoteExpansion(note.id)}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+                      className="p-2.5 hover:bg-gray-100 rounded-lg transition-colors duration-200 border border-transparent hover:border-gray-200 bg-gray-50"
                       title={expandedNotes.has(note.id) ? (language === 'ar' ? 'طي' : 'Collapse') : (language === 'ar' ? 'توسيع' : 'Expand')}
                     >
                       {expandedNotes.has(note.id) ? (
-                        <EyeOff className="h-4 w-4 text-gray-600" />
+                        <EyeOff className="h-5 w-5 text-gray-600" />
                       ) : (
-                        <Eye className="h-4 w-4 text-gray-600" />
+                        <Eye className="h-5 w-5 text-gray-600" />
                       )}
                     </button>
                     <button
                       onClick={() => handleEditNote(note)}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+                      className="p-2.5 hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-transparent hover:border-blue-200 bg-blue-50"
                       title={t.editNote}
                     >
-                      <Edit className="h-4 w-4 text-blue-600" />
+                      <Edit className="h-5 w-5 text-blue-600" />
                     </button>
                     <button
                       onClick={() => handleDeleteNote(note.id)}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+                      className="p-2.5 hover:bg-red-50 rounded-lg transition-colors duration-200 border border-transparent hover:border-red-200 bg-red-50"
                       title={t.deleteNote}
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-5 w-5 text-red-600" />
                     </button>
+                  </div>
+
+                  {/* Center - Tags and timestamp with better alignment */}
+                  <div className={`flex flex-col gap-3 flex-1 min-w-0 ${language === 'ar' ? 'items-end' : 'items-start'}`}>
+                    {/* Tags row */}
+                    <div className={`flex items-center gap-3 flex-wrap ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                      <span className={`px-4 py-2 text-sm font-medium rounded-full border ${getTypeColor(note.type)} whitespace-nowrap flex-shrink-0`}>
+                        {t[note.type]}
+                      </span>
+                      <span className={`px-4 py-2 text-sm font-medium rounded-full border ${getPriorityColor(note.priority)} whitespace-nowrap flex-shrink-0`}>
+                        {t[note.priority]}
+                      </span>
+                    </div>
+                    {/* Timestamp row - centered below tags */}
+                    <div className={`flex items-center justify-center gap-2 text-sm text-gray-500 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <Clock className="h-4 w-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap font-medium">{formatDateTime(note.timestamp)}</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Note Content */}
-                <div className="mb-4">
+                <div className={`mb-4 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                   <p className="text-gray-800 leading-relaxed whitespace-pre-wrap break-words">
                     {expandedNotes.has(note.id) || note.content.length <= 100
                       ? note.content
@@ -449,7 +453,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                   {note.content.length > 100 && !expandedNotes.has(note.id) && (
                     <button
                       onClick={() => toggleNoteExpansion(note.id)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2"
+                      className={`text-blue-600 hover:text-blue-800 text-sm font-medium mt-3 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors duration-200 ${language === 'ar' ? 'block w-full text-right' : 'block w-full text-left'}`}
                     >
                       {language === 'ar' ? 'اقرأ المزيد' : 'Read more'}
                     </button>
@@ -458,14 +462,14 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
                 {/* Tags */}
                 {note.tags && note.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className={`flex flex-wrap gap-2 mt-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
                     {note.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs border border-gray-200"
+                        className={`inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full text-xs border border-gray-200 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
                       >
                         <Tag className="h-3 w-3" />
-                        {tag}
+                        <span className="whitespace-nowrap">{tag}</span>
                       </span>
                     ))}
                   </div>

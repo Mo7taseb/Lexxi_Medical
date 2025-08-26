@@ -375,9 +375,9 @@ function MainApp() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
                 {/* Session Summary */}
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 order-2 lg:order-1">
                   <SessionSummary
                     session={currentSession}
                     language={language}
@@ -388,7 +388,7 @@ function MainApp() {
                 </div>
 
                 {/* Note Editor */}
-                <div className="lg:col-span-3">
+                <div className="lg:col-span-3 order-1 lg:order-2">
                   <NoteEditor
                     session={currentSession}
                     onUpdateSession={handleSessionUpdate}
