@@ -175,7 +175,8 @@ export const arabicSectionTemplates: SectionTemplate[] = [
 export const parseNoteToSections = (note: string, language: Language): MedicalSection[] => {
   if (!note) return [];
 
-  const templates = language === 'en' ? englishSectionTemplates : arabicSectionTemplates;
+  // Always use English templates for consistent medical note structure
+  const templates = englishSectionTemplates;
   const sections: MedicalSection[] = [];
   const lines = note.split('\n').filter(line => line.trim());
 
@@ -186,7 +187,7 @@ export const parseNoteToSections = (note: string, language: Language): MedicalSe
   // List of major sections that should break consultation details grouping
   const majorSections = [
     'Patient identification',
-    'Past medical history', 
+    'Past medical history',
     'History of presenting illness',
     'Physical examination',
     'Investigation',
@@ -223,8 +224,8 @@ export const parseNoteToSections = (note: string, language: Language): MedicalSe
     // If we're in consultation details, collect lines until we hit a major section
     else if (isInConsultationDetails) {
       // Check if this line starts a major section
-      const isMajorSection = majorSections.some(section => 
-        cleanLine.toLowerCase().includes(section.toLowerCase()) && 
+      const isMajorSection = majorSections.some(section =>
+        cleanLine.toLowerCase().includes(section.toLowerCase()) &&
         cleanLine.includes('*')
       );
 
@@ -338,24 +339,24 @@ export const formatSectionContent = (section: MedicalSection, language: Language
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    
+
     // Check if this line is a bullet point
     const bulletMatch = line.match(/^[\s]*[-•]\s*(.+)$/);
     const numberedMatch = line.match(/^[\s]*(\d+)\.?\s*(.+)$/);
-    
+
     if (bulletMatch) {
       // Close numbered list if we were in one
       if (inNumberedList) {
         formattedLines.push('</ol>');
         inNumberedList = false;
       }
-      
+
       // Start bullet list if not already in one
       if (!inBulletList) {
         formattedLines.push('<ul class="medical-bullet-list">');
         inBulletList = true;
       }
-      
+
       formattedLines.push(`<li>${bulletMatch[1]}</li>`);
     } else if (numberedMatch) {
       // Close bullet list if we were in one
@@ -363,13 +364,13 @@ export const formatSectionContent = (section: MedicalSection, language: Language
         formattedLines.push('</ul>');
         inBulletList = false;
       }
-      
+
       // Start numbered list if not already in one
       if (!inNumberedList) {
         formattedLines.push('<ol class="medical-numbered-list">');
         inNumberedList = true;
       }
-      
+
       formattedLines.push(`<li>${numberedMatch[2]}</li>`);
     } else {
       // Close any open lists
@@ -381,7 +382,7 @@ export const formatSectionContent = (section: MedicalSection, language: Language
         formattedLines.push('</ol>');
         inNumberedList = false;
       }
-      
+
       // Regular line
       if (line) {
         // Check if this line is a subsection header (ends with colon)
@@ -393,7 +394,7 @@ export const formatSectionContent = (section: MedicalSection, language: Language
       }
     }
   }
-  
+
   // Close any remaining open lists
   if (inBulletList) {
     formattedLines.push('</ul>');
@@ -401,7 +402,7 @@ export const formatSectionContent = (section: MedicalSection, language: Language
   if (inNumberedList) {
     formattedLines.push('</ol>');
   }
-  
+
   content = formattedLines.join('\n');
 
   if (section.type === 'medication') {

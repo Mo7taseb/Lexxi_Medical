@@ -33,12 +33,10 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
   const { t, direction, language: currentLanguage } = useLanguage();
 
-  // Memoized language detection and text selection
-  const detectedLanguage: Language = useMemo(() => {
-    return (language as Language) || detectLanguage(transcript);
-  }, [language, transcript]);
+  // Always use English for medical note content to maintain consistent structure
+  const detectedLanguage: Language = 'en';
 
-  const isEnglish = detectedLanguage === 'en';
+  const isEnglish = true;
 
   // Memoized note content
   const currentNote = useMemo(() => {
@@ -53,25 +51,25 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
         metadata: {
           wordCount: 0,
           charCount: 0,
-          language: detectedLanguage,
+          language: 'en',
           noteType
         }
       };
     }
 
     const normalizedNote = normalizeText(currentNote);
-    const sections = parseNoteToSections(normalizedNote, detectedLanguage);
+    const sections = parseNoteToSections(normalizedNote, 'en');
     const stats = getTextStats(normalizedNote);
 
     return {
       sections,
       metadata: {
         ...stats,
-        language: detectedLanguage,
+        language: 'en',
         noteType
       }
     };
-  }, [currentNote, detectedLanguage, noteType]);
+  }, [currentNote, noteType]);
 
   // Sync editedNote with generatedNote when it changes
   useEffect(() => {
@@ -96,12 +94,12 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
   const handleDownloadDocx = useCallback(async () => {
     try {
-      const sections = parseNoteToSections(currentNote, detectedLanguage);
-      await downloadDocx(sections, noteType, detectedLanguage);
+      const sections = parseNoteToSections(currentNote, 'en');
+      await downloadDocx(sections, noteType, 'en');
     } catch (error) {
       console.error('Failed to download DOCX:', error);
     }
-  }, [currentNote, noteType, detectedLanguage]);
+  }, [currentNote, noteType]);
 
   // Share handlers
   const handleShareEmail = useCallback((format: 'text' | 'docx') => {
@@ -211,14 +209,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   // Inline editing is always enabled - removed toggle function
 
   return (
-    <div id="medical-note-viewer" className="max-w-5xl mx-auto" dir={direction}>
+    <div id="medical-note-viewer" className="max-w-5xl mx-auto" dir="ltr">
       {/* Header Section */}
       <div className="text-center mb-4 sm:mb-6">
-        <h2 className={`text-xl sm:text-2xl font-bold text-gray-800 mb-2 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>
-          {translations[currentLanguage].noteTypeNames[noteType] || (isEnglish ? 'Medical Report' : 'التقرير الطبي')}
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-left px-2">
+          {translations[currentLanguage].noteTypeNames[noteType] || 'Medical Report'}
         </h2>
         {translations[currentLanguage].noteTypeDescriptions[noteType] && (
-          <p className={`text-xs sm:text-sm text-gray-600 ${isEnglish ? 'text-left' : 'text-right'} px-2`}>
+          <p className="text-xs sm:text-sm text-gray-600 text-left px-2">
             {translations[currentLanguage].noteTypeDescriptions[noteType]}
           </p>
         )}
@@ -226,11 +224,11 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
       {/* Original Transcript Preview */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
-        <h3 className={`text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 ${isEnglish ? 'text-left' : 'text-right'}`}>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 text-left">
           {t('originalText')}
         </h3>
         <div className="bg-white rounded-lg p-3 sm:p-4 max-h-32 sm:max-h-40 overflow-y-auto">
-          <p className={`text-xs sm:text-sm text-gray-700 whitespace-pre-wrap ${isEnglish ? 'text-left' : 'text-right'}`}>
+          <p className="text-xs sm:text-sm text-gray-700 whitespace-pre-wrap text-left">
             {transcript}
           </p>
         </div>
@@ -260,15 +258,15 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
           <div className="mt-3 sm:mt-4 space-y-2">
             <div className="text-xs sm:text-sm text-blue-600 flex items-center justify-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-              <span>{isEnglish ? 'Processing medical content...' : 'معالجة المحتوى الطبي...'}</span>
+              <span>Processing medical content...</span>
             </div>
             <div className="text-xs sm:text-sm text-blue-600 flex items-center justify-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <span>{isEnglish ? 'Structuring report sections...' : 'تنظيم أقسام التقرير...'}</span>
+              <span>Structuring report sections...</span>
             </div>
             <div className="text-xs sm:text-sm text-blue-600 flex items-center justify-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              <span>{isEnglish ? 'Applying medical standards...' : 'تطبيق المعايير الطبية...'}</span>
+              <span>Applying medical standards...</span>
             </div>
           </div>
         </div>
@@ -282,14 +280,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             transcript={transcript}
             generatedNote={currentNote}
             noteType={noteType}
-            language={detectedLanguage}
+            language={'en'} // Always use English for medical note content
             onFieldAdd={handleMissingInfoFieldAdd}
             onSkipField={handleMissingInfoFieldSkip}
           />
 
           {/* Header with actions */}
-          <div className={`flex flex-col gap-3 sm:gap-4 mb-4 ${isEnglish ? 'sm:flex-row sm:items-center sm:justify-between' : 'sm:flex-row-reverse sm:items-center sm:justify-between'}`}>
-            <div className={`flex items-center gap-2 ${isEnglish ? 'flex-row' : 'flex-row-reverse'}`}>
+          <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 flex-row">
               <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
               <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
                 {translations[currentLanguage].noteTypeNames[noteType] || noteType} - {t('reportGenerated')}
@@ -297,7 +295,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className={`grid grid-cols-2 gap-3 md:flex md:flex-row md:gap-2 ${isEnglish ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+            <div className="grid grid-cols-2 gap-3 md:flex md:flex-row md:gap-2">
               {!isEditing && (
                 <button
                   onClick={handleEdit}
@@ -328,7 +326,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 medicalNote={currentNote}
                 patientInfo={{ name: "Patient" }} // You can make this dynamic if you have patient data
                 noteType={noteType}
-                language={detectedLanguage}
+                language={'en'} // Always use English for medical note content
                 onShareEmail={handleShareEmail}
                 onShareWhatsApp={handleShareWhatsApp}
                 onCopyLink={handleCopyLink}
@@ -341,7 +339,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             <RichTextEditor
               value={editedNote}
               onChange={handleEditorChange}
-              language={detectedLanguage}
+              language={'en'} // Always use English for medical note content
               placeholder={t('editPlaceholder')}
               onSave={handleSave}
               onCancel={handleCancel}
@@ -353,7 +351,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
                 <MedicalSectionRenderer
                   key={section.id}
                   section={editedSections[section.id] ? { ...section, content: editedSections[section.id] } : section}
-                  language={detectedLanguage}
+                  language={'en'} // Always use English for medical note content
                   isInlineEditing={!isEditing} // Always allow inline editing when not in full edit mode
                   onStartEdit={handleSectionStartEdit}
                   onSaveEdit={handleSectionSaveEdit}
@@ -365,10 +363,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
               <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-xs sm:text-sm text-blue-700 flex items-center gap-2">
                   <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                  {isEnglish
-                    ? 'Professional medical formatting and structure applied'
-                    : 'تم تطبيق التنسيق والهيكل الطبي المحترف'
-                  }
+                  Professional medical formatting and structure applied
                 </p>
               </div>
             </div>
@@ -376,7 +371,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
           {/* Statistics */}
           <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
-            <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 ${isEnglish ? '' : 'text-right'}`}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
               <span className="truncate py-1">{t('wordCount')}: {formattedNote.metadata.wordCount}</span>
               <span className="truncate py-1">{t('charCount')}: {formattedNote.metadata.charCount}</span>
               <span className="truncate py-1">{t('reportType')}: {translations[currentLanguage].noteTypeNames[noteType] || noteType}</span>
@@ -385,9 +380,9 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             {/* Quality indicators */}
             <div className="mt-2 pt-2 border-t border-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 text-xs text-gray-500">
-                <span className="flex items-center gap-1 py-1">✅ {isEnglish ? 'Structured sections' : 'أقسام منظمة'}</span>
-                <span className="flex items-center gap-1 py-1">✅ {isEnglish ? 'Medical terminology' : 'مصطلحات طبية'}</span>
-                <span className="flex items-center gap-1 py-1">✅ {isEnglish ? 'Professional format' : 'تنسيق محترف'}</span>
+                <span className="flex items-center gap-1 py-1">✅ Structured sections</span>
+                <span className="flex items-center gap-1 py-1">✅ Medical terminology</span>
+                <span className="flex items-center gap-1 py-1">✅ Professional format</span>
               </div>
             </div>
           </div>
@@ -396,7 +391,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
       {/* Bottom Action Buttons */}
       {generatedNote && !isProcessing && !isEditing && (
-        <div className={`flex flex-col md:flex-row gap-3 md:gap-4 ${isEnglish ? 'md:justify-between' : 'md:justify-between md:flex-row-reverse'}`}>
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:justify-between">
           <button
             onClick={onReset}
             className="bg-gray-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base order-2 md:order-1 min-h-[48px] w-full md:w-auto"

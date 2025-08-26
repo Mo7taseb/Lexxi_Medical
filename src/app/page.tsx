@@ -98,8 +98,9 @@ function MainApp() {
   };
 
   const handleLanguageDetected = (detectedLanguage: 'ar' | 'en') => {
-    setLanguage(detectedLanguage);
-    console.log(`🌍 Language detected in main page: ${detectedLanguage.toUpperCase()}`);
+    // Don't change the UI language based on transcript language
+    // Keep the user's selected UI language
+    console.log(`🌍 Language detected in transcript: ${detectedLanguage.toUpperCase()}, but keeping UI language as: ${language.toUpperCase()}`);
   };
 
   const handleNoteTypeSelect = (type: string) => {
@@ -110,21 +111,21 @@ function MainApp() {
   const handleGenerateNote = async () => {
     setIsProcessing(true);
     try {
-      console.log(`🏥 Generating note with language: ${language.toUpperCase()}`);
+      console.log(`🏥 Generating note in English for consistent structure (UI language: ${language.toUpperCase()})`);
       const response = await fetch('/api/generate-note', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript,
           noteType,
-          language
+          language: 'en' // Always generate notes in English for consistent structure
         }),
       });
 
       if (!response.ok) throw new Error('Failed to generate note');
 
       const data = await response.json();
-      console.log(`✅ Note generated from ${data.source} with confidence: ${data.confidence}`);
+      console.log(`✅ Note generated in English from ${data.source} with confidence: ${data.confidence}`);
       setGeneratedNote(data.note);
     } catch (error) {
       console.error('Error generating note:', error);
@@ -166,8 +167,8 @@ function MainApp() {
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
 
-      {/* Floating Glass Header - Centered Logo */}
-      <div className="sticky top-0 z-50 mb-6 sm:mb-8 lg:mb-10">
+      {/* Floating Glass Header - Responsive Layout */}
+      <div className="sticky top-0 z-50 mb-4 sm:mb-6 lg:mb-8">
         <div className="relative">
           {/* Scroll-triggered background */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10 backdrop-blur-2xl transition-opacity duration-500 opacity-0 hover:opacity-100" />
@@ -176,63 +177,63 @@ function MainApp() {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-blue-500/20 to-indigo-600/20 rounded-3xl blur-xl animate-pulse transition-opacity duration-500 opacity-0 hover:opacity-100" />
 
           {/* Main header container */}
-          <div className="relative bg-white/20 backdrop-blur-3xl border border-white/30 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl shadow-blue-500/10 transition-all duration-500 hover:bg-white/30">
-            <div className="container mx-auto px-6 sm:px-8 py-4 sm:py-5 max-w-7xl">
-              <div className="flex items-center justify-center relative">
-                {/* Logo - Centered with glow */}
-                <div className="flex items-center">
+          <div className="relative bg-white/20 backdrop-blur-3xl border border-white/30 rounded-2xl sm:rounded-3xl mx-3 sm:mx-4 lg:mx-6 shadow-2xl shadow-blue-500/10 transition-all duration-500 hover:bg-white/30">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 max-w-7xl">
+              <div className="flex items-center justify-between relative">
+                {/* Logo - Left aligned with glow */}
+                <div className="flex items-center flex-1">
                   <div className="relative group">
                     {/* Animated glow rings using logo colors */}
                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/40 via-blue-500/40 to-indigo-600/40 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse" />
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-indigo-500/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
                     {/* Logo container with glass effect */}
-                    <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-3 sm:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-105">
+                    <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-2 sm:p-3 lg:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-105">
                       <Image
                         src="/logo.png"
                         alt="Lexxi"
-                        width={120}
-                        height={19}
-                        className="sm:w-[140px] lg:w-[160px] xl:w-[180px] object-contain transition-all duration-500 group-hover:scale-110"
+                        width={100}
+                        height={16}
+                        className="w-[100px] sm:w-[120px] lg:w-[140px] xl:w-[160px] object-contain transition-all duration-500 group-hover:scale-110"
                         priority
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Language Toggle - Positioned absolutely on the right */}
-                <div className="absolute right-0 flex items-center">
+                {/* Language Toggle - Right aligned */}
+                <div className="flex items-center justify-end flex-shrink-0">
                   <div className="relative group">
                     {/* Button glow effect using logo colors */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/30 to-indigo-600/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
                     {/* Button container */}
-                    <div className="relative flex bg-white/30 backdrop-blur-xl rounded-2xl p-1.5 border border-white/40 shadow-xl shadow-blue-500/20">
+                    <div className="relative flex bg-white/30 backdrop-blur-xl rounded-2xl p-1 border border-white/40 shadow-xl shadow-blue-500/20 gap-0.5">
                       <button
                         onClick={() => setLanguage('ar')}
-                        className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${language === 'ar'
+                        className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'ar'
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
-                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50'
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50 active:bg-white/60'
                           }`}
                       >
                         {/* Active button shine effect */}
                         {language === 'ar' && (
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
                         )}
-                        <span className="relative z-10">العربية</span>
+                        <span className="relative z-10 block text-center leading-tight">العربية</span>
                       </button>
                       <button
                         onClick={() => setLanguage('en')}
-                        className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${language === 'en'
+                        className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'en'
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
-                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50'
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50 active:bg-white/60'
                           }`}
                       >
                         {/* Active button shine effect */}
                         {language === 'en' && (
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
                         )}
-                        <span className="relative z-10">English</span>
+                        <span className="relative z-10 block text-center leading-tight">English</span>
                       </button>
                     </div>
                   </div>

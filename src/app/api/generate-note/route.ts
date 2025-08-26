@@ -84,12 +84,12 @@ function cleanNoteContent(content: string, language: string): string {
   let hasChanged = true;
   let iterations = 0;
   const maxIterations = 10;
-  
+
   while (hasChanged && iterations < maxIterations) {
     hasChanged = false;
     iterations++;
     console.log(`🧹 Cleaning iteration ${iterations}`);
-    
+
     for (const prefix of prefixes) {
       const regex = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'i');
       const beforeLength = cleaned.length;
@@ -99,7 +99,7 @@ function cleanNoteContent(content: string, language: string): string {
         console.log(`🧹 Removed prefix: "${prefix}"`);
       }
     }
-    
+
     // Remove any leading colons, dashes, or whitespace that might be left
     const beforeLength = cleaned.length;
     cleaned = cleaned.replace(/^[:\-\s\n\r]+/, '');
@@ -112,7 +112,7 @@ function cleanNoteContent(content: string, language: string): string {
   // Additional aggressive cleaning for stubborn cases
   cleaned = cleaned.replace(/^["\'\`]*\s*/, ''); // Remove leading quotes and spaces
   cleaned = cleaned.replace(/^\d+\.\s*/, ''); // Remove numbered list prefixes
-  
+
   // Remove any remaining common AI prefixes that might have been missed
   const additionalPatterns = [
     /^Here\s+is\s+.*?:\s*/gi,
@@ -122,7 +122,7 @@ function cleanNoteContent(content: string, language: string): string {
     /^إليك\s+.*?:\s*/gi,
     /^فيما\s+يلي\s+.*?:\s*/gi
   ];
-  
+
   for (const pattern of additionalPatterns) {
     const beforeLength = cleaned.length;
     cleaned = cleaned.replace(pattern, '');
@@ -134,30 +134,30 @@ function cleanNoteContent(content: string, language: string): string {
   const finalCleaned = cleaned.trim();
   console.log(`🧹 Final cleaned content (first 300 chars): "${finalCleaned.substring(0, 300)}..."`);
   console.log(`🧹 Cleaning complete. Original length: ${content.length}, Final length: ${finalCleaned.length}`);
-  
+
   return finalCleaned;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { transcript, noteType, language = 'ar' } = await request.json();
-    
+
     if (!transcript || !noteType) {
       return NextResponse.json({ error: 'Missing transcript or note type' }, { status: 400 });
     }
 
-    console.log(`🏥 Generating ${noteType} note in ${language.toUpperCase()}: ${transcript.substring(0, 100)}...`);
+    console.log(`🏥 Generating ${noteType} note in English for consistent structure: ${transcript.substring(0, 100)}...`);
 
     // Try Smart LLM Router first (free cloud + local options)
     const router = new SimpleLLMRouter();
-    
+
     try {
-      console.log(`🤖 Attempting note generation with SimpleLLMRouter (${language})`);
+      console.log(`🤖 Attempting note generation with SimpleLLMRouter (English)`);
       const noteResult = await router.generateMedicalNote(transcript, noteType, language as 'ar' | 'en');
       console.log(`🔍 Raw SimpleLLMRouter response (first 200 chars): "${noteResult.note.substring(0, 200)}..."`);
       const cleanedNote = cleanNoteContent(noteResult.note, language);
       console.log(`🧹 Cleaned note (first 200 chars): "${cleanedNote.substring(0, 200)}..."`);
-      console.log(`✅ Note generated using ${noteResult.source} in ${language.toUpperCase()}`);
+      console.log(`✅ Note generated using ${noteResult.source} in English`);
 
       return NextResponse.json({
         note: cleanedNote,
@@ -166,21 +166,21 @@ export async function POST(request: NextRequest) {
         language: language
       });
     } catch (routerError) {
-      console.log(`⚠️ Smart LLM Router failed (${language}), trying OpenAI...`, routerError);
+      console.log(`⚠️ Smart LLM Router failed (English), trying OpenAI...`, routerError);
     }
 
     // Fallback to OpenAI if available
     if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here') {
-      console.log(`🤖 Using OpenAI as fallback for ${language.toUpperCase()} note generation...`);
-      
+      console.log(`🤖 Using OpenAI as fallback for English note generation...`);
+
       const prompt = generatePrompt(transcript, noteType, language);
-      
+
       const completion = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
-            content: language === 'ar' ? 
+            content: language === 'ar' ?
               "أنت مساعد طبي ذكي متخصص في إنشاء التقارير الطبية المنظمة من المحادثات المفرغة. تفهم المصطلحات الطبية العربية والإنجليزية. قم بالرد باللغة العربية ما لم يُطلب خلاف ذلك. ابدأ مباشرة بالتقرير الطبي بدون أي مقدمات أو عبارات تمهيدية مثل 'إليك التقرير' أو 'فيما يلي'." :
               "You are an expert medical AI assistant specialized in creating structured, professional medical documentation from transcribed conversations. You have comprehensive knowledge of medical terminology, clinical workflows, and healthcare documentation standards. Generate clear, concise, and clinically accurate medical notes following established medical documentation practices. Use appropriate medical terminology and maintain professional formatting throughout. START DIRECTLY with the medical report content without any introductory phrases like 'Here is the', 'The following is', or similar prefixes."
           },
@@ -197,35 +197,35 @@ export async function POST(request: NextRequest) {
       console.log(`🔍 Raw OpenAI response (first 200 chars): "${rawNote.substring(0, 200)}..."`);
       const cleanedNote = cleanNoteContent(rawNote, language);
       console.log(`🧹 Cleaned note (first 200 chars): "${cleanedNote.substring(0, 200)}..."`);
-      console.log(`✅ Note generated with OpenAI in ${language.toUpperCase()}`);
-      
-      return NextResponse.json({ 
-        note: cleanedNote, 
-        source: 'openai', 
+      console.log(`✅ Note generated with OpenAI in English`);
+
+      return NextResponse.json({
+        note: cleanedNote,
+        source: 'openai',
         confidence: 0.95,
         language: language
       });
     }
 
     // Final fallback to enhanced note generation
-    console.log(`📝 Using enhanced fallback note generator for ${language.toUpperCase()}...`);
+    console.log(`📝 Using enhanced fallback note generator for English...`);
     const fallbackNote = generateEnhancedFallbackNote({ transcript, noteType, language });
     const cleanedFallbackNote = cleanNoteContent(fallbackNote, language);
-    return NextResponse.json({ 
-      note: cleanedFallbackNote, 
-      source: 'fallback', 
+    return NextResponse.json({
+      note: cleanedFallbackNote,
+      source: 'fallback',
       confidence: 0.3,
       language: language
     });
-    
+
   } catch (error) {
     console.error('Note generation error:', error);
-    
+
     // Get the original request data for final fallback
     let transcript = '';
     let noteType = 'soap';
     let language = 'ar';
-    
+
     try {
       const requestClone = request.clone();
       const body = await requestClone.json();
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
     } catch {
       console.log('Could not parse request body for fallback, using defaults');
     }
-    
+
     // Final fallback
     const fallbackNote = generateEnhancedFallbackNote({ transcript, noteType, language });
     const cleanedErrorFallbackNote = cleanNoteContent(fallbackNote, language);
@@ -288,13 +288,13 @@ Generate the report immediately in the requested format:`;
       progress: `Create a comprehensive Progress Note in English following medical documentation standards:
 
 **DATE OF ASSESSMENT:**
-${new Date().toLocaleDateString('en-US', { 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit'
-})}
+${new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}
 
 **PATIENT IDENTIFICATION:**
 - Patient demographics and identifiers required
@@ -339,13 +339,13 @@ ${new Date().toLocaleDateString('en-US', {
       consultation: `Create a comprehensive Consultation Note in English following medical documentation standards:
 
 **DATE OF CONSULTATION:**
-${new Date().toLocaleDateString('en-US', { 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit'
-})}
+${new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}
 
 **REASON FOR CONSULTATION:**
 - Primary indication for specialist consultation
@@ -427,11 +427,11 @@ ${new Date().toLocaleDateString('en-US', {
 
 **DISCHARGE SUMMARY**
 Date of Admission: [To be completed]
-Date of Discharge: ${new Date().toLocaleDateString('en-US', { 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric'
-})}
+Date of Discharge: ${new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })}
 
 **ADMISSION DIAGNOSIS:**
 - Primary reason for hospitalization
@@ -480,11 +480,11 @@ Date of Discharge: ${new Date().toLocaleDateString('en-US', {
       freeform: `Create a comprehensive medical report in English following clinical documentation standards:
 
 **CLINICAL SUMMARY**
-Date: ${new Date().toLocaleDateString('en-US', { 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric'
-})}
+Date: ${new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })}
 
 **PATIENT PRESENTATION:**
 - Chief complaint and presenting symptoms
