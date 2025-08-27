@@ -313,11 +313,10 @@ function MainApp() {
             </div>
 
             {/* Desktop: Horizontal Layout */}
-            <div className="hidden sm:flex justify-between items-center max-w-5xl mx-auto">
-              {steps.map((step, index) => (
-                <div key={step.id} className="flex items-center">
-                  <div className={`flex flex-col items-center ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-400'
-                    }`}>
+            <div className="hidden sm:flex items-center max-w-5xl mx-auto">
+              <div className="grid grid-cols-6 gap-8 lg:gap-12 w-full">
+                {steps.map((step, index) => (
+                  <div key={step.id} className="flex flex-col items-center">
                     <div className={`relative w-14 h-14 lg:w-16 lg:h-16 rounded-2xl lg:rounded-3xl flex items-center justify-center mb-3 lg:mb-4 transition-all duration-300 ${currentStep >= step.id
                       ? 'text-white shadow-xl scale-105'
                       : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
@@ -336,14 +335,8 @@ function MainApp() {
                       {step.title}
                     </span>
                   </div>
-                  {index < steps.length - 1 && (
-                    <div className={`flex-1 h-1 mx-4 lg:mx-8 rounded-full transition-all duration-500 ${currentStep > step.id
-                      ? 'bg-gradient-to-r from-blue-400 to-blue-600'
-                      : 'bg-gray-200'
-                      }`} />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
