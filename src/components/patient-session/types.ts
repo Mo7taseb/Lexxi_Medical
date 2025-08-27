@@ -4,7 +4,7 @@ export interface PatientInfo {
   id: string;
   name: string;
   age?: number;
-  gender?: 'male' | 'female' | 'other';
+  gender?: 'male' | 'female';
   medicalRecordNumber?: string;
   phoneNumber?: string;
   dateOfBirth?: string;
@@ -54,7 +54,7 @@ export interface SessionContextType {
 export interface PatientFormData {
   name: string;
   age: string;
-  gender: 'male' | 'female' | 'other' | '';
+  gender: 'male' | 'female' | '';
   medicalRecordNumber: string;
   phoneNumber: string;
   allergies: string;
@@ -93,7 +93,6 @@ export interface SessionLanguageTexts {
     gender: string;
     male: string;
     female: string;
-    other: string;
     medicalRecordNumber: string;
     phoneNumber: string;
     allergies: string;
@@ -168,7 +167,6 @@ export interface SessionLanguageTexts {
     gender: string;
     male: string;
     female: string;
-    other: string;
     medicalRecordNumber: string;
     phoneNumber: string;
     allergies: string;
@@ -240,4 +238,4 @@ export interface SessionLanguageTexts {
 export type SessionStatus = 'active' | 'completed' | 'paused';
 export type NoteType = 'observation' | 'diagnosis' | 'plan' | 'general';
 export type NotePriority = 'low' | 'medium' | 'high';
-export type Gender = 'male' | 'female' | 'other';
+export type Gender = 'male' | 'female';

@@ -30,7 +30,6 @@ export interface Translations {
     gender: string;
     male: string;
     female: string;
-    other: string;
     medicalRecordNumber: string;
     medicalRecordNumberPlaceholder: string;
     phoneNumber: string;
@@ -257,7 +256,7 @@ export const translations: Record<Language, Translations> = {
         language: 'Language',
 
         // Hero Section
-        heroTitle: 'Convert Medical Voices to Professional Reports Using Artificial Intelligence',
+        heroTitle: 'Convert Medical Voices to Professional Reports Using AI',
         heroSubtitle: 'Advanced AI-powered medical transcription and note generation',
 
         // Features
@@ -282,7 +281,6 @@ export const translations: Record<Language, Translations> = {
         gender: 'Gender',
         male: 'Male',
         female: 'Female',
-        other: 'Other',
         medicalRecordNumber: 'Medical Record Number',
         medicalRecordNumberPlaceholder: 'Enter medical record number',
         phoneNumber: 'Phone Number',
@@ -544,7 +542,6 @@ export const translations: Record<Language, Translations> = {
         gender: 'الجنس',
         male: 'ذكر',
         female: 'أنثى',
-        other: 'آخر',
         medicalRecordNumber: 'رقم السجل الطبي',
         medicalRecordNumberPlaceholder: 'أدخل رقم السجل الطبي',
         phoneNumber: 'رقم الهاتف',

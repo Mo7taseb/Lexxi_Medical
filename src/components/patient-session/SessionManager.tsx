@@ -76,7 +76,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
     const patientInfo = {
       name: formData.name.trim(),
       age: formData.age ? Number(formData.age) : undefined,
-      gender: formData.gender as 'male' | 'female' | 'other' | undefined,
+      gender: formData.gender as 'male' | 'female' | undefined,
       medicalRecordNumber: formData.medicalRecordNumber.trim() || undefined,
       phoneNumber: formData.phoneNumber.trim() || undefined,
       allergies: formData.allergies.trim() ? formData.allergies.split(',').map(a => a.trim()) : [],
@@ -364,7 +364,6 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                   <option value="">{language === 'ar' ? 'اختر الجنس' : 'Select gender'}</option>
                   <option value="male">{t('male')}</option>
                   <option value="female">{t('female')}</option>
-                  <option value="other">{t('other')}</option>
                 </select>
               </div>
 
