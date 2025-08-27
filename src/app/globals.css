@@ -340,6 +340,31 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
 }
 
+/* Font weight management for different languages */
+[dir="ltr"] .medical-note-content,
+[dir="ltr"] .medical-section-content {
+  font-weight: 400 !important;
+}
+
+[dir="ltr"] .medical-note-content strong,
+[dir="ltr"] .medical-section-content strong {
+  font-weight: 600 !important;
+}
+
+[dir="ltr"] .medical-note-content h1,
+[dir="ltr"] .medical-note-content h2,
+[dir="ltr"] .medical-note-content h3,
+[dir="ltr"] .medical-section-header .section-title {
+  font-weight: 600 !important;
+}
+
+/* Ensure normal text weight for medical content in English */
+.medical-note-content[dir="ltr"] p,
+.medical-note-content[dir="ltr"] div,
+.medical-note-content[dir="ltr"] span:not(strong):not(em):not(.medical-header) {
+  font-weight: 400 !important;
+}
+
 /* Arabic-specific improvements */
 [dir="rtl"] .session-card {
   text-align: right;

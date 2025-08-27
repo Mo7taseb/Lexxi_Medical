@@ -130,7 +130,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
     <div className="max-w-4xl mx-auto" dir={direction}>
       {/* Header */}
       <div className={`text-center mb-8 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-        <h2 className={`text-3xl font-bold text-gray-800 mb-4 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
+        <h2 className={`text-3xl font-semibold text-gray-800 mb-4 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
           {t('newSession')}
         </h2>
         <p className={`text-gray-600 text-lg leading-relaxed ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
@@ -150,7 +150,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                 <CheckCircle className="h-6 w-6 text-green-700" />
               </div>
               <div className={language === 'ar' ? 'text-right' : 'text-left'}>
-                <h3 className={`text-lg font-bold text-green-800 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
+                <h3 className={`text-lg font-semibold text-green-800 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                   {language === 'ar' ? 'جلسة نشطة' : 'Active Session'}
                 </h3>
                 <p className={`text-green-700 text-sm font-medium ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
@@ -182,8 +182,8 @@ const SessionManager: React.FC<SessionManagerProps> = ({
       {getRecentSessions().length > 0 && (
         <div className="mb-8" dir={language === 'ar' ? 'rtl' : 'ltr'}>
           <div className={`flex items-center justify-between mb-4 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-            <h3 className={`text-xl font-bold text-gray-800 ${language === 'ar' ? 'font-cairo text-right' : 'font-inter text-left'}`}>
-              {t('recentSessions')} <span className="text-blue-600 font-semibold">({getRecentSessions().length})</span>
+            <h3 className={`text-xl font-semibold text-gray-800 ${language === 'ar' ? 'font-cairo text-right' : 'font-inter text-left'}`}>
+              {t('recentSessions')} <span className="text-blue-600 font-medium">({getRecentSessions().length})</span>
             </h3>
             <button
               type="button"
@@ -219,7 +219,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                         <User className={`h-6 w-6 ${session.status === 'active' ? 'text-green-700' : 'text-blue-700'}`} />
                       </div>
                       <div className={`min-w-0 flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                        <h4 className={`font-bold text-gray-900 text-base sm:text-lg mb-2 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
+                        <h4 className={`font-semibold text-gray-900 text-base sm:text-lg mb-2 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                           {session.patientInfo.name || (language === 'ar' ? 'بدون اسم' : 'Unnamed')}
                         </h4>
                         <p className={`text-sm sm:text-base text-gray-600 line-clamp-2 mb-3 leading-relaxed ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>

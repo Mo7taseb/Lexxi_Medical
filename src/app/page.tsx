@@ -375,9 +375,9 @@ function MainApp() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
                 {/* Session Summary */}
-                <div className="lg:col-span-1 order-2 lg:order-1">
+                <div className="lg:col-span-2 order-2 lg:order-1">
                   <SessionSummary
                     session={currentSession}
                     language={language}

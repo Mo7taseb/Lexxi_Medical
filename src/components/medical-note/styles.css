@@ -37,8 +37,10 @@
 
 .medical-section-content {
     line-height: 1.6;
-    font-size: 25px;
+    font-size: 16px;
     letter-spacing: 0.2px;
+    font-weight: 400;
+    color: #374151;
 }
 
 /* Removed redundant LTR rules since they're already covered above */
@@ -55,7 +57,7 @@
 
 .medical-section-header .section-title {
     font-weight: 600;
-    font-size: 22px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -80,6 +82,24 @@
 .medical-section-content em {
     font-style: italic;
     color: #64748b;
+}
+
+/* Ensure normal text weight for medical content */
+.medical-section-content p,
+.medical-section-content div,
+.medical-section-content span:not(.section-title):not(strong):not(em) {
+    font-weight: 400 !important;
+}
+
+/* Medical note text content should be normal weight */
+.medical-note-content {
+    font-weight: 400 !important;
+}
+
+.medical-note-content p,
+.medical-note-content div,
+.medical-note-content span:not(strong):not(em):not(.medical-header) {
+    font-weight: 400 !important;
 }
 
 /* Investigation subsection headers styling */

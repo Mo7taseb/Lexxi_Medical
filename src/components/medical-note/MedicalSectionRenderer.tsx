@@ -141,12 +141,13 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                         <div
                             className={isInlineEditing ? 'rounded-xl p-4 border-2 border-transparent' : 'p-2'}
                             style={{
-                                color: '#1f2937',
-                                lineHeight: '1.8',
+                                color: '#374151',
+                                lineHeight: '1.7',
                                 textAlign: 'left',
                                 direction: 'ltr',
                                 fontSize: '16px',
-                                fontWeight: '400'
+                                fontWeight: '400',
+                                fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
                             }}
                             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                         />
