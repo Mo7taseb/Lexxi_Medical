@@ -470,3 +470,83 @@ body {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+/* Hero Section Cool Animations */
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+@keyframes float-medium {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(-180deg);
+  }
+}
+
+@keyframes float-fast {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-25px) rotate(360deg);
+  }
+}
+
+@keyframes gradient-x {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 8s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float-fast 4s ease-in-out infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 3s ease infinite;
+}
+
+/* Feature Badge Hover Effects */
+.feature-badge {
+  @apply flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer;
+}
+
+.feature-badge:hover {
+  @apply bg-white/50 backdrop-blur-sm shadow-lg transform scale-105;
+}
+
+/* Enhanced Button Glow Effects */
+.group:hover .group-hover\:shadow-blue-500\/50 {
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+}

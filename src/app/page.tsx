@@ -245,33 +245,61 @@ function MainApp() {
       </div>
 
       <div className="relative container mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-6xl">
-        {/* Hero Section - Mobile Optimized */}
-        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2 leading-tight" style={{ color: '#0f3143' }}>
-              {t('heroTitle')}
+        {/* Hero Section - Enhanced with Cool Animations */}
+        <div className="text-center mb-8 sm:mb-10 lg:mb-12 relative overflow-hidden">
+          {/* Floating Background Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200/20 rounded-full blur-xl animate-float-slow"></div>
+            <div className="absolute top-20 right-20 w-16 h-16 bg-blue-300/20 rounded-full blur-xl animate-float-medium"></div>
+            <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-blue-100/30 rounded-full blur-xl animate-float-fast"></div>
+            <div className="absolute bottom-10 right-1/4 w-12 h-12 bg-blue-400/20 rounded-full blur-xl animate-float-slow"></div>
+          </div>
+
+          <div className="mb-6 sm:mb-8 relative z-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2 leading-tight relative group">
+              {/* Gradient Text Effect */}
+              <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent animate-gradient-x">
+                {t('heroTitle')}
+              </span>
+
+              {/* Glowing Underline Effect */}
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-700 group-hover:w-full group-hover:shadow-lg group-hover:shadow-blue-500/50"></div>
+
+              {/* Floating Particles */}
+              <div className="absolute -top-4 -right-4 w-3 h-3 bg-blue-400 rounded-full animate-ping opacity-75"></div>
+              <div className="absolute -bottom-4 -left-4 w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
             </h2>
           </div>
 
-          {/* Features badges - Mobile responsive */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-8 text-xs sm:text-sm text-gray-500 px-2">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>{t('arabicSupport')}</span>
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#85cef7' }}></div>
+          {/* Enhanced Features badges with hover effects */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-8 text-xs sm:text-sm px-2 relative z-10">
+            <div className="feature-badge group">
+              <span className="text-gray-600 group-hover:text-blue-600 transition-colors duration-300 font-medium">
+                {t('arabicSupport')}
+              </span>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-400 group-hover:bg-blue-500 group-hover:scale-125 transition-all duration-300 animate-pulse"></div>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>{t('seheCompliant')}</span>
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#6f91c7ff' }}></div>
+            <div className="feature-badge group">
+              <span className="text-gray-600 group-hover:text-indigo-600 transition-colors duration-300 font-medium">
+                {t('seheCompliant')}
+              </span>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-indigo-400 group-hover:bg-indigo-500 group-hover:scale-125 transition-all duration-300 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>{t('pdplCompliant')}</span>
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#4f78b9ff' }}></div>
+            <div className="feature-badge group">
+              <span className="text-gray-600 group-hover:text-purple-600 transition-colors duration-300 font-medium">
+                {t('pdplCompliant')}
+              </span>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-400 group-hover:bg-purple-500 group-hover:scale-125 transition-all duration-300 animate-pulse" style={{ animationDelay: '1s' }}></div>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span>{t('aiTranscription')}</span>
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: '#0c4a74ff' }}></div>
+            <div className="feature-badge group">
+              <span className="text-gray-600 group-hover:text-cyan-600 transition-colors duration-300 font-medium">
+                {t('aiTranscription')}
+              </span>
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400 group-hover:bg-cyan-500 group-hover:scale-125 transition-all duration-300 animate-pulse" style={{ animationDelay: '1.5s' }}></div>
             </div>
           </div>
+
+
         </div>
 
         {/* Progress Steps - Enhanced Mobile Design */}
