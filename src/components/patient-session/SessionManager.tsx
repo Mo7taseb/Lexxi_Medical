@@ -129,11 +129,11 @@ const SessionManager: React.FC<SessionManagerProps> = ({
   return (
     <div className="max-w-4xl mx-auto" dir={direction}>
       {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+      <div className={`text-center mb-8 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <h2 className={`text-3xl font-bold text-gray-800 mb-4 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
           {t('newSession')}
         </h2>
-        <p className="text-gray-600 text-lg leading-relaxed">
+        <p className={`text-gray-600 text-lg leading-relaxed ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
           {language === 'ar'
             ? 'ابدأ جلسة جديدة مع المريض أو تابع جلسة سابقة'
             : 'Start a new patient session or continue a previous one'
@@ -143,36 +143,36 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
       {/* Current Session Status */}
       {currentSession && (
-        <div className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+        <div className={`mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+          <div className={`flex items-center justify-between mb-4 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center shadow-sm">
+                <CheckCircle className="h-6 w-6 text-green-700" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-green-800">
+              <div className={language === 'ar' ? 'text-right' : 'text-left'}>
+                <h3 className={`text-lg font-bold text-green-800 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                   {language === 'ar' ? 'جلسة نشطة' : 'Active Session'}
                 </h3>
-                <p className="text-green-600 text-sm">
+                <p className={`text-green-700 text-sm font-medium ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                   {currentSession.patientInfo.name}
                 </p>
               </div>
             </div>
             <button
               onClick={handleContinueSession}
-              className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+              className={`bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl ${language === 'ar' ? 'flex-row-reverse' : ''}`}
             >
               {t('continueToRecording')}
               <CheckCircle className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="text-sm text-green-700">
-            <span className="font-medium">{t('chiefComplaint')}:</span> {currentSession.patientInfo.chiefComplaint}
+          <div className={`text-sm text-green-700 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
+            <span className="font-bold">{t('chiefComplaint')}:</span> {currentSession.patientInfo.chiefComplaint}
           </div>
           {currentSession.notes.length > 0 && (
-            <div className="text-sm text-green-700 mt-1">
-              <span className="font-medium">{t('notesCount')}:</span> {currentSession.notes.length}
+            <div className={`text-sm text-green-700 mt-2 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
+              <span className="font-bold">{t('notesCount')}:</span> {currentSession.notes.length}
             </div>
           )}
         </div>
@@ -180,15 +180,15 @@ const SessionManager: React.FC<SessionManagerProps> = ({
 
       {/* All Sessions List */}
       {getRecentSessions().length > 0 && (
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-gray-800">
-              {t('recentSessions')} <span className="text-gray-500 text-base">({getRecentSessions().length})</span>
+        <div className="mb-8" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+          <div className={`flex items-center justify-between mb-4 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+            <h3 className={`text-xl font-bold text-gray-800 ${language === 'ar' ? 'font-cairo text-right' : 'font-inter text-left'}`}>
+              {t('recentSessions')} <span className="text-blue-600 font-semibold">({getRecentSessions().length})</span>
             </h3>
             <button
               type="button"
               onClick={() => setSessionsExpanded(prev => !prev)}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+              className={`px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-blue-300 transition-all duration-200 flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : ''}`}
               aria-expanded={sessionsExpanded}
             >
               {sessionsExpanded ? (
@@ -206,41 +206,41 @@ const SessionManager: React.FC<SessionManagerProps> = ({
           </div>
 
           {sessionsExpanded && (
-            <div className="grid gap-4">
+            <div className="grid gap-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
               {getRecentSessions().map((session) => (
                 <div
                   key={session.id}
-                  className={`bg-white border rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer ${session.id === currentSession?.id ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'}`}
+                  className={`bg-white border rounded-xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group ${session.id === currentSession?.id ? 'border-blue-400 ring-2 ring-blue-200 shadow-lg' : 'border-gray-200 hover:border-blue-300'}`}
                   onClick={() => onSessionReady(session)}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${session.status === 'active' ? 'bg-green-100' : 'bg-blue-100'}`}>
-                        <User className={`h-6 w-6 ${session.status === 'active' ? 'text-green-600' : 'text-blue-600'}`} />
+                  <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 ${language === 'ar' ? 'sm:flex-row-reverse' : ''}`}>
+                    <div className={`flex items-start gap-3 min-w-0 flex-1 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${session.status === 'active' ? 'bg-gradient-to-br from-green-100 to-green-200' : 'bg-gradient-to-br from-blue-100 to-blue-200'}`}>
+                        <User className={`h-6 w-6 ${session.status === 'active' ? 'text-green-700' : 'text-blue-700'}`} />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">
+                      <div className={`min-w-0 flex-1 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                        <h4 className={`font-bold text-gray-900 text-base sm:text-lg mb-2 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                           {session.patientInfo.name || (language === 'ar' ? 'بدون اسم' : 'Unnamed')}
                         </h4>
-                        <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-2">
+                        <p className={`text-sm sm:text-base text-gray-600 line-clamp-2 mb-3 leading-relaxed ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                           {session.patientInfo.chiefComplaint || (language === 'ar' ? 'لا توجد شكوى مسجلة' : 'No complaint recorded')}
                         </p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`px-2 py-0.5 rounded-full border text-xs ${session.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                        <div className={`flex items-center gap-2 flex-wrap ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                          <span className={`px-3 py-1 rounded-full border text-xs font-medium ${session.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
                             {session.status === 'active' ? (language === 'ar' ? 'نشطة' : 'Active') : (language === 'ar' ? 'متوقفة مؤقتًا' : 'Paused')}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className={`text-xs text-gray-500 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                             {new Date(session.lastAccessedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
                               year: 'numeric',
-                              month: 'short',
+                              month: language === 'ar' ? 'long' : 'short',
                               day: 'numeric'
                             })}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 flex-shrink-0">
-                      <div className="text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                    <div className={`flex items-center gap-2 sm:gap-3 flex-shrink-0 ${language === 'ar' ? 'justify-start sm:justify-start' : 'justify-end sm:justify-end'}`}>
+                      <div className={`text-xs sm:text-sm font-semibold text-blue-700 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-1.5 rounded-full border border-blue-200 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                         {session.notes.length} {language === 'ar' ? 'ملاحظة' : 'notes'}
                       </div>
                       <button
@@ -252,8 +252,8 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                             deleteSession(session.id);
                           }
                         }}
-                        className="p-1.5 sm:p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
-                        title={t('deleteSession')}
+                        className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 group-hover:scale-105"
+                        title={language === 'ar' ? 'حذف الجلسة' : 'Delete Session'}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

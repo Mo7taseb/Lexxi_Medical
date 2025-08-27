@@ -331,6 +331,32 @@ body {
   direction: rtl;
 }
 
+/* Font family utility classes */
+.font-cairo {
+  font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+}
+
+.font-inter {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Arabic-specific improvements */
+[dir="rtl"] .session-card {
+  text-align: right;
+}
+
+[dir="rtl"] .session-card .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .session-card .justify-end {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .session-card .justify-start {
+  justify-content: flex-end;
+}
+
 /* Custom scrollbar for better visibility */
 ::-webkit-scrollbar {
   width: 12px;

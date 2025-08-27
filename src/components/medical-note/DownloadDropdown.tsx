@@ -42,21 +42,21 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
     };
 
     return (
-        <div className="relative w-full" ref={dropdownRef}>
+        <div className="relative" ref={dropdownRef}>
             {/* Main Download Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-purple-600 text-white px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px] relative"
+                className="bg-purple-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px]"
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
-                <Download className="h-4 w-4 md:h-4 md:w-4" />
-                <span className="truncate">Download as</span>
+                <Download className="h-4 w-4" />
+                <span>Download as</span>
             </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden min-w-[200px]">
                     <button
                         onClick={handleDownloadTxt}
                         className="w-full px-4 py-4 md:py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700 min-h-[48px] md:min-h-auto"

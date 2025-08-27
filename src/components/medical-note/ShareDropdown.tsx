@@ -105,21 +105,21 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
     };
 
     return (
-        <div className={`relative w-full ${className}`} ref={dropdownRef}>
+        <div className={`relative ${className}`} ref={dropdownRef}>
             {/* Share Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-green-600 text-white px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px]"
+                className="bg-green-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px]"
             >
-                <Share2 className="h-4 w-4 md:h-4 md:w-4" />
-                <span className="truncate">
+                <Share2 className="h-4 w-4" />
+                <span>
                     {isEnglish ? 'Share' : 'مشاركة'}
                 </span>
             </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className={`absolute top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-50 ${isEnglish ? 'left-0' : 'right-0'
+                <div className={`absolute top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[280px] ${isEnglish ? 'left-0' : 'right-0'
                     }`}>
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-100">

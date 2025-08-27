@@ -209,7 +209,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   // Inline editing is always enabled - removed toggle function
 
   return (
-    <div id="medical-note-viewer" className="max-w-5xl mx-auto" dir="ltr">
+    <div id="medical-note-viewer" className="max-w-5xl mx-auto px-2 sm:px-4" dir="ltr">
       {/* Header Section */}
       <div className="text-center mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-left px-2">
@@ -274,7 +274,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
       {/* Generated Note Display */}
       {generatedNote && !isProcessing && (
-        <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 overflow-hidden">
           {/* Missing Info Assist - Only show after note is generated */}
           <MissingInfoAssist
             transcript={transcript}
@@ -286,33 +286,33 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
           />
 
           {/* Header with actions */}
-          <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2 flex-row">
-              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
-              <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
+          <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                 {translations[currentLanguage].noteTypeNames[noteType] || noteType} - {t('reportGenerated')}
               </h3>
             </div>
 
             {/* Action buttons */}
-            <div className="grid grid-cols-2 gap-3 md:flex md:flex-row md:gap-2">
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
               {!isEditing && (
                 <button
                   onClick={handleEdit}
-                  className="bg-gray-600 text-white px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px] w-full md:w-auto"
+                  className="bg-gray-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px]"
                 >
-                  <Edit3 className="h-4 w-4 md:h-4 md:w-4" />
-                  <span className="truncate">{t('edit')}</span>
+                  <Edit3 className="h-4 w-4" />
+                  <span>{t('edit')}</span>
                 </button>
               )}
 
               <button
                 onClick={handleCopy}
-                className={`px-4 py-3 md:px-4 md:py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm md:text-base min-h-[48px] md:min-h-[40px] w-full md:w-auto ${copySuccess ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+                className={`px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px] ${copySuccess ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
               >
-                <Copy className="h-4 w-4 md:h-4 md:w-4" />
-                <span className="truncate">{copySuccess ? t('copied') : t('copy')}</span>
+                <Copy className="h-4 w-4" />
+                <span>{copySuccess ? t('copied') : t('copy')}</span>
               </button>
 
               <DownloadDropdown
