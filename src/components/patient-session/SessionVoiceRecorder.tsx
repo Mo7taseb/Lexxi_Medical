@@ -282,10 +282,10 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
     };
 
     return (
-        <div className="max-w-7xl mx-auto overflow-x-hidden" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Main Recording Interface */}
-                <div className="lg:col-span-8">
+                <div className="lg:col-span-7">
                     {/* Compact header: keep patient badge and cloud info; remove duplicate page title */}
                     <div className="mb-4 sm:mb-6">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -654,7 +654,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                 </div>
 
                 {/* Side Panel */}
-                <div className="lg:col-span-4 space-y-6 overflow-x-hidden">
+                <div className="lg:col-span-5 space-y-6">
                     {/* Session Summary Toggle */}
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800">

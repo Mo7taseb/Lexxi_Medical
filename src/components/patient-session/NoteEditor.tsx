@@ -213,9 +213,9 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   ];
 
   return (
-    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 sm:p-6 border border-gray-200 overflow-x-hidden ${className}`}>
+    <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 sm:p-6 border border-gray-200 ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h3 className={`text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3 flex-shrink-0 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
           <Edit className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 flex-shrink-0" />
           <span className="whitespace-nowrap min-w-0">{t.sessionNotes}</span>
@@ -223,10 +223,10 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         {!isAddingNote && !editingNoteId && (
           <button
             onClick={() => setIsAddingNote(true)}
-            className="bg-blue-600 text-white px-4 sm:px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm flex-shrink-0"
+            className="bg-blue-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm flex-shrink-0 min-w-[120px] sm:min-w-[140px] max-w-full text-center break-words"
           >
-            <Plus className="h-4 w-4" />
-            <span className="whitespace-nowrap">{t.addNote}</span>
+            <Plus className="h-4 w-4 flex-shrink-0" />
+            <span className="whitespace-nowrap text-sm sm:text-base">{t.addNote}</span>
           </button>
         )}
       </div>
