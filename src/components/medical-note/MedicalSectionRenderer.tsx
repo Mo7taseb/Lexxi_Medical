@@ -71,7 +71,7 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                 } ${isEditingThis ? 'ring-2 ring-blue-500 shadow-lg' : ''} relative`}
             onDoubleClick={handleDoubleClick}
             onClick={handleTapToEdit}
-            title={isInlineEditing && !isEditingThis ? 'Tap to edit this section' : ''}
+            title={isInlineEditing && !isEditingThis ? (language === 'ar' ? 'اضغط للتحرير' : 'Tap to edit this section') : ''}
         >
             {/* Section Header */}
             {section.title && (
@@ -104,7 +104,7 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 
                     {isInlineEditing && !isEditingThis && (
                         <div className="text-sm sm:text-sm text-blue-600 bg-blue-50 px-3 sm:px-3 py-2 sm:py-1.5 rounded-lg border border-blue-200 font-medium text-center min-w-[90px] flex items-center justify-center">
-                            <span className="whitespace-nowrap">Tap to edit</span>
+                            <span className="whitespace-nowrap">{language === 'ar' ? 'اضغط للتحرير' : 'Tap to edit'}</span>
                         </div>
                     )}
                 </div>

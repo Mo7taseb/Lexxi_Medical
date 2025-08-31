@@ -41,6 +41,9 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
         setIsOpen(false);
     };
 
+    // Determine language for button label
+    const lang = (typeof window !== 'undefined' && window.localStorage.getItem('language')) || 'en';
+    const isArabic = lang === 'ar';
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Main Download Button */}
@@ -51,7 +54,7 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
                 aria-haspopup="true"
             >
                 <Download className="h-4 w-4" />
-                <span>Download as</span>
+                <span>{isArabic ? 'تحميل كـ' : 'Download as'}</span>
             </button>
 
             {/* Dropdown Menu */}
@@ -64,7 +67,7 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
                         <FileText className="h-4 w-4 text-gray-500" />
                         <div className="flex flex-col">
                             <span className="text-gray-900">{downloadText}</span>
-                            <span className="text-xs text-gray-500">Plain text format (.txt)</span>
+                            <span className="text-xs text-gray-500">{isArabic ? 'نص عادي (.txt)' : 'Plain text format (.txt)'}</span>
                         </div>
                     </button>
 
@@ -77,7 +80,7 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
                         <FileDown className="h-4 w-4 text-indigo-500" />
                         <div className="flex flex-col">
                             <span className="text-gray-900">{downloadDocxText}</span>
-                            <span className="text-xs text-gray-500">Microsoft Word format (.docx)</span>
+                            <span className="text-xs text-gray-500">{isArabic ? 'ملف وورد (.docx)' : 'Microsoft Word format (.docx)'}</span>
                         </div>
                     </button>
                 </div>

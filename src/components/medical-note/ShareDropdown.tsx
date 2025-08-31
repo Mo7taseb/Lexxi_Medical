@@ -112,14 +112,12 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
                 className="bg-green-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px]"
             >
                 <Share2 className="h-4 w-4" />
-                <span>
-                    {isEnglish ? 'Share' : 'مشاركة'}
-                </span>
+                <span>{t.share}</span>
             </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className={`absolute top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[280px] ${isEnglish ? 'left-0' : 'right-0'
+                <div className={`absolute top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px] ${isEnglish ? 'left-0' : 'right-0'
                     }`}>
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-100">
