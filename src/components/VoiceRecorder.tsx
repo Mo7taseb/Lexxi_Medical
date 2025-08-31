@@ -6,9 +6,11 @@ import { CloudinaryUploader } from '@/utils/cloudinaryUpload';
 
 interface VoiceRecorderProps {
     onComplete: (file: File, url: string) => void;
+    language?: 'ar' | 'en';
+    hideTitle?: boolean;
 }
 
-const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
+const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete, language = 'ar', hideTitle = false }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [audioURL, setAudioURL] = useState<string | null>(null);
@@ -83,7 +85,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
             }, 1000);
 
         } catch (err) {
-            setError('لا يمكن الوصول للميكروفون. يرجى التأكد من إذن الوصول للميكروفون.');
+            setError(language === 'ar'
+                ? 'لا يمكن الوصول للميكروفون. يرجى التأكد من إذن الوصول للميكروفون.'
+                : 'Cannot access microphone. Please ensure microphone permissions are granted.'
+            );
             console.error('Error accessing microphone:', err);
         }
     };
@@ -135,7 +140,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
             // Check file type first
             const supportedTypes = ['audio/webm', 'audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/m4a', 'audio/ogg'];
             if (!supportedTypes.some(type => file.type.includes(type.split('/')[1]))) {
-                setError(`نوع الملف غير مدعوم (${file.type}). الأنواع المدعومة: MP3, WAV, M4A, WebM, OGG`);
+                setError(language === 'ar'
+                    ? `نوع الملف غير مدعوم (${file.type}). الأنواع المدعومة: MP3, WAV, M4A, WebM, OGG`
+                    : `Unsupported file type (${file.type}). Supported types: MP3, WAV, M4A, WebM, OGG`
+                );
                 event.target.value = '';
                 return;
             }
@@ -144,7 +152,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
             const maxCloudinarySize = 100 * 1024 * 1024; // 100MB
 
             if (file.size > maxCloudinarySize) {
-                setError(`حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى لـ Cloudinary هو 100 MB. يرجى استخدام ملف أصغر.`);
+                setError(language === 'ar'
+                    ? `حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} MB). الحد الأقصى لـ Cloudinary هو 100 MB. يرجى استخدام ملف أصغر.`
+                    : `File size too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Cloudinary limit is 100 MB. Please use a smaller file.`
+                );
                 event.target.value = '';
                 return;
             }
@@ -172,7 +183,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
 
             } catch (uploadError) {
                 console.error('Cloudinary upload failed:', uploadError);
-                setError(`فشل في رفع الملف إلى Cloudinary. يرجى التحقق من إعدادات Cloudinary والمحاولة مرة أخرى. الخطأ: ${uploadError}`);
+                setError(language === 'ar'
+                    ? `فشل في رفع الملف إلى Cloudinary. يرجى التحقق من إعدادات Cloudinary والمحاولة مرة أخرى. الخطأ: ${uploadError}`
+                    : `Failed to upload file to Cloudinary. Please check Cloudinary settings and try again. Error: ${uploadError}`
+                );
                 event.target.value = '';
             } finally {
                 setIsUploading(false);
@@ -200,7 +214,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                     onComplete(audioFile, uploadResult.secure_url);
                 } catch (uploadError) {
                     console.error('Failed to upload recording to Cloudinary:', uploadError);
-                    setError(`فشل في رفع التسجيل إلى Cloudinary: ${uploadError}`);
+                    setError(language === 'ar'
+                        ? `فشل في رفع التسجيل إلى Cloudinary: ${uploadError}`
+                        : `Failed to upload recording to Cloudinary: ${uploadError}`
+                    );
                 } finally {
                     setIsUploading(false);
                 }
@@ -219,20 +236,29 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-6 sm:mb-8">
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 sm:mb-3">
-                    تسجيل الصوت
-                </h2>
-                <p className="text-gray-600 text-sm sm:text-base px-2">سجل المحادثة الطبية أو ارفع ملف صوتي موجود</p>
+            {!hideTitle && (
+                <div className="text-center mb-6 sm:mb-8">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 sm:mb-3">
+                        {language === 'ar' ? 'تسجيل الصوت' : 'Voice Recording'}
+                    </h2>
+                    <p className="text-gray-600 text-sm sm:text-base px-2">
+                        {language === 'ar' ? 'سجل المحادثة الطبية أو ارفع ملف صوتي موجود' : 'Record the medical conversation or upload an existing audio file'}
+                    </p>
 
-                {/* Cloudinary indicator */}
-                <div className="mt-3 sm:mt-4">
-                    <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
-                        <span className="text-blue-600 text-xs font-medium">☁️ Cloudinary Upload</span>
-                        <span className="text-blue-500 text-xs">الحد الأقصى: 100 MB • رفع سحابي لجميع الملفات</span>
+                    {/* Cloudinary indicator */}
+                    <div className="mt-3 sm:mt-4">
+                        <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                            <span className="text-blue-600 text-xs font-medium">☁️ Cloudinary Upload</span>
+                            <span className="text-blue-500 text-xs">
+                                {language === 'ar'
+                                    ? 'الحد الأقصى: 100 MB • رفع سحابي لجميع الملفات'
+                                    : 'Max: 100 MB • Cloud upload for all files'
+                                }
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {error && (
                 <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl sm:rounded-2xl">
@@ -298,7 +324,13 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                         ? (isPaused ? 'text-yellow-600' : 'text-red-600')
                         : 'text-gray-600'
                         }`}>
-                        {isRecording ? (isPaused ? '⏸️ متوقف مؤقتاً' : '🔴 جاري التسجيل...') : '🎤 اضغط لبدء التسجيل'}
+                        {isRecording
+                            ? (isPaused
+                                ? (language === 'ar' ? '⏸️ متوقف مؤقتاً' : '⏸️ Paused')
+                                : (language === 'ar' ? '🔴 جاري التسجيل...' : '🔴 Recording...')
+                            )
+                            : (language === 'ar' ? '🎤 اضغط لبدء التسجيل' : '🎤 Press to start recording')
+                        }
                     </div>
                 </div>
 
@@ -312,7 +344,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
                                 <Mic className="h-3 w-3 sm:h-4 sm:w-4" />
                             </div>
-                            ابدأ التسجيل
+                            {language === 'ar' ? 'ابدأ التسجيل' : 'Start Recording'}
                             <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </button>
                     )}
@@ -326,7 +358,12 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
                                     {isPaused ? <Play className="h-3 w-3 sm:h-4 sm:w-4" /> : <Pause className="h-3 w-3 sm:h-4 sm:w-4" />}
                                 </div>
-                                <span className="text-sm sm:text-base">{isPaused ? 'متابعة' : 'إيقاف مؤقت'}</span>
+                                <span className="text-sm sm:text-base">
+                                    {isPaused
+                                        ? (language === 'ar' ? 'متابعة' : 'Resume')
+                                        : (language === 'ar' ? 'إيقاف مؤقت' : 'Pause')
+                                    }
+                                </span>
                             </button>
 
                             <button
@@ -336,7 +373,9 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
                                     <Square className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </div>
-                                <span className="text-sm sm:text-base">إيقاف التسجيل</span>
+                                <span className="text-sm sm:text-base">
+                                    {language === 'ar' ? 'إيقاف التسجيل' : 'Stop Recording'}
+                                </span>
                             </button>
                         </>
                     )}
@@ -348,7 +387,9 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                         <div className="w-full border-t border-gray-300"></div>
                     </div>
                     <div className="relative flex justify-center text-xs sm:text-sm">
-                        <span className="px-3 sm:px-4 bg-gray-50 text-gray-500 font-medium">أو</span>
+                        <span className="px-3 sm:px-4 bg-gray-50 text-gray-500 font-medium">
+                            {language === 'ar' ? 'أو' : 'or'}
+                        </span>
                     </div>
                 </div>
 
@@ -361,7 +402,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
                             )}
                         </div>
-                        {isUploading ? 'جاري الرفع إلى Cloudinary...' : 'رفع ملف صوتي'}
+                        {isUploading
+                            ? (language === 'ar' ? 'جاري الرفع إلى Cloudinary...' : 'Uploading to Cloudinary...')
+                            : (language === 'ar' ? 'رفع ملف صوتي' : 'Upload Audio File')
+                        }
                         <input
                             type="file"
                             accept="audio/*"
@@ -382,7 +426,9 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 style={{ width: `${uploadProgress}%` }}
                             ></div>
                         </div>
-                        <p className="text-xs text-gray-600 mt-1 text-center">{uploadProgress}% مكتمل</p>
+                        <p className="text-xs text-gray-600 mt-1 text-center">
+                            {uploadProgress}% {language === 'ar' ? 'مكتمل' : 'completed'}
+                        </p>
                     </div>
                 )}
             </div>
@@ -396,13 +442,19 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 <Volume2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                             </div>
                             <div>
-                                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-green-800">معاينة التسجيل</h3>
-                                <p className="text-green-600 text-xs sm:text-sm">تم إنشاء التسجيل بنجاح</p>
+                                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-green-800">
+                                    {language === 'ar' ? 'معاينة التسجيل' : 'Recording Preview'}
+                                </h3>
+                                <p className="text-green-600 text-xs sm:text-sm">
+                                    {language === 'ar' ? 'تم إنشاء التسجيل بنجاح' : 'Recording created successfully'}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-1 sm:gap-2">
                             <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
-                            <span className="text-green-700 font-medium text-xs sm:text-sm">جاهز</span>
+                            <span className="text-green-700 font-medium text-xs sm:text-sm">
+                                {language === 'ar' ? 'جاهز' : 'Ready'}
+                            </span>
                         </div>
                     </div>
 
@@ -424,7 +476,10 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                     {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                                 </div>
-                                {isPlaying ? 'إيقاف' : 'تشغيل'}
+                                {isPlaying
+                                    ? (language === 'ar' ? 'إيقاف' : 'Pause')
+                                    : (language === 'ar' ? 'تشغيل' : 'Play')
+                                }
                             </button>
 
                             <button
@@ -437,7 +492,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                                 className="bg-gray-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all duration-300 flex items-center justify-center gap-2 w-full sm:w-auto"
                             >
                                 <Mic className="h-4 w-4" />
-                                إعادة التسجيل
+                                {language === 'ar' ? 'إعادة التسجيل' : 'Re-record'}
                             </button>
                         </div>
                     </div>
@@ -451,19 +506,19 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onComplete }) => {
                         onClick={handleComplete}
                         disabled={isUploading}
                         className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl transform w-full sm:w-auto ${isUploading
-                                ? 'bg-gray-400 text-white cursor-not-allowed'
-                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105'
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105'
                             }`}
                     >
                         <span className="flex items-center justify-center gap-3">
                             {isUploading ? (
                                 <>
-                                    جاري الرفع إلى Cloudinary...
+                                    {language === 'ar' ? 'جاري الرفع إلى Cloudinary...' : 'Uploading to Cloudinary...'}
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 </>
                             ) : (
                                 <>
-                                    متابعة إلى التفريغ
+                                    {language === 'ar' ? 'متابعة إلى التفريغ' : 'Continue to Transcription'}
                                     <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                         <FileText className="h-4 w-4" />
                                     </div>

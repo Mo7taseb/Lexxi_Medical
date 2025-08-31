@@ -17,7 +17,8 @@ import {
   AlertCircle,
   Trash2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Mic
 } from 'lucide-react';
 import { PatientFormData, SessionManagerProps } from './types';
 import { useSession } from './SessionContext';
@@ -26,7 +27,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const SessionManager: React.FC<SessionManagerProps> = ({
   onSessionReady,
   currentStep,
-  language
+  language,
+  onQuickRecord
 }) => {
   const { createNewSession, currentSession, sessions, deleteSession } = useSession();
   const [showForm, setShowForm] = useState(false);
@@ -266,9 +268,41 @@ const SessionManager: React.FC<SessionManagerProps> = ({
         </div>
       )}
 
-      {/* New Session Button */}
+      {/* Action Buttons */}
       {!showForm && (
-        <div className="text-center">
+        <div className="text-center space-y-4">
+          {/* Quick Record Button */}
+          {onQuickRecord && (
+            <div className="mb-4">
+              <button
+                onClick={onQuickRecord}
+                className="group relative bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+              >
+                <span className="flex items-center justify-center gap-3">
+                  <Mic className="h-6 w-6" />
+                  {language === 'ar' ? 'تسجيل سريع' : 'Quick Record'}
+                </span>
+                <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </button>
+              <p className="text-gray-600 text-sm mt-2">
+                {language === 'ar' ? 'تسجيل ملاحظة بدون إنشاء جلسة' : 'Record a note without creating a session'}
+              </p>
+            </div>
+          )}
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-3 bg-white text-gray-500 font-medium">
+                {language === 'ar' ? 'أو' : 'or'}
+              </span>
+            </div>
+          </div>
+
+          {/* New Session Button */}
           <button
             onClick={() => setShowForm(true)}
             className="group relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"

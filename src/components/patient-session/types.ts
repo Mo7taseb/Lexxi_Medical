@@ -67,6 +67,7 @@ export interface SessionManagerProps {
   onSessionReady: (session: PatientSession) => void;
   currentStep: number;
   language: 'ar' | 'en';
+  onQuickRecord?: () => void;
 }
 
 export interface NoteEditorProps {

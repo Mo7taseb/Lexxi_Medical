@@ -16,6 +16,7 @@ import {
   Pause,
   Square
 } from 'lucide-react';
+import VoiceRecorder from '@/components/VoiceRecorder';
 import { FastLoadingSpinner } from '@/components/LoadingOptimization';
 import Image from 'next/image';
 import '@/components/medical-note/styles.css';
@@ -147,6 +148,11 @@ function MainApp() {
   };
 
   const goToRecording = () => {
+    setCurrentStep(3);
+  };
+
+  const goToQuickRecording = () => {
+    // Skip session creation and go directly to recording
     setCurrentStep(3);
   };
 
@@ -372,6 +378,7 @@ function MainApp() {
                 onSessionReady={handleSessionReady}
                 currentStep={currentStep}
                 language={language}
+                onQuickRecord={goToQuickRecording}
               />
             </div>
           )}
@@ -413,7 +420,7 @@ function MainApp() {
           )}
 
           {/* Step 3: Voice Recording */}
-          {currentStep === 3 && currentSession && (
+          {currentStep === 3 && (
             <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-white/20">
               <div className="text-center mb-8">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
@@ -424,11 +431,19 @@ function MainApp() {
                 </p>
               </div>
 
-              <SessionVoiceRecorder
-                onComplete={handleAudioComplete}
-                session={currentSession}
-                language={language}
-              />
+              {currentSession ? (
+                <SessionVoiceRecorder
+                  onComplete={handleAudioComplete}
+                  session={currentSession}
+                  language={language}
+                />
+              ) : (
+                <VoiceRecorder
+                  onComplete={handleAudioComplete}
+                  language={language}
+                  hideTitle={true}
+                />
+              )}
             </div>
           )}
 
