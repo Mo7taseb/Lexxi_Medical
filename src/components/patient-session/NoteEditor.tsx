@@ -127,11 +127,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           // Calculate template card width + gap for precise scrolling
           // Template cards are min-w-[250px] max-w-[270px] with gap-5 (20px)
           const templateWidth = 270 + 20; // card width + gap
-          
+
           // Determine scroll direction and amount (one template per scroll)
           const scrollDirection = e.deltaY > 0 ? 1 : -1;
           const scrollAmount = templateWidth * scrollDirection;
-          
+
           container.scrollBy({
             left: scrollAmount,
             behavior: 'smooth'
@@ -618,15 +618,14 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 <div className={`absolute top-0 bottom-0 w-12 bg-gradient-to-r ${language === 'ar' ? 'right-0 from-transparent to-blue-50/80' : 'left-0 from-blue-50/80 to-transparent'} pointer-events-none z-10 transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-70'}`}></div>
                 {/* Right fade gradient */}
                 <div className={`absolute top-0 bottom-0 w-12 bg-gradient-to-r ${language === 'ar' ? 'left-0 from-blue-50/80 to-transparent' : 'right-0 from-transparent to-blue-50/80'} pointer-events-none z-10 transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-70'}`}></div>
-                
+
                 {/* Scroll progress indicator */}
                 <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex items-center gap-1 z-10">
                   {Array.from({ length: Math.min(5, Math.ceil(allTemplates.length / 3)) }).map((_, index) => (
                     <div
                       key={index}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                        index === 0 ? 'bg-blue-500' : 'bg-blue-200'
-                      }`}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${index === 0 ? 'bg-blue-500' : 'bg-blue-200'
+                        }`}
                     />
                   ))}
                 </div>
