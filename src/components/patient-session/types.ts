@@ -295,4 +295,6 @@ export interface TemplateManagerProps {
   language: 'ar' | 'en';
   onTemplateCreate?: (template: CustomTemplate) => void;
   onTemplateSelect?: (template: CustomTemplate) => void;
+  editingTemplate?: CustomTemplate | null;
+  onTemplateUpdate?: () => void;
 }

@@ -14,7 +14,10 @@ import {
   Tag,
   Lightbulb,
   Settings,
-  FileText
+  FileText,
+  Copy,
+  MoreVertical,
+  Edit3
 } from 'lucide-react';
 import { NoteEditorProps, SessionNote, NoteType, NotePriority, CustomTemplate } from './types';
 import { sessionLanguageTexts } from './constants';
@@ -42,73 +45,80 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   const [allTemplates, setAllTemplates] = useState<CustomTemplate[]>([]);
   const [showAllTemplates, setShowAllTemplates] = useState(false);
   const [isHoveringScroll, setIsHoveringScroll] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [copiedTemplateId, setCopiedTemplateId] = useState<string | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<CustomTemplate | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const t = sessionLanguageTexts[language];
 
+  // Unified template loading function
+  const loadAllTemplates = () => {
+    try {
+      // Default system templates
+      const defaultTemplates: CustomTemplate[] = [
+        {
+          id: 'sys-physical-exam',
+          title: language === 'ar' ? 'فحص سريري شامل' : 'Comprehensive Physical Examination',
+          content: language === 'ar'
+            ? 'الفحص السريري:\n\nالعلامات الحيوية:\n- ضغط الدم: \n- النبض: \n- درجة الحرارة: \n- التنفس: \n\nالفحص العام:\n- الحالة العامة: \n- التغذية: \n- الوعي: \n\nالفحص الموضعي:\n- الرأس والرقبة: \n- الصدر: \n- البطن: \n- الأطراف: '
+            : 'Physical Examination:\n\nVital Signs:\n- Blood pressure: \n- Pulse: \n- Temperature: \n- Respiratory rate: \n\nGeneral Examination:\n- General condition: \n- Nutrition: \n- Consciousness: \n\nLocal Examination:\n- Head and neck: \n- Chest: \n- Abdomen: \n- Extremities: ',
+          type: 'observation',
+          category: 'system',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          description: language === 'ar' ? 'قالب شامل للفحص السريري' : 'Comprehensive physical examination template',
+          tags: language === 'ar' ? ['فحص', 'سريري', 'عام'] : ['examination', 'physical', 'general'],
+          usageCount: 0
+        },
+        {
+          id: 'sys-treatment-plan',
+          title: language === 'ar' ? 'خطة العلاج المفصلة' : 'Detailed Treatment Plan',
+          content: language === 'ar'
+            ? 'خطة العلاج:\n\nالأدوية:\n- الدواء الأول: \n- الجرعة: \n- مدة العلاج: \n\nالتعليمات:\n- تعليمات عامة: \n- احتياطات: \n- نصائح غذائية: \n\nالمتابعة:\n- موعد المراجعة: \n- الفحوصات المطلوبة: \n- علامات التحذير: '
+            : 'Treatment Plan:\n\nMedications:\n- Primary medication: \n- Dosage: \n- Duration: \n\nInstructions:\n- General instructions: \n- Precautions: \n- Dietary advice: \n\nFollow-up:\n- Next appointment: \n- Required tests: \n- Warning signs: ',
+          type: 'plan',
+          category: 'system',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          description: language === 'ar' ? 'قالب مفصل لخطة العلاج' : 'Detailed treatment plan template',
+          tags: language === 'ar' ? ['علاج', 'خطة', 'أدوية'] : ['treatment', 'plan', 'medications'],
+          usageCount: 0
+        },
+        {
+          id: 'sys-diagnosis',
+          title: language === 'ar' ? 'التشخيص والتقييم' : 'Diagnosis and Assessment',
+          content: language === 'ar'
+            ? 'التشخيص والتقييم:\n\nالتشخيص الأولي:\n- التشخيص المحتمل: \n- درجة الثقة: \n\nالتشخيص التفريقي:\n1. \n2. \n3. \n\nالفحوصات المطلوبة:\n- فحوصات مخبرية: \n- تصوير طبي: \n- استشارات: \n\nالتقييم:\n- شدة الحالة: \n- المضاعفات المحتملة: \n- التوقعات: '
+            : 'Diagnosis and Assessment:\n\nPrimary Diagnosis:\n- Probable diagnosis: \n- Confidence level: \n\nDifferential Diagnosis:\n1. \n2. \n3. \n\nRequired Investigations:\n- Laboratory tests: \n- Imaging: \n- Consultations: \n\nAssessment:\n- Severity: \n- Potential complications: \n- Prognosis: ',
+          type: 'diagnosis',
+          category: 'system',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          description: language === 'ar' ? 'قالب للتشخيص والتقييم الطبي' : 'Medical diagnosis and assessment template',
+          tags: language === 'ar' ? ['تشخيص', 'تقييم', 'طبي'] : ['diagnosis', 'assessment', 'medical'],
+          usageCount: 0
+        }
+      ];
+
+      // Load custom templates
+      const savedTemplates = localStorage.getItem('lexxi-custom-templates');
+      const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
+
+      const allLoadedTemplates = [...defaultTemplates, ...customTemplates];
+      setAllTemplates(allLoadedTemplates);
+      return allLoadedTemplates;
+    } catch (error) {
+      console.error('Error loading templates:', error);
+      setAllTemplates([]);
+      return [];
+    }
+  };
+
   // Load all templates (system + custom)
   useEffect(() => {
-    const loadTemplates = () => {
-      try {
-        // Default system templates
-        const defaultTemplates: CustomTemplate[] = [
-          {
-            id: 'sys-physical-exam',
-            title: language === 'ar' ? 'فحص سريري شامل' : 'Comprehensive Physical Examination',
-            content: language === 'ar'
-              ? 'الفحص السريري:\n\nالعلامات الحيوية:\n- ضغط الدم: \n- النبض: \n- درجة الحرارة: \n- التنفس: \n\nالفحص العام:\n- الحالة العامة: \n- التغذية: \n- الوعي: \n\nالفحص الموضعي:\n- الرأس والرقبة: \n- الصدر: \n- البطن: \n- الأطراف: '
-              : 'Physical Examination:\n\nVital Signs:\n- Blood pressure: \n- Pulse: \n- Temperature: \n- Respiratory rate: \n\nGeneral Examination:\n- General condition: \n- Nutrition: \n- Consciousness: \n\nLocal Examination:\n- Head and neck: \n- Chest: \n- Abdomen: \n- Extremities: ',
-            type: 'observation',
-            category: 'system',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            description: language === 'ar' ? 'قالب شامل للفحص السريري' : 'Comprehensive physical examination template',
-            tags: language === 'ar' ? ['فحص', 'سريري', 'عام'] : ['examination', 'physical', 'general'],
-            usageCount: 0
-          },
-          {
-            id: 'sys-treatment-plan',
-            title: language === 'ar' ? 'خطة العلاج المفصلة' : 'Detailed Treatment Plan',
-            content: language === 'ar'
-              ? 'خطة العلاج:\n\nالأدوية:\n- الدواء الأول: \n- الجرعة: \n- مدة العلاج: \n\nالتعليمات:\n- تعليمات عامة: \n- احتياطات: \n- نصائح غذائية: \n\nالمتابعة:\n- موعد المراجعة: \n- الفحوصات المطلوبة: \n- علامات التحذير: '
-              : 'Treatment Plan:\n\nMedications:\n- Primary medication: \n- Dosage: \n- Duration: \n\nInstructions:\n- General instructions: \n- Precautions: \n- Dietary advice: \n\nFollow-up:\n- Next appointment: \n- Required tests: \n- Warning signs: ',
-            type: 'plan',
-            category: 'system',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            description: language === 'ar' ? 'قالب مفصل لخطة العلاج' : 'Detailed treatment plan template',
-            tags: language === 'ar' ? ['علاج', 'خطة', 'أدوية'] : ['treatment', 'plan', 'medications'],
-            usageCount: 0
-          },
-          {
-            id: 'sys-diagnosis',
-            title: language === 'ar' ? 'التشخيص والتقييم' : 'Diagnosis and Assessment',
-            content: language === 'ar'
-              ? 'التشخيص والتقييم:\n\nالتشخيص الأولي:\n- التشخيص المحتمل: \n- درجة الثقة: \n\nالتشخيص التفريقي:\n1. \n2. \n3. \n\nالفحوصات المطلوبة:\n- فحوصات مخبرية: \n- تصوير طبي: \n- استشارات: \n\nالتقييم:\n- شدة الحالة: \n- المضاعفات المحتملة: \n- التوقعات: '
-              : 'Diagnosis and Assessment:\n\nPrimary Diagnosis:\n- Probable diagnosis: \n- Confidence level: \n\nDifferential Diagnosis:\n1. \n2. \n3. \n\nRequired Investigations:\n- Laboratory tests: \n- Imaging: \n- Consultations: \n\nAssessment:\n- Severity: \n- Potential complications: \n- Prognosis: ',
-            type: 'diagnosis',
-            category: 'system',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            description: language === 'ar' ? 'قالب للتشخيص والتقييم الطبي' : 'Medical diagnosis and assessment template',
-            tags: language === 'ar' ? ['تشخيص', 'تقييم', 'طبي'] : ['diagnosis', 'assessment', 'medical'],
-            usageCount: 0
-          }
-        ];
-
-        // Load custom templates
-        const savedTemplates = localStorage.getItem('lexxi-custom-templates');
-        const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
-
-        setAllTemplates([...defaultTemplates, ...customTemplates]);
-      } catch (error) {
-        console.error('Error loading templates:', error);
-        setAllTemplates([]);
-      }
-    };
-
-    loadTemplates();
+    loadAllTemplates();
   }, [language]);
 
   // Add wheel event listener to prevent page scroll when over templates
@@ -148,65 +158,21 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
     };
   }, [showAllTemplates, isHoveringScroll]);
 
-  const handleTemplateRefresh = () => {
-    // Reload templates when template manager closes
-    const loadTemplates = () => {
-      try {
-        const defaultTemplates: CustomTemplate[] = [
-          {
-            id: 'sys-physical-exam',
-            title: language === 'ar' ? 'فحص سريري شامل' : 'Comprehensive Physical Examination',
-            content: language === 'ar'
-              ? 'الفحص السريري:\n\nالعلامات الحيوية:\n- ضغط الدم: \n- النبض: \n- درجة الحرارة: \n- التنفس: \n\nالفحص العام:\n- الحالة العامة: \n- التغذية: \n- الوعي: \n\nالفحص الموضعي:\n- الرأس والرقبة: \n- الصدر: \n- البطن: \n- الأطراف: '
-              : 'Physical Examination:\n\nVital Signs:\n- Blood pressure: \n- Pulse: \n- Temperature: \n- Respiratory rate: \n\nGeneral Examination:\n- General condition: \n- Nutrition: \n- Consciousness: \n\nLocal Examination:\n- Head and neck: \n- Chest: \n- Abdomen: \n- Extremities: ',
-            type: 'observation',
-            category: 'system',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            description: language === 'ar' ? 'قالب شامل للفحص السريري' : 'Comprehensive physical examination template',
-            tags: language === 'ar' ? ['فحص', 'سريري', 'عام'] : ['examination', 'physical', 'general'],
-            usageCount: 0
-          },
-          {
-            id: 'sys-treatment-plan',
-            title: language === 'ar' ? 'خطة العلاج المفصلة' : 'Detailed Treatment Plan',
-            content: language === 'ar'
-              ? 'خطة العلاج:\n\nالأدوية:\n- الدواء الأول: \n- الجرعة: \n- مدة العلاج: \n\nالتعليمات:\n- تعليمات عامة: \n- احتياطات: \n- نصائح غذائية: \n\nالمتابعة:\n- موعد المراجعة: \n- الفحوصات المطلوبة: \n- علامات التحذير: '
-              : 'Treatment Plan:\n\nMedications:\n- Primary medication: \n- Dosage: \n- Duration: \n\nInstructions:\n- General instructions: \n- Precautions: \n- Dietary advice: \n\nFollow-up:\n- Next appointment: \n- Required tests: \n- Warning signs: ',
-            type: 'plan',
-            category: 'system',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            description: language === 'ar' ? 'قالب مفصل لخطة العلاج' : 'Detailed treatment plan template',
-            tags: language === 'ar' ? ['علاج', 'خطة', 'أدوية'] : ['treatment', 'plan', 'medications'],
-            usageCount: 0
-          },
-          {
-            id: 'sys-diagnosis',
-            title: language === 'ar' ? 'التشخيص والتقييم' : 'Diagnosis and Assessment',
-            content: language === 'ar'
-              ? 'التشخيص والتقييم:\n\nالتشخيص الأولي:\n- التشخيص المحتمل: \n- درجة الثقة: \n\nالتشخيص التفريقي:\n1. \n2. \n3. \n\nالفحوصات المطلوبة:\n- فحوصات مخبرية: \n- تصوير طبي: \n- استشارات: \n\nالتقييم:\n- شدة الحالة: \n- المضاعفات المحتملة: \n- التوقعات: '
-              : 'Diagnosis and Assessment:\n\nPrimary Diagnosis:\n- Probable diagnosis: \n- Confidence level: \n\nDifferential Diagnosis:\n1. \n2. \n3. \n\nRequired Investigations:\n- Laboratory tests: \n- Imaging: \n- Consultations: \n\nAssessment:\n- Severity: \n- Potential complications: \n- Prognosis: ',
-            type: 'diagnosis',
-            category: 'system',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            description: language === 'ar' ? 'قالب للتشخيص والتقييم الطبي' : 'Medical diagnosis and assessment template',
-            tags: language === 'ar' ? ['تشخيص', 'تقييم', 'طبي'] : ['diagnosis', 'assessment', 'medical'],
-            usageCount: 0
-          }
-        ];
-
-        const savedTemplates = localStorage.getItem('lexxi-custom-templates');
-        const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
-
-        setAllTemplates([...defaultTemplates, ...customTemplates]);
-      } catch (error) {
-        console.error('Error loading templates:', error);
-      }
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveDropdown(null);
     };
 
-    loadTemplates();
+    if (activeDropdown) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [activeDropdown]);
+
+  const handleTemplateRefresh = () => {
+    loadAllTemplates();
+    setEditingTemplate(null);
   };
 
   // Scroll functions for desktop
@@ -336,6 +302,48 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       type: template.type
     }));
     setShowTemplateManager(false);
+  };
+
+  const handleCopyTemplate = async (template: CustomTemplate, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(template.content);
+      setCopiedTemplateId(template.id);
+      setTimeout(() => setCopiedTemplateId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy template:', error);
+    }
+  };
+
+  const handleEditTemplate = (template: CustomTemplate, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Open template manager with this template for editing
+    setEditingTemplate(template);
+    setShowTemplateManager(true);
+    setActiveDropdown(null);
+  };
+
+  const handleDeleteTemplate = (template: CustomTemplate, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا القالب؟' : 'Are you sure you want to delete this template?')) {
+      try {
+        const customTemplates = allTemplates.filter(t => t.category === 'custom' && t.id !== template.id);
+        localStorage.setItem('lexxi-custom-templates', JSON.stringify(customTemplates));
+        
+        // Reload all templates to sync state
+        loadAllTemplates();
+        setActiveDropdown(null);
+      } catch (error) {
+        console.error('Error deleting template:', error);
+      }
+    } else {
+      setActiveDropdown(null);
+    }
+  };
+
+  const toggleDropdown = (templateId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === templateId ? null : templateId);
   };
 
   const toggleNoteExpansion = (noteId: string) => {
@@ -526,13 +534,65 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                         {template.title}
                       </h5>
                     </div>
-                    <div className="flex flex-col gap-1 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap ${template.category === 'system'
                         ? 'bg-green-100 text-green-700'
                         : 'bg-blue-100 text-blue-700'
                         }`}>
                         {template.category === 'system' ? (language === 'ar' ? 'نظام' : 'System') : (language === 'ar' ? 'مخصص' : 'Custom')}
                       </span>
+                      
+                      {/* Action Menu for Custom Templates */}
+                      {template.category === 'custom' && (
+                        <div className="relative">
+                          <button
+                            onClick={(e) => toggleDropdown(template.id, e)}
+                            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/70 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                            title={language === 'ar' ? 'المزيد من الخيارات' : 'More options'}
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                          
+                          {/* Dropdown Menu */}
+                          {activeDropdown === template.id && (
+                            <div className={`absolute top-8 ${language === 'ar' ? 'left-0' : 'right-0'} bg-white border border-gray-200 rounded-lg shadow-xl z-30 py-1 min-w-[140px] animate-fadeIn backdrop-blur-sm bg-white/95`}>
+                              <button
+                                onClick={(e) => handleCopyTemplate(template, e)}
+                                className={`w-full px-3 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 flex items-center gap-2 hover:scale-101 ${language === 'ar' ? 'flex-row-reverse text-right' : 'text-left'}`}
+                              >
+                                {copiedTemplateId === template.id ? (
+                                  <>
+                                    <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    </div>
+                                    {language === 'ar' ? 'تم النسخ' : 'Copied'}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="h-4 w-4" />
+                                    {language === 'ar' ? 'نسخ المحتوى' : 'Copy content'}
+                                  </>
+                                )}
+                              </button>
+                              <button
+                                onClick={(e) => handleEditTemplate(template, e)}
+                                className={`w-full px-3 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 flex items-center gap-2 hover:scale-101 ${language === 'ar' ? 'flex-row-reverse text-right' : 'text-left'}`}
+                              >
+                                <Edit3 className="h-4 w-4" />
+                                {language === 'ar' ? 'تعديل القالب' : 'Edit template'}
+                              </button>
+                              <div className="border-t border-gray-100 my-1"></div>
+                              <button
+                                onClick={(e) => handleDeleteTemplate(template, e)}
+                                className={`w-full px-3 py-2 text-xs font-medium text-gray-700 hover:bg-red-50 hover:text-red-700 transition-all duration-200 flex items-center gap-2 hover:scale-101 ${language === 'ar' ? 'flex-row-reverse text-right' : 'text-left'}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                {language === 'ar' ? 'حذف القالب' : 'Delete template'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -572,19 +632,33 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
                   {/* Use Button */}
                   <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div className={`text-xs text-gray-500 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <div className={`text-xs text-gray-500 flex items-center gap-1 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                       {template.usageCount !== undefined && (
-                        <span>{template.usageCount} {language === 'ar' ? 'استخدام' : 'uses'}</span>
+                        <>
+                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                          <span>{template.usageCount} {language === 'ar' ? 'استخدام' : 'uses'}</span>
+                        </>
                       )}
                     </div>
-                    <div className={`bg-gradient-to-r ${template.category === 'system'
-                      ? 'from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                      : 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
-                      } text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 
-                    transform group-hover:scale-101 shadow-sm hover:shadow-md flex items-center gap-1 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <button 
+                      className={`bg-gradient-to-r ${template.category === 'system'
+                        ? 'from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                        : 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                        } text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 
+                      transform group-hover:scale-105 shadow-sm hover:shadow-md flex items-center gap-1.5 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}
+                      hover:shadow-lg active:scale-95`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setNewNote(prev => ({
+                          ...prev,
+                          content: template.content,
+                          type: template.type
+                        }));
+                      }}
+                    >
                       <FileText className="h-3 w-3" />
                       {language === 'ar' ? 'استخدم' : 'Use'}
-                    </div>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -890,6 +964,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         }}
         language={language}
         onTemplateSelect={handleTemplateSelect}
+        editingTemplate={editingTemplate}
+        onTemplateUpdate={handleTemplateRefresh}
       />
     </div>
   );
