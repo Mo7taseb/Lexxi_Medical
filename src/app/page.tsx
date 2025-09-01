@@ -195,14 +195,16 @@ function MainApp() {
 
                     {/* Logo container with glass effect */}
                     <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-2 sm:p-3 lg:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-105">
-                      <Image
-                        src="/logo.png"
-                        alt="Lexxi"
-                        width={100}
-                        height={16}
+                      <a href="/" aria-label="Home">
+                        <Image
+                          src="/logo.png"
+                          alt="Lexxi"
+                          width={100}
+                          height={16}
                         className="w-[100px] sm:w-[120px] lg:w-[140px] xl:w-[160px] object-contain transition-all duration-500 group-hover:scale-110"
                         priority
                       />
+                      </a>
                     </div>
                   </div>
                 </div>
