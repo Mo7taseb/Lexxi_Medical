@@ -125,8 +125,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           e.stopPropagation();
 
           // Calculate template card width + gap for precise scrolling
-          // Template cards are min-w-[240px] max-w-[260px] with gap-4 (16px)
-          const templateWidth = 260 + 16; // card width + gap
+          // Template cards are min-w-[250px] max-w-[270px] with gap-5 (20px)
+          const templateWidth = 270 + 20; // card width + gap
           
           // Determine scroll direction and amount (one template per scroll)
           const scrollDirection = e.deltaY > 0 ? 1 : -1;
@@ -213,7 +213,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
       // Template card width + gap for precise scrolling
-      const templateWidth = 260 + 16; // card width + gap
+      const templateWidth = 270 + 20; // card width + gap
       scrollContainerRef.current.scrollBy({ left: -templateWidth, behavior: 'smooth' });
     }
   };
@@ -221,7 +221,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   const scrollRight = () => {
     if (scrollContainerRef.current) {
       // Template card width + gap for precise scrolling
-      const templateWidth = 260 + 16; // card width + gap
+      const templateWidth = 270 + 20; // card width + gap
       scrollContainerRef.current.scrollBy({ left: templateWidth, behavior: 'smooth' });
     }
   };
@@ -458,31 +458,31 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           </div>
 
           {/* Templates Horizontal Scroll Container */}
-          <div className="relative px-1 py-2">
-            {/* Desktop Scroll Buttons */}
+          <div className="relative px-2 py-3">
+            {/* Desktop Scroll Buttons - More Prominent */}
             {!showAllTemplates && allTemplates.length > 4 && (
               <>
                 <button
                   onClick={scrollLeft}
-                  className={`absolute ${language === 'ar' ? 'right-2' : 'left-2'} top-1/2 transform -translate-y-1/2 z-20 
-                    bg-white/70 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-full p-2 shadow-sm hover:shadow-lg 
-                    transition-all duration-300 hover:scale-110 opacity-30 hover:opacity-100 hidden md:flex items-center justify-center
-                    backdrop-blur-sm`}
+                  className={`absolute ${language === 'ar' ? 'right-1' : 'left-1'} top-1/2 transform -translate-y-1/2 z-30 
+                    bg-white/90 hover:bg-white border border-gray-300 hover:border-blue-400 rounded-full p-2.5 shadow-md hover:shadow-xl 
+                    transition-all duration-300 hover:scale-110 opacity-60 hover:opacity-100 hidden md:flex items-center justify-center
+                    backdrop-blur-sm ring-2 ring-white/50`}
                   title={language === 'ar' ? 'السابق' : 'Previous'}
                 >
-                  <div className={`transform text-gray-600 hover:text-blue-600 transition-colors ${language === 'ar' ? 'rotate-180' : ''}`}>
+                  <div className={`transform text-gray-700 hover:text-blue-600 transition-colors text-sm font-bold ${language === 'ar' ? 'rotate-180' : ''}`}>
                     ◀
                   </div>
                 </button>
                 <button
                   onClick={scrollRight}
-                  className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 z-20 
-                    bg-white/70 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-full p-2 shadow-sm hover:shadow-lg 
-                    transition-all duration-300 hover:scale-110 opacity-30 hover:opacity-100 hidden md:flex items-center justify-center
-                    backdrop-blur-sm`}
+                  className={`absolute ${language === 'ar' ? 'left-1' : 'right-1'} top-1/2 transform -translate-y-1/2 z-30 
+                    bg-white/90 hover:bg-white border border-gray-300 hover:border-blue-400 rounded-full p-2.5 shadow-md hover:shadow-xl 
+                    transition-all duration-300 hover:scale-110 opacity-60 hover:opacity-100 hidden md:flex items-center justify-center
+                    backdrop-blur-sm ring-2 ring-white/50`}
                   title={language === 'ar' ? 'التالي' : 'Next'}
                 >
-                  <div className={`transform text-gray-600 hover:text-blue-600 transition-colors ${language === 'ar' ? 'rotate-180' : ''}`}>
+                  <div className={`transform text-gray-700 hover:text-blue-600 transition-colors text-sm font-bold ${language === 'ar' ? 'rotate-180' : ''}`}>
                     ▶
                   </div>
                 </button>
@@ -494,7 +494,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
               onWheel={handleWheel}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className={`flex gap-4 py-3 px-2 transition-all duration-300 ease-in-out horizontal-scroll ${showAllTemplates
+              className={`flex gap-5 py-4 px-3 mx-2 transition-all duration-300 ease-in-out horizontal-scroll ${showAllTemplates
                 ? 'flex-wrap'
                 : 'overflow-x-auto scrollbar-hide'
                 } ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'} 
@@ -503,14 +503,14 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
               {(showAllTemplates ? allTemplates : allTemplates.slice(0, 8)).map((template, index) => (
                 <div
                   key={template.id}
-                  className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)] m-1' : 'min-w-[240px] max-w-[260px] flex-shrink-0 m-1'} 
-                    bg-white border border-gray-200 hover:border-blue-300 rounded-xl p-3 cursor-pointer 
-                    transition-all duration-300 transform hover:scale-101 hover:shadow-xl hover:z-10 group relative
+                  className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] xl:w-[calc(25%-15px)] m-1' : 'min-w-[250px] max-w-[270px] flex-shrink-0'} 
+                    bg-white border border-gray-200 hover:border-blue-400 rounded-xl p-4 cursor-pointer 
+                    transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:z-20 group relative
                     ${template.category === 'system'
-                      ? 'bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 hover:border-green-300'
-                      : 'bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300'
+                      ? 'bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 hover:border-green-400'
+                      : 'bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-400'
                     }
-                    shadow-sm hover:shadow-2xl`}
+                    shadow-sm hover:shadow-2xl hover:shadow-blue-200/30`}
                   onClick={() => {
                     setNewNote(prev => ({
                       ...prev,
@@ -591,46 +591,70 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
               {/* Add Template Card */}
               <div
-                className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)] m-1' : 'min-w-[240px] max-w-[260px] flex-shrink-0 m-1'} 
-                  bg-gradient-to-br from-gray-50 to-gray-100 border border-dashed border-gray-300 
-                  hover:border-indigo-400 hover:from-indigo-50 hover:to-purple-50 rounded-xl p-3 cursor-pointer 
-                  transition-all duration-300 transform hover:scale-101 hover:shadow-xl hover:z-10 group flex flex-col items-center justify-center text-center
-                  shadow-sm hover:shadow-2xl relative`}
+                className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] xl:w-[calc(25%-15px)] m-1' : 'min-w-[250px] max-w-[270px] flex-shrink-0'} 
+                  bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 
+                  hover:border-indigo-400 hover:from-indigo-50 hover:to-purple-50 rounded-xl p-4 cursor-pointer 
+                  transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:z-20 group flex flex-col items-center justify-center text-center
+                  shadow-sm hover:shadow-2xl hover:shadow-indigo-200/30 relative min-h-[160px]`}
                 onClick={() => setShowTemplateManager(true)}
               >
-                <div className="w-8 h-8 bg-gradient-to-r from-indigo-100 to-purple-100 group-hover:from-indigo-200 group-hover:to-purple-200 rounded-full flex items-center justify-center mb-2 transition-colors">
-                  <Plus className="h-4 w-4 text-indigo-600 group-hover:text-indigo-700" />
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-100 to-purple-100 group-hover:from-indigo-200 group-hover:to-purple-200 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110">
+                  <Plus className="h-6 w-6 text-indigo-600 group-hover:text-indigo-700" />
                 </div>
-                <h5 className="font-semibold text-gray-700 group-hover:text-indigo-700 text-sm mb-1 transition-colors">
-                  {language === 'ar' ? 'إنشاء قالب' : 'Create Template'}
+                <h5 className="font-bold text-gray-700 group-hover:text-indigo-700 text-sm mb-2 transition-colors">
+                  {language === 'ar' ? 'إنشاء قالب جديد' : 'Create New Template'}
                 </h5>
-                <p className="text-xs text-gray-500 group-hover:text-indigo-600 transition-colors leading-tight">
-                  {language === 'ar' ? 'اضغط للإنشاء' : 'Click to create'}
+                <p className="text-xs text-gray-500 group-hover:text-indigo-600 transition-colors leading-relaxed">
+                  {language === 'ar' ? 'اضغط لإنشاء قالب مخصص' : 'Click to create custom template'}
                 </p>
+                <div className="mt-3 w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-200 to-transparent group-hover:via-indigo-400 transition-colors duration-300"></div>
               </div>
             </div>
 
             {/* Enhanced Scroll Indicators */}
             {!showAllTemplates && allTemplates.length > 4 && (
               <>
-                {/* Subtle fade effect at edges */}
-                <div className={`absolute top-0 bottom-0 w-8 bg-gradient-to-r ${language === 'ar' ? 'from-transparent to-blue-50/50' : 'from-blue-50/50 to-transparent'} pointer-events-none z-5 ${language === 'ar' ? 'left-0' : 'right-0'} transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-60'}`}></div>
+                {/* Left fade gradient */}
+                <div className={`absolute top-0 bottom-0 w-12 bg-gradient-to-r ${language === 'ar' ? 'right-0 from-transparent to-blue-50/80' : 'left-0 from-blue-50/80 to-transparent'} pointer-events-none z-10 transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-70'}`}></div>
+                {/* Right fade gradient */}
+                <div className={`absolute top-0 bottom-0 w-12 bg-gradient-to-r ${language === 'ar' ? 'left-0 from-blue-50/80 to-transparent' : 'right-0 from-transparent to-blue-50/80'} pointer-events-none z-10 transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-70'}`}></div>
+                
+                {/* Scroll progress indicator */}
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex items-center gap-1 z-10">
+                  {Array.from({ length: Math.min(5, Math.ceil(allTemplates.length / 3)) }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                        index === 0 ? 'bg-blue-500' : 'bg-blue-200'
+                      }`}
+                    />
+                  ))}
+                </div>
               </>
             )}
           </div>
 
-          {/* Quick Stats */}
-          <div className={`mt-4 pt-3 border-t border-blue-200 flex items-center justify-between text-xs text-blue-600 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-            <span>
-              {allTemplates.length} {language === 'ar' ? 'قالب متاح' : 'templates available'}
-            </span>
+          {/* Enhanced Quick Stats */}
+          <div className={`mt-5 pt-4 border-t border-blue-200/50 flex items-center justify-between text-xs ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-blue-600 font-medium">
+                {allTemplates.length} {language === 'ar' ? 'قالب متاح' : 'templates available'}
+              </span>
+            </div>
             <div className={`flex items-center gap-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <span className="hidden md:block">
-                {language === 'ar' ? 'استخدم عجلة الماوس أو الأزرار للتمرير' : 'Use mouse wheel or buttons to scroll'}
-              </span>
-              <span className="md:hidden">
-                {language === 'ar' ? 'مرر أفقياً لعرض المزيد' : 'Swipe horizontally for more'}
-              </span>
+              <div className="hidden md:flex items-center gap-2 text-gray-500">
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <span className="text-xs">
+                  {language === 'ar' ? 'استخدم عجلة الماوس أو الأزرار للتمرير' : 'Use mouse wheel or buttons to scroll'}
+                </span>
+              </div>
+              <div className="md:hidden flex items-center gap-2 text-gray-500">
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <span className="text-xs">
+                  {language === 'ar' ? 'مرر أفقياً لعرض المزيد' : 'Swipe horizontally for more'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
