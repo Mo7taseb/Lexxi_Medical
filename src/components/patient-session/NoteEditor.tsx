@@ -100,7 +100,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         // Load custom templates
         const savedTemplates = localStorage.getItem('lexxi-custom-templates');
         const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
-        
+
         setAllTemplates([...defaultTemplates, ...customTemplates]);
       } catch (error) {
         console.error('Error loading templates:', error);
@@ -117,18 +117,24 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       if (scrollContainerRef.current && !showAllTemplates && isHoveringScroll) {
         const container = scrollContainerRef.current;
         const rect = container.getBoundingClientRect();
-        const isOverContainer = e.clientX >= rect.left && e.clientX <= rect.right && 
-                               e.clientY >= rect.top && e.clientY <= rect.bottom;
-        
+        const isOverContainer = e.clientX >= rect.left && e.clientX <= rect.right &&
+          e.clientY >= rect.top && e.clientY <= rect.bottom;
+
         if (isOverContainer) {
           e.preventDefault();
           e.stopPropagation();
+
+          // Calculate template card width + gap for precise scrolling
+          // Template cards are min-w-[240px] max-w-[260px] with gap-4 (16px)
+          const templateWidth = 260 + 16; // card width + gap
           
-          // Scroll horizontally
-          const scrollAmount = e.deltaY * 2;
-          container.scrollBy({ 
-            left: scrollAmount, 
-            behavior: 'smooth' 
+          // Determine scroll direction and amount (one template per scroll)
+          const scrollDirection = e.deltaY > 0 ? 1 : -1;
+          const scrollAmount = templateWidth * scrollDirection;
+          
+          container.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
           });
         }
       }
@@ -193,7 +199,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
         const savedTemplates = localStorage.getItem('lexxi-custom-templates');
         const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
-        
+
         setAllTemplates([...defaultTemplates, ...customTemplates]);
       } catch (error) {
         console.error('Error loading templates:', error);
@@ -206,13 +212,17 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   // Scroll functions for desktop
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -260, behavior: 'smooth' });
+      // Template card width + gap for precise scrolling
+      const templateWidth = 260 + 16; // card width + gap
+      scrollContainerRef.current.scrollBy({ left: -templateWidth, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 260, behavior: 'smooth' });
+      // Template card width + gap for precise scrolling
+      const templateWidth = 260 + 16; // card width + gap
+      scrollContainerRef.current.scrollBy({ left: templateWidth, behavior: 'smooth' });
     }
   };
 
@@ -448,13 +458,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           </div>
 
           {/* Templates Horizontal Scroll Container */}
-          <div className="relative">
+          <div className="relative px-1 py-2">
             {/* Desktop Scroll Buttons */}
             {!showAllTemplates && allTemplates.length > 4 && (
               <>
                 <button
                   onClick={scrollLeft}
-                  className={`absolute ${language === 'ar' ? 'right-0' : 'left-0'} top-1/2 transform -translate-y-1/2 z-20 
+                  className={`absolute ${language === 'ar' ? 'right-2' : 'left-2'} top-1/2 transform -translate-y-1/2 z-20 
                     bg-white/70 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-full p-2 shadow-sm hover:shadow-lg 
                     transition-all duration-300 hover:scale-110 opacity-30 hover:opacity-100 hidden md:flex items-center justify-center
                     backdrop-blur-sm`}
@@ -466,7 +476,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 </button>
                 <button
                   onClick={scrollRight}
-                  className={`absolute ${language === 'ar' ? 'left-0' : 'right-0'} top-1/2 transform -translate-y-1/2 z-20 
+                  className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 z-20 
                     bg-white/70 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-full p-2 shadow-sm hover:shadow-lg 
                     transition-all duration-300 hover:scale-110 opacity-30 hover:opacity-100 hidden md:flex items-center justify-center
                     backdrop-blur-sm`}
@@ -479,28 +489,28 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
               </>
             )}
 
-            <div 
+            <div
               ref={scrollContainerRef}
               onWheel={handleWheel}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className={`flex gap-3 pb-3 transition-all duration-300 ease-in-out horizontal-scroll ${
-                showAllTemplates 
-                  ? 'flex-wrap' 
-                  : 'overflow-x-auto scrollbar-hide'
-              } ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'} 
+              className={`flex gap-4 py-3 px-2 transition-all duration-300 ease-in-out horizontal-scroll ${showAllTemplates
+                ? 'flex-wrap'
+                : 'overflow-x-auto scrollbar-hide'
+                } ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'} 
               relative`}
             >
               {(showAllTemplates ? allTemplates : allTemplates.slice(0, 8)).map((template, index) => (
                 <div
                   key={template.id}
-                  className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] xl:w-[calc(25%-9px)]' : 'min-w-[240px] max-w-[260px] flex-shrink-0'} 
+                  className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)] m-1' : 'min-w-[240px] max-w-[260px] flex-shrink-0 m-1'} 
                     bg-white border border-gray-200 hover:border-blue-300 rounded-xl p-3 cursor-pointer 
-                    transition-all duration-200 transform hover:scale-[1.02] hover:shadow-md group
-                    ${template.category === 'system' 
-                      ? 'bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 hover:border-green-300' 
+                    transition-all duration-300 transform hover:scale-101 hover:shadow-xl hover:z-10 group relative
+                    ${template.category === 'system'
+                      ? 'bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 hover:border-green-300'
                       : 'bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300'
-                    }`}
+                    }
+                    shadow-sm hover:shadow-2xl`}
                   onClick={() => {
                     setNewNote(prev => ({
                       ...prev,
@@ -517,11 +527,10 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                       </h5>
                     </div>
                     <div className="flex flex-col gap-1 flex-shrink-0">
-                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
-                        template.category === 'system'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap ${template.category === 'system'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-blue-100 text-blue-700'
+                        }`}>
                         {template.category === 'system' ? (language === 'ar' ? 'نظام' : 'System') : (language === 'ar' ? 'مخصص' : 'Custom')}
                       </span>
                     </div>
@@ -529,12 +538,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
                   {/* Template Type Badge */}
                   <div className="mb-2">
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                      template.type === 'observation' ? 'bg-purple-100 text-purple-700' :
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${template.type === 'observation' ? 'bg-purple-100 text-purple-700' :
                       template.type === 'diagnosis' ? 'bg-green-100 text-green-700' :
-                      template.type === 'plan' ? 'bg-orange-100 text-orange-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
+                        template.type === 'plan' ? 'bg-orange-100 text-orange-700' :
+                          'bg-gray-100 text-gray-700'
+                      }`}>
                       {t[template.type]}
                     </span>
                   </div>
@@ -569,12 +577,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                         <span>{template.usageCount} {language === 'ar' ? 'استخدام' : 'uses'}</span>
                       )}
                     </div>
-                    <div className={`bg-gradient-to-r ${
-                      template.category === 'system' 
-                        ? 'from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' 
-                        : 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
-                    } text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 
-                    transform group-hover:scale-105 shadow-sm hover:shadow-md flex items-center gap-1 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className={`bg-gradient-to-r ${template.category === 'system'
+                      ? 'from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                      : 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                      } text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 
+                    transform group-hover:scale-101 shadow-sm hover:shadow-md flex items-center gap-1 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                       <FileText className="h-3 w-3" />
                       {language === 'ar' ? 'استخدم' : 'Use'}
                     </div>
@@ -584,10 +591,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
 
               {/* Add Template Card */}
               <div
-                className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] xl:w-[calc(25%-9px)]' : 'min-w-[240px] max-w-[260px] flex-shrink-0'} 
+                className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)] m-1' : 'min-w-[240px] max-w-[260px] flex-shrink-0 m-1'} 
                   bg-gradient-to-br from-gray-50 to-gray-100 border border-dashed border-gray-300 
                   hover:border-indigo-400 hover:from-indigo-50 hover:to-purple-50 rounded-xl p-3 cursor-pointer 
-                  transition-all duration-200 transform hover:scale-[1.02] group flex flex-col items-center justify-center text-center`}
+                  transition-all duration-300 transform hover:scale-101 hover:shadow-xl hover:z-10 group flex flex-col items-center justify-center text-center
+                  shadow-sm hover:shadow-2xl relative`}
                 onClick={() => setShowTemplateManager(true)}
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-indigo-100 to-purple-100 group-hover:from-indigo-200 group-hover:to-purple-200 rounded-full flex items-center justify-center mb-2 transition-colors">
@@ -605,13 +613,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             {/* Enhanced Scroll Indicators */}
             {!showAllTemplates && allTemplates.length > 4 && (
               <>
-                {/* Subtle scroll indicator */}
-                <div className={`absolute top-1/2 transform -translate-y-1/2 bg-white/60 hover:bg-white/90 rounded-full p-1.5 shadow-sm hover:shadow-md backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 transition-all duration-300 opacity-40 hover:opacity-100 ${language === 'ar' ? 'left-1' : 'right-1'} z-10`}>
-                  <div className="w-1.5 h-4 bg-gradient-to-b from-blue-400 to-indigo-600 rounded-full opacity-70 hover:opacity-100 transition-opacity"></div>
-                </div>
-                
                 {/* Subtle fade effect at edges */}
-                <div className={`absolute top-0 bottom-0 w-6 bg-gradient-to-r ${language === 'ar' ? 'from-transparent to-blue-50/50' : 'from-blue-50/50 to-transparent'} pointer-events-none z-5 ${language === 'ar' ? 'left-0' : 'right-0'} transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-60'}`}></div>
+                <div className={`absolute top-0 bottom-0 w-8 bg-gradient-to-r ${language === 'ar' ? 'from-transparent to-blue-50/50' : 'from-blue-50/50 to-transparent'} pointer-events-none z-5 ${language === 'ar' ? 'left-0' : 'right-0'} transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-60'}`}></div>
               </>
             )}
           </div>

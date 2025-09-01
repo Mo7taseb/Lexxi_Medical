@@ -543,7 +543,7 @@ body {
 }
 
 .feature-badge:hover {
-  @apply bg-white/50 backdrop-blur-sm shadow-lg transform scale-105;
+  @apply bg-white/50 backdrop-blur-sm shadow-lg transform scale-101;
 }
 
 /* Enhanced Button Glow Effects */
@@ -603,7 +603,7 @@ body {
   position: relative;
 }
 
-.horizontal-scroll > * {
+.horizontal-scroll>* {
   scroll-snap-align: start;
 }
 
@@ -612,35 +612,35 @@ body {
   .horizontal-scroll {
     transition: all 0.3s ease;
   }
-  
+
   .horizontal-scroll:hover {
     cursor: grab;
     transform: scale(1.01);
   }
-  
+
   .horizontal-scroll:active {
     cursor: grabbing;
     transform: scale(0.99);
   }
-  
+
   /* Show scrollbar on hover for desktop */
   .horizontal-scroll:hover::-webkit-scrollbar {
     height: 8px;
     display: block;
   }
-  
+
   .horizontal-scroll:hover::-webkit-scrollbar-track {
     background: rgba(59, 130, 246, 0.1);
     border-radius: 4px;
     margin: 0 8px;
   }
-  
+
   .horizontal-scroll:hover::-webkit-scrollbar-thumb {
     background: linear-gradient(90deg, #3b82f6, #6366f1);
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   .horizontal-scroll:hover::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(90deg, #2563eb, #4f46e5);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);

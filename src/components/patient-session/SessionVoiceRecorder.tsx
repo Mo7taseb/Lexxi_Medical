@@ -458,7 +458,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                                     disabled={recordingMode === 'conversation' && !patientConsent}
                                     className={`group relative px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 shadow-lg transform w-full sm:w-auto ${recordingMode === 'conversation' && !patientConsent
                                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed shadow-gray-400/25'
-                                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 shadow-blue-500/25'
+                                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-101 shadow-blue-500/25'
                                         }`}
                                 >
                                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
@@ -515,7 +515,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                                 </div>
 
                                 <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center">
-                                    <label className={`group relative bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 lg:gap-3 shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/30 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                    <label className={`group relative bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 sm:px-6 lg:px-8 py-3 lg:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 lg:gap-3 shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/30 transform hover:scale-101 w-full sm:w-auto text-sm sm:text-base ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                         <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
                                             {isUploading ? (
                                                 <Cloud className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse" />
@@ -627,7 +627,7 @@ const SessionVoiceRecorder: React.FC<SessionVoiceRecorderProps> = ({ onComplete,
                                 disabled={isUploading}
                                 className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl transform w-full sm:w-auto ${isUploading
                                     ? 'bg-gray-400 text-white cursor-not-allowed'
-                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105'
+                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-101'
                                     }`}
                             >
                                 <span className="flex items-center justify-center gap-3">

@@ -194,16 +194,16 @@ function MainApp() {
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-indigo-500/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
                     {/* Logo container with glass effect */}
-                    <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-2 sm:p-3 lg:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-105">
+                    <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-2 sm:p-3 lg:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-101">
                       <a href="/" aria-label="Home">
                         <Image
                           src="/logo.png"
                           alt="Lexxi"
                           width={100}
                           height={16}
-                        className="w-[100px] sm:w-[120px] lg:w-[140px] xl:w-[160px] object-contain transition-all duration-500 group-hover:scale-110"
-                        priority
-                      />
+                          className="w-[100px] sm:w-[120px] lg:w-[140px] xl:w-[160px] object-contain transition-all duration-500 group-hover:scale-110"
+                          priority
+                        />
                       </a>
                     </div>
                   </div>
@@ -220,7 +220,7 @@ function MainApp() {
                       <button
                         onClick={() => setLanguage('ar')}
                         className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'ar'
-                          ? 'bg-[#3c78bc] from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                          ? 'bg-[#3c78bc] from-blue-600 to-indigo-600 text-white shadow-lg transform scale-101'
                           : 'text-gray-700 hover:text-gray-900 hover:bg-white/50 active:bg-white/60'
                           }`}
                       >
@@ -233,7 +233,7 @@ function MainApp() {
                       <button
                         onClick={() => setLanguage('en')}
                         className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'en'
-                          ? 'bg-[#3c78bc] from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                          ? 'bg-[#3c78bc] from-blue-600 to-indigo-600 text-white shadow-lg transform scale-101'
                           : 'text-gray-700 hover:text-gray-900 hover:bg-white/50 active:bg-white/60'
                           }`}
                       >
@@ -346,7 +346,7 @@ function MainApp() {
                 {steps.map((step, index) => (
                   <div key={step.id} className="flex flex-col items-center">
                     <div className={`relative w-14 h-14 lg:w-16 lg:h-16 rounded-2xl lg:rounded-3xl flex items-center justify-center mb-3 lg:mb-4 transition-all duration-300 ${currentStep >= step.id
-                      ? 'text-white shadow-xl scale-105'
+                      ? 'text-white shadow-xl scale-101'
                       : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}
                       style={currentStep >= step.id ? {

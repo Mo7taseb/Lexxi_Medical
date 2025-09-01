@@ -254,7 +254,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                             deleteSession(session.id);
                           }
                         }}
-                        className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 group-hover:scale-105"
+                        className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 group-hover:scale-101"
                         title={language === 'ar' ? 'حذف الجلسة' : 'Delete Session'}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -276,7 +276,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
             <div className="mb-4">
               <button
                 onClick={onQuickRecord}
-                className="group relative bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+                className="group relative bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-101"
               >
                 <span className="flex items-center justify-center gap-3">
                   <Mic className="h-6 w-6" />
@@ -305,7 +305,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
           {/* New Session Button */}
           <button
             onClick={() => setShowForm(true)}
-            className="group relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+            className="group relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-101"
           >
             <span className="flex items-center justify-center gap-3">
               <Plus className="h-6 w-6" />
