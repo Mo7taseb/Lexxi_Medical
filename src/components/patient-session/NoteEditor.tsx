@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Plus,
   Edit,
@@ -39,9 +39,203 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   const [newTag, setNewTag] = useState('');
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
   const [showTemplateManager, setShowTemplateManager] = useState(false);
+  const [allTemplates, setAllTemplates] = useState<CustomTemplate[]>([]);
+  const [showAllTemplates, setShowAllTemplates] = useState(false);
+  const [isHoveringScroll, setIsHoveringScroll] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const t = sessionLanguageTexts[language];
+
+  // Load all templates (system + custom)
+  useEffect(() => {
+    const loadTemplates = () => {
+      try {
+        // Default system templates
+        const defaultTemplates: CustomTemplate[] = [
+          {
+            id: 'sys-physical-exam',
+            title: language === 'ar' ? 'فحص سريري شامل' : 'Comprehensive Physical Examination',
+            content: language === 'ar'
+              ? 'الفحص السريري:\n\nالعلامات الحيوية:\n- ضغط الدم: \n- النبض: \n- درجة الحرارة: \n- التنفس: \n\nالفحص العام:\n- الحالة العامة: \n- التغذية: \n- الوعي: \n\nالفحص الموضعي:\n- الرأس والرقبة: \n- الصدر: \n- البطن: \n- الأطراف: '
+              : 'Physical Examination:\n\nVital Signs:\n- Blood pressure: \n- Pulse: \n- Temperature: \n- Respiratory rate: \n\nGeneral Examination:\n- General condition: \n- Nutrition: \n- Consciousness: \n\nLocal Examination:\n- Head and neck: \n- Chest: \n- Abdomen: \n- Extremities: ',
+            type: 'observation',
+            category: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            description: language === 'ar' ? 'قالب شامل للفحص السريري' : 'Comprehensive physical examination template',
+            tags: language === 'ar' ? ['فحص', 'سريري', 'عام'] : ['examination', 'physical', 'general'],
+            usageCount: 0
+          },
+          {
+            id: 'sys-treatment-plan',
+            title: language === 'ar' ? 'خطة العلاج المفصلة' : 'Detailed Treatment Plan',
+            content: language === 'ar'
+              ? 'خطة العلاج:\n\nالأدوية:\n- الدواء الأول: \n- الجرعة: \n- مدة العلاج: \n\nالتعليمات:\n- تعليمات عامة: \n- احتياطات: \n- نصائح غذائية: \n\nالمتابعة:\n- موعد المراجعة: \n- الفحوصات المطلوبة: \n- علامات التحذير: '
+              : 'Treatment Plan:\n\nMedications:\n- Primary medication: \n- Dosage: \n- Duration: \n\nInstructions:\n- General instructions: \n- Precautions: \n- Dietary advice: \n\nFollow-up:\n- Next appointment: \n- Required tests: \n- Warning signs: ',
+            type: 'plan',
+            category: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            description: language === 'ar' ? 'قالب مفصل لخطة العلاج' : 'Detailed treatment plan template',
+            tags: language === 'ar' ? ['علاج', 'خطة', 'أدوية'] : ['treatment', 'plan', 'medications'],
+            usageCount: 0
+          },
+          {
+            id: 'sys-diagnosis',
+            title: language === 'ar' ? 'التشخيص والتقييم' : 'Diagnosis and Assessment',
+            content: language === 'ar'
+              ? 'التشخيص والتقييم:\n\nالتشخيص الأولي:\n- التشخيص المحتمل: \n- درجة الثقة: \n\nالتشخيص التفريقي:\n1. \n2. \n3. \n\nالفحوصات المطلوبة:\n- فحوصات مخبرية: \n- تصوير طبي: \n- استشارات: \n\nالتقييم:\n- شدة الحالة: \n- المضاعفات المحتملة: \n- التوقعات: '
+              : 'Diagnosis and Assessment:\n\nPrimary Diagnosis:\n- Probable diagnosis: \n- Confidence level: \n\nDifferential Diagnosis:\n1. \n2. \n3. \n\nRequired Investigations:\n- Laboratory tests: \n- Imaging: \n- Consultations: \n\nAssessment:\n- Severity: \n- Potential complications: \n- Prognosis: ',
+            type: 'diagnosis',
+            category: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            description: language === 'ar' ? 'قالب للتشخيص والتقييم الطبي' : 'Medical diagnosis and assessment template',
+            tags: language === 'ar' ? ['تشخيص', 'تقييم', 'طبي'] : ['diagnosis', 'assessment', 'medical'],
+            usageCount: 0
+          }
+        ];
+
+        // Load custom templates
+        const savedTemplates = localStorage.getItem('lexxi-custom-templates');
+        const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
+        
+        setAllTemplates([...defaultTemplates, ...customTemplates]);
+      } catch (error) {
+        console.error('Error loading templates:', error);
+        setAllTemplates([]);
+      }
+    };
+
+    loadTemplates();
+  }, [language]);
+
+  // Add wheel event listener to prevent page scroll when over templates
+  useEffect(() => {
+    const handleWheelCapture = (e: WheelEvent) => {
+      if (scrollContainerRef.current && !showAllTemplates && isHoveringScroll) {
+        const container = scrollContainerRef.current;
+        const rect = container.getBoundingClientRect();
+        const isOverContainer = e.clientX >= rect.left && e.clientX <= rect.right && 
+                               e.clientY >= rect.top && e.clientY <= rect.bottom;
+        
+        if (isOverContainer) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Scroll horizontally
+          const scrollAmount = e.deltaY * 2;
+          container.scrollBy({ 
+            left: scrollAmount, 
+            behavior: 'smooth' 
+          });
+        }
+      }
+    };
+
+    // Add listener with capture: true to intercept early
+    document.addEventListener('wheel', handleWheelCapture, { passive: false, capture: true });
+
+    return () => {
+      document.removeEventListener('wheel', handleWheelCapture, { capture: true });
+    };
+  }, [showAllTemplates, isHoveringScroll]);
+
+  const handleTemplateRefresh = () => {
+    // Reload templates when template manager closes
+    const loadTemplates = () => {
+      try {
+        const defaultTemplates: CustomTemplate[] = [
+          {
+            id: 'sys-physical-exam',
+            title: language === 'ar' ? 'فحص سريري شامل' : 'Comprehensive Physical Examination',
+            content: language === 'ar'
+              ? 'الفحص السريري:\n\nالعلامات الحيوية:\n- ضغط الدم: \n- النبض: \n- درجة الحرارة: \n- التنفس: \n\nالفحص العام:\n- الحالة العامة: \n- التغذية: \n- الوعي: \n\nالفحص الموضعي:\n- الرأس والرقبة: \n- الصدر: \n- البطن: \n- الأطراف: '
+              : 'Physical Examination:\n\nVital Signs:\n- Blood pressure: \n- Pulse: \n- Temperature: \n- Respiratory rate: \n\nGeneral Examination:\n- General condition: \n- Nutrition: \n- Consciousness: \n\nLocal Examination:\n- Head and neck: \n- Chest: \n- Abdomen: \n- Extremities: ',
+            type: 'observation',
+            category: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            description: language === 'ar' ? 'قالب شامل للفحص السريري' : 'Comprehensive physical examination template',
+            tags: language === 'ar' ? ['فحص', 'سريري', 'عام'] : ['examination', 'physical', 'general'],
+            usageCount: 0
+          },
+          {
+            id: 'sys-treatment-plan',
+            title: language === 'ar' ? 'خطة العلاج المفصلة' : 'Detailed Treatment Plan',
+            content: language === 'ar'
+              ? 'خطة العلاج:\n\nالأدوية:\n- الدواء الأول: \n- الجرعة: \n- مدة العلاج: \n\nالتعليمات:\n- تعليمات عامة: \n- احتياطات: \n- نصائح غذائية: \n\nالمتابعة:\n- موعد المراجعة: \n- الفحوصات المطلوبة: \n- علامات التحذير: '
+              : 'Treatment Plan:\n\nMedications:\n- Primary medication: \n- Dosage: \n- Duration: \n\nInstructions:\n- General instructions: \n- Precautions: \n- Dietary advice: \n\nFollow-up:\n- Next appointment: \n- Required tests: \n- Warning signs: ',
+            type: 'plan',
+            category: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            description: language === 'ar' ? 'قالب مفصل لخطة العلاج' : 'Detailed treatment plan template',
+            tags: language === 'ar' ? ['علاج', 'خطة', 'أدوية'] : ['treatment', 'plan', 'medications'],
+            usageCount: 0
+          },
+          {
+            id: 'sys-diagnosis',
+            title: language === 'ar' ? 'التشخيص والتقييم' : 'Diagnosis and Assessment',
+            content: language === 'ar'
+              ? 'التشخيص والتقييم:\n\nالتشخيص الأولي:\n- التشخيص المحتمل: \n- درجة الثقة: \n\nالتشخيص التفريقي:\n1. \n2. \n3. \n\nالفحوصات المطلوبة:\n- فحوصات مخبرية: \n- تصوير طبي: \n- استشارات: \n\nالتقييم:\n- شدة الحالة: \n- المضاعفات المحتملة: \n- التوقعات: '
+              : 'Diagnosis and Assessment:\n\nPrimary Diagnosis:\n- Probable diagnosis: \n- Confidence level: \n\nDifferential Diagnosis:\n1. \n2. \n3. \n\nRequired Investigations:\n- Laboratory tests: \n- Imaging: \n- Consultations: \n\nAssessment:\n- Severity: \n- Potential complications: \n- Prognosis: ',
+            type: 'diagnosis',
+            category: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            description: language === 'ar' ? 'قالب للتشخيص والتقييم الطبي' : 'Medical diagnosis and assessment template',
+            tags: language === 'ar' ? ['تشخيص', 'تقييم', 'طبي'] : ['diagnosis', 'assessment', 'medical'],
+            usageCount: 0
+          }
+        ];
+
+        const savedTemplates = localStorage.getItem('lexxi-custom-templates');
+        const customTemplates = savedTemplates ? JSON.parse(savedTemplates) : [];
+        
+        setAllTemplates([...defaultTemplates, ...customTemplates]);
+      } catch (error) {
+        console.error('Error loading templates:', error);
+      }
+    };
+
+    loadTemplates();
+  };
+
+  // Scroll functions for desktop
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -260, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 260, behavior: 'smooth' });
+    }
+  };
+
+  // Handle wheel scrolling on desktop
+  const handleWheel = (e: React.WheelEvent) => {
+    // This is now handled by the document event listener for better control
+    // Keeping this as a fallback
+    if (scrollContainerRef.current && !showAllTemplates) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  // Enhanced mouse enter/leave for better UX
+  const handleMouseEnter = () => {
+    if (!showAllTemplates) {
+      setIsHoveringScroll(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHoveringScroll(false);
+  };
 
   const handleAddNote = () => {
     if (!newNote.content.trim()) return;
@@ -200,31 +394,6 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
     return text.substring(0, maxLength) + '...';
   };
 
-  // Quick note templates
-  const quickTemplates = [
-    {
-      title: language === 'ar' ? 'فحص سريري' : 'Physical Examination',
-      content: language === 'ar'
-        ? 'الفحص السريري:\n- العلامات الحيوية: \n- الفحص العام: \n- الفحص الموضعي: '
-        : 'Physical Examination:\n- Vital signs: \n- General examination: \n- Local examination: ',
-      type: 'observation' as NoteType
-    },
-    {
-      title: language === 'ar' ? 'خطة العلاج' : 'Treatment Plan',
-      content: language === 'ar'
-        ? 'خطة العلاج:\n- الأدوية: \n- التعليمات: \n- المتابعة: '
-        : 'Treatment Plan:\n- Medications: \n- Instructions: \n- Follow-up: ',
-      type: 'plan' as NoteType
-    },
-    {
-      title: language === 'ar' ? 'تشخيص أولي' : 'Preliminary Diagnosis',
-      content: language === 'ar'
-        ? 'التشخيص الأولي:\n- التشخيص المحتمل: \n- التشخيص التفريقي: \n- الفحوصات المطلوبة: '
-        : 'Preliminary Diagnosis:\n- Probable diagnosis: \n- Differential diagnosis: \n- Required tests: ',
-      type: 'diagnosis' as NoteType
-    }
-  ];
-
   return (
     <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 sm:p-6 border border-gray-200 ${className}`}>
       {/* Header */}
@@ -244,51 +413,222 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         )}
       </div>
 
-      {/* Quick Templates */}
+      {/* Templates Section */}
       {isAddingNote && !editingNoteId && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
-          <div className={`flex items-center justify-between mb-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-            <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <Lightbulb className="h-5 w-5 text-blue-600" />
-              <h4 className="font-semibold text-blue-800 text-sm sm:text-base">{t.templates}</h4>
+        <div className="mb-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+          <div className={`flex items-center justify-between mb-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-sm">
+                <Lightbulb className="h-4 w-4 text-white" />
+              </div>
+              <h4 className="font-bold text-gray-800 text-base sm:text-lg">{t.templates}</h4>
             </div>
-            <button
-              onClick={() => setShowTemplateManager(true)}
-              className={`bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
-            >
-              <Settings className="h-4 w-4" />
-              {t.manageTemplates}
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {quickTemplates.map((template, index) => (
+            <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+              {allTemplates.length > 8 && (
+                <button
+                  onClick={() => setShowAllTemplates(!showAllTemplates)}
+                  className={`text-sm text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-all duration-200 flex items-center gap-1 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
+                >
+                  {showAllTemplates ? (language === 'ar' ? 'عرض أقل' : 'Show Less') : (language === 'ar' ? 'عرض الكل' : 'Show All')}
+                  <div className={`transform transition-transform duration-200 ${showAllTemplates ? 'rotate-180' : 'rotate-0'}`}>
+                    ▼
+                  </div>
+                </button>
+              )}
               <button
-                key={index}
-                onClick={() => setNewNote(prev => ({
-                  ...prev,
-                  content: template.content,
-                  type: template.type
-                }))}
-                className="text-left p-3 bg-white border border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-sm transition-all duration-200"
+                onClick={() => {
+                  setShowTemplateManager(true);
+                }}
+                className={`bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
               >
-                <div className="font-medium text-blue-800 text-sm">{template.title}</div>
-                <div className="text-xs text-blue-600 mt-1">{t.useTemplate}</div>
+                <Plus className="h-4 w-4" />
+                {language === 'ar' ? 'إنشاء قالب' : 'Create Template'}
               </button>
-            ))}
+            </div>
+          </div>
 
-            {/* Browse All Templates Button */}
-            <button
-              onClick={() => setShowTemplateManager(true)}
-              className={`text-left p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg hover:border-indigo-400 hover:shadow-sm transition-all duration-200 ${language === 'ar' ? 'text-right' : 'text-left'}`}
+          {/* Templates Horizontal Scroll Container */}
+          <div className="relative">
+            {/* Desktop Scroll Buttons */}
+            {!showAllTemplates && allTemplates.length > 4 && (
+              <>
+                <button
+                  onClick={scrollLeft}
+                  className={`absolute ${language === 'ar' ? 'right-0' : 'left-0'} top-1/2 transform -translate-y-1/2 z-20 
+                    bg-white/70 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-full p-2 shadow-sm hover:shadow-lg 
+                    transition-all duration-300 hover:scale-110 opacity-30 hover:opacity-100 hidden md:flex items-center justify-center
+                    backdrop-blur-sm`}
+                  title={language === 'ar' ? 'السابق' : 'Previous'}
+                >
+                  <div className={`transform text-gray-600 hover:text-blue-600 transition-colors ${language === 'ar' ? 'rotate-180' : ''}`}>
+                    ◀
+                  </div>
+                </button>
+                <button
+                  onClick={scrollRight}
+                  className={`absolute ${language === 'ar' ? 'left-0' : 'right-0'} top-1/2 transform -translate-y-1/2 z-20 
+                    bg-white/70 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-full p-2 shadow-sm hover:shadow-lg 
+                    transition-all duration-300 hover:scale-110 opacity-30 hover:opacity-100 hidden md:flex items-center justify-center
+                    backdrop-blur-sm`}
+                  title={language === 'ar' ? 'التالي' : 'Next'}
+                >
+                  <div className={`transform text-gray-600 hover:text-blue-600 transition-colors ${language === 'ar' ? 'rotate-180' : ''}`}>
+                    ▶
+                  </div>
+                </button>
+              </>
+            )}
+
+            <div 
+              ref={scrollContainerRef}
+              onWheel={handleWheel}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              className={`flex gap-3 pb-3 transition-all duration-300 ease-in-out horizontal-scroll ${
+                showAllTemplates 
+                  ? 'flex-wrap' 
+                  : 'overflow-x-auto scrollbar-hide'
+              } ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'} 
+              relative`}
             >
-              <div className={`flex items-center gap-2 font-medium text-indigo-800 text-sm ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <FileText className="h-4 w-4" />
-                {language === 'ar' ? 'تصفح جميع القوالب' : 'Browse All Templates'}
+              {(showAllTemplates ? allTemplates : allTemplates.slice(0, 8)).map((template, index) => (
+                <div
+                  key={template.id}
+                  className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] xl:w-[calc(25%-9px)]' : 'min-w-[240px] max-w-[260px] flex-shrink-0'} 
+                    bg-white border border-gray-200 hover:border-blue-300 rounded-xl p-3 cursor-pointer 
+                    transition-all duration-200 transform hover:scale-[1.02] hover:shadow-md group
+                    ${template.category === 'system' 
+                      ? 'bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 hover:border-green-300' 
+                      : 'bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300'
+                    }`}
+                  onClick={() => {
+                    setNewNote(prev => ({
+                      ...prev,
+                      content: template.content,
+                      type: template.type
+                    }));
+                  }}
+                >
+                  {/* Template Header */}
+                  <div className={`flex items-start justify-between mb-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h5 className={`font-semibold text-gray-800 text-sm line-clamp-2 group-hover:text-blue-800 transition-colors leading-tight ${language === 'ar' ? 'text-right pr-0 pl-2' : 'text-left'}`}>
+                        {template.title}
+                      </h5>
+                    </div>
+                    <div className="flex flex-col gap-1 flex-shrink-0">
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
+                        template.category === 'system'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {template.category === 'system' ? (language === 'ar' ? 'نظام' : 'System') : (language === 'ar' ? 'مخصص' : 'Custom')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Template Type Badge */}
+                  <div className="mb-2">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                      template.type === 'observation' ? 'bg-purple-100 text-purple-700' :
+                      template.type === 'diagnosis' ? 'bg-green-100 text-green-700' :
+                      template.type === 'plan' ? 'bg-orange-100 text-orange-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {t[template.type]}
+                    </span>
+                  </div>
+
+                  {/* Template Content Preview */}
+                  <div className="mb-2">
+                    <p className={`text-xs text-gray-600 line-clamp-2 leading-relaxed ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      {template.content.replace(/\n/g, ' ').substring(0, 80)}...
+                    </p>
+                  </div>
+
+                  {/* Template Tags */}
+                  {template.tags && template.tags.length > 0 && (
+                    <div className={`flex flex-wrap gap-1 mb-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      {template.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <span key={tagIndex} className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                      {template.tags.length > 2 && (
+                        <span className="text-gray-500 text-xs">
+                          +{template.tags.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Use Button */}
+                  <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className={`text-xs text-gray-500 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      {template.usageCount !== undefined && (
+                        <span>{template.usageCount} {language === 'ar' ? 'استخدام' : 'uses'}</span>
+                      )}
+                    </div>
+                    <div className={`bg-gradient-to-r ${
+                      template.category === 'system' 
+                        ? 'from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' 
+                        : 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                    } text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 
+                    transform group-hover:scale-105 shadow-sm hover:shadow-md flex items-center gap-1 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <FileText className="h-3 w-3" />
+                      {language === 'ar' ? 'استخدم' : 'Use'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Add Template Card */}
+              <div
+                className={`${showAllTemplates ? 'w-full sm:w-[calc(50%-6px)] lg:w-[calc(33.333%-8px)] xl:w-[calc(25%-9px)]' : 'min-w-[240px] max-w-[260px] flex-shrink-0'} 
+                  bg-gradient-to-br from-gray-50 to-gray-100 border border-dashed border-gray-300 
+                  hover:border-indigo-400 hover:from-indigo-50 hover:to-purple-50 rounded-xl p-3 cursor-pointer 
+                  transition-all duration-200 transform hover:scale-[1.02] group flex flex-col items-center justify-center text-center`}
+                onClick={() => setShowTemplateManager(true)}
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-indigo-100 to-purple-100 group-hover:from-indigo-200 group-hover:to-purple-200 rounded-full flex items-center justify-center mb-2 transition-colors">
+                  <Plus className="h-4 w-4 text-indigo-600 group-hover:text-indigo-700" />
+                </div>
+                <h5 className="font-semibold text-gray-700 group-hover:text-indigo-700 text-sm mb-1 transition-colors">
+                  {language === 'ar' ? 'إنشاء قالب' : 'Create Template'}
+                </h5>
+                <p className="text-xs text-gray-500 group-hover:text-indigo-600 transition-colors leading-tight">
+                  {language === 'ar' ? 'اضغط للإنشاء' : 'Click to create'}
+                </p>
               </div>
-              <div className="text-xs text-indigo-600 mt-1">
-                {language === 'ar' ? 'إنشاء وإدارة القوالب المخصصة' : 'Create and manage custom templates'}
-              </div>
-            </button>
+            </div>
+
+            {/* Enhanced Scroll Indicators */}
+            {!showAllTemplates && allTemplates.length > 4 && (
+              <>
+                {/* Subtle scroll indicator */}
+                <div className={`absolute top-1/2 transform -translate-y-1/2 bg-white/60 hover:bg-white/90 rounded-full p-1.5 shadow-sm hover:shadow-md backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 transition-all duration-300 opacity-40 hover:opacity-100 ${language === 'ar' ? 'left-1' : 'right-1'} z-10`}>
+                  <div className="w-1.5 h-4 bg-gradient-to-b from-blue-400 to-indigo-600 rounded-full opacity-70 hover:opacity-100 transition-opacity"></div>
+                </div>
+                
+                {/* Subtle fade effect at edges */}
+                <div className={`absolute top-0 bottom-0 w-6 bg-gradient-to-r ${language === 'ar' ? 'from-transparent to-blue-50/50' : 'from-blue-50/50 to-transparent'} pointer-events-none z-5 ${language === 'ar' ? 'left-0' : 'right-0'} transition-opacity duration-300 ${isHoveringScroll ? 'opacity-100' : 'opacity-60'}`}></div>
+              </>
+            )}
+          </div>
+
+          {/* Quick Stats */}
+          <div className={`mt-4 pt-3 border-t border-blue-200 flex items-center justify-between text-xs text-blue-600 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <span>
+              {allTemplates.length} {language === 'ar' ? 'قالب متاح' : 'templates available'}
+            </span>
+            <div className={`flex items-center gap-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <span className="hidden md:block">
+                {language === 'ar' ? 'استخدم عجلة الماوس أو الأزرار للتمرير' : 'Use mouse wheel or buttons to scroll'}
+              </span>
+              <span className="md:hidden">
+                {language === 'ar' ? 'مرر أفقياً لعرض المزيد' : 'Swipe horizontally for more'}
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -518,7 +858,10 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       {/* Template Manager Modal */}
       <TemplateManager
         isOpen={showTemplateManager}
-        onClose={() => setShowTemplateManager(false)}
+        onClose={() => {
+          setShowTemplateManager(false);
+          handleTemplateRefresh();
+        }}
         language={language}
         onTemplateSelect={handleTemplateSelect}
       />

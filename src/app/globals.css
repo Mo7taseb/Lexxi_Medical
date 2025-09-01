@@ -581,3 +581,85 @@ body {
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
 }
+
+/* Scrollbar hiding utilities */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Internet Explorer 10+ */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  /* WebKit */
+  display: none;
+}
+
+/* Custom horizontal scroll container styling */
+.horizontal-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  position: relative;
+}
+
+.horizontal-scroll > * {
+  scroll-snap-align: start;
+}
+
+/* Desktop scroll enhancement */
+@media (min-width: 768px) {
+  .horizontal-scroll {
+    transition: all 0.3s ease;
+  }
+  
+  .horizontal-scroll:hover {
+    cursor: grab;
+    transform: scale(1.01);
+  }
+  
+  .horizontal-scroll:active {
+    cursor: grabbing;
+    transform: scale(0.99);
+  }
+  
+  /* Show scrollbar on hover for desktop */
+  .horizontal-scroll:hover::-webkit-scrollbar {
+    height: 8px;
+    display: block;
+  }
+  
+  .horizontal-scroll:hover::-webkit-scrollbar-track {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 4px;
+    margin: 0 8px;
+  }
+  
+  .horizontal-scroll:hover::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .horizontal-scroll:hover::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #2563eb, #4f46e5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Line clamp utilities for better text truncation */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
