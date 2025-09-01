@@ -12,11 +12,14 @@ import {
   Eye,
   EyeOff,
   Tag,
-  Lightbulb
+  Lightbulb,
+  Settings,
+  FileText
 } from 'lucide-react';
-import { NoteEditorProps, SessionNote, NoteType, NotePriority } from './types';
+import { NoteEditorProps, SessionNote, NoteType, NotePriority, CustomTemplate } from './types';
 import { sessionLanguageTexts } from './constants';
 import { useSession } from './SessionContext';
+import TemplateManager from './TemplateManager';
 
 const NoteEditor: React.FC<NoteEditorProps> = ({
   session,
@@ -35,6 +38,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   });
   const [newTag, setNewTag] = useState('');
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
+  const [showTemplateManager, setShowTemplateManager] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const t = sessionLanguageTexts[language];
@@ -119,6 +123,15 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       ...prev,
       tags: prev.tags.filter(t => t !== tag)
     }));
+  };
+
+  const handleTemplateSelect = (template: CustomTemplate) => {
+    setNewNote(prev => ({
+      ...prev,
+      content: template.content,
+      type: template.type
+    }));
+    setShowTemplateManager(false);
   };
 
   const toggleNoteExpansion = (noteId: string) => {
@@ -234,9 +247,18 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       {/* Quick Templates */}
       {isAddingNote && !editingNoteId && (
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Lightbulb className="h-5 w-5 text-blue-600" />
-            <h4 className="font-semibold text-blue-800 text-sm sm:text-base">{t.templates}</h4>
+          <div className={`flex items-center justify-between mb-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <Lightbulb className="h-5 w-5 text-blue-600" />
+              <h4 className="font-semibold text-blue-800 text-sm sm:text-base">{t.templates}</h4>
+            </div>
+            <button
+              onClick={() => setShowTemplateManager(true)}
+              className={`bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
+            >
+              <Settings className="h-4 w-4" />
+              {t.manageTemplates}
+            </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {quickTemplates.map((template, index) => (
@@ -253,6 +275,20 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 <div className="text-xs text-blue-600 mt-1">{t.useTemplate}</div>
               </button>
             ))}
+
+            {/* Browse All Templates Button */}
+            <button
+              onClick={() => setShowTemplateManager(true)}
+              className={`text-left p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg hover:border-indigo-400 hover:shadow-sm transition-all duration-200 ${language === 'ar' ? 'text-right' : 'text-left'}`}
+            >
+              <div className={`flex items-center gap-2 font-medium text-indigo-800 text-sm ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <FileText className="h-4 w-4" />
+                {language === 'ar' ? 'تصفح جميع القوالب' : 'Browse All Templates'}
+              </div>
+              <div className="text-xs text-indigo-600 mt-1">
+                {language === 'ar' ? 'إنشاء وإدارة القوالب المخصصة' : 'Create and manage custom templates'}
+              </div>
+            </button>
           </div>
         </div>
       )}
@@ -479,7 +515,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
         )}
       </div>
 
-
+      {/* Template Manager Modal */}
+      <TemplateManager
+        isOpen={showTemplateManager}
+        onClose={() => setShowTemplateManager(false)}
+        language={language}
+        onTemplateSelect={handleTemplateSelect}
+      />
     </div>
   );
 };

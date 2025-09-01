@@ -71,6 +71,22 @@ export const sessionLanguageTexts: SessionLanguageTexts = {
     quickNotes: 'ملاحظات سريعة',
     templates: 'القوالب',
     useTemplate: 'استخدام القالب',
+    createTemplate: 'إنشاء قالب جديد',
+    manageTemplates: 'إدارة القوالب',
+    customTemplates: 'القوالب المخصصة',
+    systemTemplates: 'القوالب النظام',
+    templateTitle: 'عنوان القالب',
+    templateDescription: 'وصف القالب',
+    templateContent: 'محتوى القالب',
+    templateCategory: 'فئة القالب',
+    saveTemplate: 'حفظ القالب',
+    editTemplate: 'تعديل القالب',
+    deleteTemplate: 'حذف القالب',
+    confirmDeleteTemplate: 'هل تريد حذف هذا القالب؟',
+    templateSaved: 'تم حفظ القالب بنجاح',
+    templateDeleted: 'تم حذف القالب بنجاح',
+    noCustomTemplates: 'لا توجد قوالب مخصصة',
+    createFirstTemplate: 'إنشاء أول قالب مخصص',
     patientInfoComplete: 'معلومات المريض مكتملة',
     notesAdded: 'ملاحظة مضافة',
     readyToRecord: 'جاهز للتسجيل'
@@ -145,8 +161,28 @@ export const sessionLanguageTexts: SessionLanguageTexts = {
     quickNotes: 'Quick Notes',
     templates: 'Templates',
     useTemplate: 'Use Template',
+    createTemplate: 'Create New Template',
+    manageTemplates: 'Manage Templates',
+    customTemplates: 'Custom Templates',
+    systemTemplates: 'System Templates',
+    templateTitle: 'Template Title',
+    templateDescription: 'Template Description',
+    templateContent: 'Template Content',
+    templateCategory: 'Template Category',
+    saveTemplate: 'Save Template',
+    editTemplate: 'Edit Template',
+    deleteTemplate: 'Delete Template',
+    confirmDeleteTemplate: 'Are you sure you want to delete this template?',
+    templateSaved: 'Template saved successfully',
+    templateDeleted: 'Template deleted successfully',
+    noCustomTemplates: 'No custom templates',
+    createFirstTemplate: 'Create your first custom template',
     patientInfoComplete: 'Patient info complete',
     notesAdded: 'Notes added',
     readyToRecord: 'Ready to record'
   }
+};
+
+export const getSessionTexts = (language: 'ar' | 'en') => {
+  return sessionLanguageTexts[language];
 };

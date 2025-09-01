@@ -4,7 +4,8 @@ export { default as SessionManager } from './SessionManager';
 export { default as NoteEditor } from './NoteEditor';
 export { default as SessionSummary } from './SessionSummary';
 export { default as SessionVoiceRecorder } from './SessionVoiceRecorder';
+export { default as TemplateManager } from './TemplateManager';
 
 // Types and Constants
 export * from './types';
-export { sessionLanguageTexts } from './constants';
+export { sessionLanguageTexts, getSessionTexts } from './constants';

@@ -156,6 +156,22 @@ export interface SessionLanguageTexts {
     quickNotes: string;
     templates: string;
     useTemplate: string;
+    createTemplate: string;
+    manageTemplates: string;
+    customTemplates: string;
+    systemTemplates: string;
+    templateTitle: string;
+    templateDescription: string;
+    templateContent: string;
+    templateCategory: string;
+    saveTemplate: string;
+    editTemplate: string;
+    deleteTemplate: string;
+    confirmDeleteTemplate: string;
+    templateSaved: string;
+    templateDeleted: string;
+    noCustomTemplates: string;
+    createFirstTemplate: string;
     patientInfoComplete: string;
     notesAdded: string;
     readyToRecord: string;
@@ -230,6 +246,22 @@ export interface SessionLanguageTexts {
     quickNotes: string;
     templates: string;
     useTemplate: string;
+    createTemplate: string;
+    manageTemplates: string;
+    customTemplates: string;
+    systemTemplates: string;
+    templateTitle: string;
+    templateDescription: string;
+    templateContent: string;
+    templateCategory: string;
+    saveTemplate: string;
+    editTemplate: string;
+    deleteTemplate: string;
+    confirmDeleteTemplate: string;
+    templateSaved: string;
+    templateDeleted: string;
+    noCustomTemplates: string;
+    createFirstTemplate: string;
     patientInfoComplete: string;
     notesAdded: string;
     readyToRecord: string;
@@ -240,3 +272,27 @@ export type SessionStatus = 'active' | 'completed' | 'paused';
 export type NoteType = 'observation' | 'diagnosis' | 'plan' | 'general';
 export type NotePriority = 'low' | 'medium' | 'high';
 export type Gender = 'male' | 'female';
+
+// Custom Template Types
+export interface CustomTemplate {
+  id: string;
+  title: string;
+  content: string;
+  type: NoteType;
+  category: 'system' | 'custom';
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  description?: string;
+  tags?: string[];
+  isPublic?: boolean;
+  usageCount?: number;
+}
+
+export interface TemplateManagerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  language: 'ar' | 'en';
+  onTemplateCreate?: (template: CustomTemplate) => void;
+  onTemplateSelect?: (template: CustomTemplate) => void;
+}
