@@ -316,11 +316,10 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
               <button
                 onClick={handleCopy}
-                className={`group px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[120px] ${
-                  copySuccess 
-                    ? 'bg-green-600 text-white' 
+                className={`group px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[120px] ${copySuccess
+                    ? 'bg-green-600 text-white'
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
+                  }`}
               >
                 <Copy className={`h-5 w-5 transition-transform duration-300 ${copySuccess ? 'scale-110' : 'group-hover:scale-110'}`} />
                 <span>{copySuccess ? t('copied') : t('copy')}</span>

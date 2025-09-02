@@ -69,51 +69,44 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
                 {noteTypes.map((noteType) => (
                     <div
                         key={noteType.id}
-                        className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-500 transform hover:scale-[1.02] ${
-                            selectedType === noteType.id
+                        className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-500 transform hover:scale-[1.02] ${selectedType === noteType.id
                                 ? `ring-4 ring-opacity-50 ${noteType.shadowColor} shadow-2xl`
                                 : 'hover:shadow-xl'
-                        }`}
+                            }`}
                         onClick={() => handleSelect(noteType.id)}
                     >
                         {/* Background Gradient */}
-                        <div className={`absolute inset-0 bg-gradient-to-br ${noteType.gradient} ${
-                            selectedType === noteType.id ? 'opacity-15' : 'opacity-0 group-hover:opacity-10'
-                        } transition-opacity duration-300`} />
-                        
+                        <div className={`absolute inset-0 bg-gradient-to-br ${noteType.gradient} ${selectedType === noteType.id ? 'opacity-15' : 'opacity-0 group-hover:opacity-10'
+                            } transition-opacity duration-300`} />
+
                         {/* Card Content */}
-                        <div className={`relative p-8 ${
-                            selectedType === noteType.id 
-                                ? 'bg-white border-2 border-gray-300 shadow-lg' 
+                        <div className={`relative p-8 ${selectedType === noteType.id
+                                ? 'bg-white border-2 border-gray-300 shadow-lg'
                                 : 'bg-white border-2 border-gray-200 group-hover:border-gray-300 group-hover:shadow-md'
-                        } transition-all duration-300 rounded-2xl`}>
-                            
+                            } transition-all duration-300 rounded-2xl`}>
+
                             {/* Icon */}
-                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${
-                                selectedType === noteType.id 
-                                    ? `bg-gradient-to-br ${noteType.gradient} shadow-lg scale-105` 
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${selectedType === noteType.id
+                                    ? `bg-gradient-to-br ${noteType.gradient} shadow-lg scale-105`
                                     : `${noteType.iconBg} group-hover:shadow-md group-hover:scale-105`
-                            }`}>
-                                <noteType.icon className={`w-8 h-8 transition-all duration-300 ${
-                                    selectedType === noteType.id 
+                                }`}>
+                                <noteType.icon className={`w-8 h-8 transition-all duration-300 ${selectedType === noteType.id
                                         ? 'text-white'
                                         : 'text-gray-600 group-hover:text-gray-700'
-                                }`} />
+                                    }`} />
                             </div>
 
                             {/* Title */}
-                            <h3 className={`text-2xl font-bold mb-3 transition-all duration-300 ${
-                                selectedType === noteType.id 
+                            <h3 className={`text-2xl font-bold mb-3 transition-all duration-300 ${selectedType === noteType.id
                                     ? 'text-gray-800'
                                     : 'text-gray-800 group-hover:text-gray-900'
-                            }`}>
+                                }`}>
                                 {noteType.title}
                             </h3>
 
                             {/* Description */}
-                            <p className={`text-gray-600 leading-relaxed transition-colors duration-300 ${
-                                selectedType === noteType.id ? 'text-gray-700' : 'group-hover:text-gray-700'
-                            }`}>
+                            <p className={`text-gray-600 leading-relaxed transition-colors duration-300 ${selectedType === noteType.id ? 'text-gray-700' : 'group-hover:text-gray-700'
+                                }`}>
                                 {noteType.description}
                             </p>
 
@@ -127,9 +120,8 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
                             )}
 
                             {/* Hover Glow Effect */}
-                            <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
-                                noteType.shadowColor
-                            } shadow-xl`} />
+                            <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${noteType.shadowColor
+                                } shadow-xl`} />
                         </div>
                     </div>
                 ))}
