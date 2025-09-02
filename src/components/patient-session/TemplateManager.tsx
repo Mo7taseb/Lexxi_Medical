@@ -154,7 +154,7 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({
         try {
             const customTemplates = newTemplates.filter(t => t.category === 'custom');
             localStorage.setItem('lexxi-custom-templates', JSON.stringify(customTemplates));
-            
+
             // Call the update callback to refresh parent component
             if (onTemplateUpdate) {
                 onTemplateUpdate();
@@ -615,8 +615,8 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({
                                                     </div>
                                                     <div className={`flex items-center gap-1 ml-2 ${language === 'ar' ? 'mr-2 ml-0' : ''}`}>
                                                         <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${template.category === 'system'
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'bg-blue-100 text-blue-800'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-blue-100 text-blue-800'
                                                             }`}>
                                                             {template.category === 'system' ? (language === 'ar' ? 'نظام' : 'System') : (language === 'ar' ? 'مخصص' : 'Custom')}
                                                         </span>
@@ -699,8 +699,8 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({
                                                             {template.title}
                                                         </h4>
                                                         <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 self-start sm:self-center ${template.category === 'system'
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'bg-blue-100 text-blue-800'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-blue-100 text-blue-800'
                                                             }`}>
                                                             {template.category === 'system' ? (language === 'ar' ? 'نظام' : 'System') : (language === 'ar' ? 'مخصص' : 'Custom')}
                                                         </span>

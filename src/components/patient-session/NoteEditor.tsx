@@ -329,7 +329,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
       try {
         const customTemplates = allTemplates.filter(t => t.category === 'custom' && t.id !== template.id);
         localStorage.setItem('lexxi-custom-templates', JSON.stringify(customTemplates));
-        
+
         // Reload all templates to sync state
         loadAllTemplates();
         setActiveDropdown(null);
@@ -459,8 +459,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 }}
                 className={`bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
               >
-                <Plus className="h-4 w-4" />
-                {language === 'ar' ? 'إنشاء قالب' : 'Create Template'}
+                <Settings className="h-4 w-4" />
+                {language === 'ar' ? 'إدارة القوالب' : 'Manage Templates'}
               </button>
             </div>
           </div>
@@ -541,7 +541,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                         }`}>
                         {template.category === 'system' ? (language === 'ar' ? 'نظام' : 'System') : (language === 'ar' ? 'مخصص' : 'Custom')}
                       </span>
-                      
+
                       {/* Action Menu for Custom Templates */}
                       {template.category === 'custom' && (
                         <div className="relative">
@@ -552,7 +552,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                           >
                             <MoreVertical className="h-4 w-4" />
                           </button>
-                          
+
                           {/* Dropdown Menu */}
                           {activeDropdown === template.id && (
                             <div className={`absolute top-8 ${language === 'ar' ? 'left-0' : 'right-0'} bg-white border border-gray-200 rounded-lg shadow-xl z-30 py-1 min-w-[140px] animate-fadeIn backdrop-blur-sm bg-white/95`}>
@@ -640,7 +640,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                         </>
                       )}
                     </div>
-                    <button 
+                    <button
                       className={`bg-gradient-to-r ${template.category === 'system'
                         ? 'from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
                         : 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
@@ -673,13 +673,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
                 onClick={() => setShowTemplateManager(true)}
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-indigo-100 to-purple-100 group-hover:from-indigo-200 group-hover:to-purple-200 rounded-full flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110">
-                  <Plus className="h-6 w-6 text-indigo-600 group-hover:text-indigo-700" />
+                  <Settings className="h-6 w-6 text-indigo-600 group-hover:text-indigo-700" />
                 </div>
                 <h5 className="font-bold text-gray-700 group-hover:text-indigo-700 text-sm mb-2 transition-colors">
-                  {language === 'ar' ? 'إنشاء قالب جديد' : 'Create New Template'}
+                  {language === 'ar' ? 'إدارة القوالب' : 'Manage Templates'}
                 </h5>
                 <p className="text-xs text-gray-500 group-hover:text-indigo-600 transition-colors leading-relaxed">
-                  {language === 'ar' ? 'اضغط لإنشاء قالب مخصص' : 'Click to create custom template'}
+                  {language === 'ar' ? 'اضغط لإدارة القوالب المخصصة' : 'Click to manage custom templates'}
                 </p>
                 <div className="mt-3 w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-200 to-transparent group-hover:via-indigo-400 transition-colors duration-300"></div>
               </div>
