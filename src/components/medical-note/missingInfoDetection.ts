@@ -72,8 +72,8 @@ export const medicalSchemas: MedicalSchema = {
       {
         id: 'chief_complaint',
         section: 'subjective',
-        fieldName: 'Chief Complaint',
-        displayName: 'Chief Complaint',
+        fieldName: 'Main Complaint',
+        displayName: 'Main Complaint',
         type: 'textarea',
         isRequired: true,
         placeholder: 'Patient\'s main concern or reason for visit',

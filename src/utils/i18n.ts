@@ -291,8 +291,8 @@ export const translations: Record<Language, Translations> = {
         currentMedicationsPlaceholder: 'List current medications',
         medicalHistory: 'Medical History',
         medicalHistoryPlaceholder: 'Enter relevant medical history',
-        chiefComplaint: 'Chief Complaint',
-        chiefComplaintPlaceholder: 'Enter chief complaint',
+        chiefComplaint: 'Main Complaint',
+        chiefComplaintPlaceholder: 'Enter main complaint',
         startSession: 'Start Session',
 
         // Session Notes

@@ -104,7 +104,7 @@ export const sessionLanguageTexts: SessionLanguageTexts = {
     allergies: 'Allergies',
     medications: 'Current Medications',
     medicalHistory: 'Medical History',
-    chiefComplaint: 'Chief Complaint',
+    chiefComplaint: 'Main Complaint',
     sessionNotes: 'Session Notes',
     addNote: 'Add Note',
     noteType: 'Note Type',

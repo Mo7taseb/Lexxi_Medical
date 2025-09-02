@@ -256,7 +256,7 @@ Generate the report immediately in the requested format:`;
       soap: `Create a comprehensive SOAP note in English following medical documentation standards:
 
 **SUBJECTIVE (S):**
-- Chief complaint (CC): Primary reason for the visit
+- Main complaint (MC): Primary reason for the visit
 - History of present illness (HPI): Detailed symptom description, onset, location, duration, characteristics, aggravating/alleviating factors, radiation, timing, severity
 - Review of systems (ROS): Pertinent positive and negative findings
 - Past medical history (PMH): Relevant medical conditions
@@ -487,7 +487,7 @@ Date: ${new Date().toLocaleDateString('en-US', {
       })}
 
 **PATIENT PRESENTATION:**
-- Chief complaint and presenting symptoms
+- Main complaint and presenting symptoms
 - Duration and progression of symptoms
 - Functional impact and severity assessment
 

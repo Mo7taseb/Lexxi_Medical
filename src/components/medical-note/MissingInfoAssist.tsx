@@ -98,7 +98,7 @@ const MissingInfoAssist: React.FC<MissingInfoAssistProps> = ({
         if (!element) {
             // If not found, try to find by section title using mapping
             const sectionMappings: Record<string, string[]> = {
-                'subjective': ['History of Present Illness', 'history', 'chief complaint', 'subjective'],
+                'subjective': ['History of Present Illness', 'history', 'main complaint', 'subjective'],
                 'objective': ['Physical Examination', 'objective', 'examination', 'vital signs'],
                 'assessment': ['Assessment', 'assessment', 'diagnosis', 'impression'],
                 'plan': ['Plan', 'plan', 'treatment', 'recommendations'],

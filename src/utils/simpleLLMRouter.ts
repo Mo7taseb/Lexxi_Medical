@@ -598,7 +598,7 @@ Consulting Service: Infectious Diseases
 Reason for Consult: [Main reason from transcript]
 
 
-I assessed [Patient name/identifier] at [location] for [chief complaint/reason].
+I assessed [Patient name/identifier] at [location] for [main complaint/reason].
 
 
 **HISTORY OF PRESENTING ILLNESS:**
@@ -698,7 +698,7 @@ Brief patient demographics and identifiers
 - Discharge planning considerations`;
 
       default:
-        return 'Structure the report with clear sections (Chief Complaint, History, Examination, Assessment, Plan).';
+        return 'Structure the report with clear sections (Main Complaint, History, Examination, Assessment, Plan).';
     }
   }
 

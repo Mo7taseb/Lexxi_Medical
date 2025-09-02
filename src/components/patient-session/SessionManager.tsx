@@ -448,7 +448,7 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                   rows={3}
                   className={`text-gray-900 w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none ${formErrors.chiefComplaint ? 'border-red-500' : 'border-gray-300'
                     }`}
-                  placeholder={language === 'ar' ? 'اكتب الشكوى الرئيسية للمريض' : 'Enter patient\'s chief complaint'}
+                  placeholder={language === 'ar' ? 'اكتب الشكوى الرئيسية للمريض' : 'Enter patient\'s main complaint'}
                 />
               </div>
               {formErrors.chiefComplaint && (
