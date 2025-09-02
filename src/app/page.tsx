@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import { FastLoadingSpinner } from '@/components/LoadingOptimization';
+import Logo from '@/components/Logo';
 import Image from 'next/image';
 import '@/components/medical-note/styles.css';
 import {
@@ -184,25 +185,25 @@ function MainApp() {
 
           {/* Main header container */}
           <div className="relative bg-white/20 backdrop-blur-3xl border border-white/30 rounded-2xl sm:rounded-3xl mx-3 sm:mx-4 lg:mx-6 shadow-2xl shadow-blue-500/10 transition-all duration-500 hover:bg-white/30">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 max-w-7xl">
-              <div className="flex items-center justify-between relative">
-                {/* Logo - Left aligned with glow */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 lg:py-3 max-w-7xl">
+              <div className="flex items-center justify-between relative min-h-[6rem] sm:min-h-[7rem] lg:min-h-[8rem]">
+                {/* Logo - Left aligned with enhanced visibility */}
                 <div className="flex items-center flex-1">
                   <div className="relative group">
-                    {/* Animated glow rings using logo colors */}
-                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/40 via-blue-500/40 to-indigo-600/40 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse" />
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-indigo-500/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                    {/* Enhanced glow rings that don't interfere with logo */}
+                    <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/30 via-blue-500/30 to-indigo-600/30 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse -z-10" />
+                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500 -z-10" />
 
-                    {/* Logo container with glass effect */}
-                    <div className="relative bg-gradient-to-br from-white/90 via-white/80 to-white/70 backdrop-blur-xl rounded-2xl p-2 sm:p-3 lg:p-4 border border-white/40 shadow-xl shadow-blue-500/20 transform transition-all duration-500 group-hover:scale-101">
-                      <a href="/" aria-label="Home">
-                        <Image
-                          src="/logo.png"
-                          alt="Lexxi"
-                          width={100}
-                          height={16}
-                          className="w-[100px] sm:w-[120px] lg:w-[140px] xl:w-[160px] object-contain transition-all duration-500 group-hover:scale-110"
-                          priority
+                    {/* Logo container with enhanced glass effect and no scaling */}
+                    <div className="relative bg-gradient-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-xl rounded-3xl border border-white/50 shadow-2xl shadow-blue-500/25 transition-all duration-500 group-hover:shadow-blue-500/40 group-hover:border-white/60 overflow-visible">
+                      <a href="/" aria-label="Home" className="flex items-center justify-center p-6 sm:p-8 lg:p-10 h-24 sm:h-28 lg:h-32">
+                        <Logo
+                          width={500}
+                          height={100}
+                          className="h-full w-auto max-h-full transition-all duration-500 group-hover:brightness-110"
+                          priority={true}
+                          showGlow={false}
+                          animated={true}
                         />
                       </a>
                     </div>
