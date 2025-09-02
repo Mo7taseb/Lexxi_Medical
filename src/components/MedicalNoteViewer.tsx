@@ -285,33 +285,44 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
             onSkipField={handleMissingInfoFieldSkip}
           />
 
-          {/* Header with actions */}
-          <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
-              <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-                {translations[currentLanguage].noteTypeNames[noteType] || noteType} - {t('reportGenerated')}
-              </h3>
+          {/* Header with actions - Modern Vertical Layout */}
+          <div className="flex flex-col items-center justify-center gap-6 mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100">
+            {/* Success Icon and Title */}
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  {translations[currentLanguage].noteTypeNames[noteType] || noteType}
+                </h3>
+                <p className="text-green-700 font-semibold text-lg">
+                  {t('reportGenerated')}
+                </p>
+              </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
+            {/* Action buttons - Modern Grid Layout */}
+            <div className="flex flex-wrap justify-center gap-3 w-full max-w-2xl">
               {!isEditing && (
                 <button
                   onClick={handleEdit}
-                  className="bg-gray-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px]"
+                  className="group bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[120px]"
                 >
-                  <Edit3 className="h-4 w-4" />
+                  <Edit3 className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
                   <span>{t('edit')}</span>
                 </button>
               )}
 
               <button
                 onClick={handleCopy}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm min-h-[40px] ${copySuccess ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
+                className={`group px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[120px] ${
+                  copySuccess 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
               >
-                <Copy className="h-4 w-4" />
+                <Copy className={`h-5 w-5 transition-transform duration-300 ${copySuccess ? 'scale-110' : 'group-hover:scale-110'}`} />
                 <span>{copySuccess ? t('copied') : t('copy')}</span>
               </button>
 

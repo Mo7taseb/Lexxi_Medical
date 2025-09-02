@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FileText, Clipboard, Heart, PenTool, ChevronRight } from 'lucide-react';
+import { Heart, UserCheck, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NoteType {
@@ -9,9 +9,9 @@ interface NoteType {
     title: string;
     description: string;
     icon: React.ComponentType<{ className?: string }>;
-    color: string;
-    bgColor: string;
-    example: string;
+    gradient: string;
+    shadowColor: string;
+    iconBg: string;
 }
 
 interface NoteTypeSelectorProps {
@@ -24,49 +24,22 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
 
     const noteTypes: NoteType[] = [
         {
-            id: 'soap',
-            title: t('soap'),
-            description: t('soapDescription'),
-            icon: Clipboard,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50 border-blue-200',
-            example: 'S: الأعراض الذاتية\nO: الفحص الموضوعي\nA: التقييم والتشخيص\nP: الخطة العلاجية'
-        },
-        {
             id: 'progress',
             title: t('progress'),
             description: t('progressDescription'),
             icon: Heart,
-            color: 'text-green-600',
-            bgColor: 'bg-green-50 border-green-200',
-            example: 'تقييم الحالة الحالية\nالتطور منذ الزيارة الأخيرة\nتعديل العلاج إذا لزم الأمر'
+            gradient: 'from-emerald-500 to-teal-600',
+            shadowColor: 'shadow-emerald-200',
+            iconBg: 'bg-emerald-100'
         },
         {
             id: 'consultation',
             title: t('consultation'),
             description: t('consultationDescription'),
-            icon: PenTool,
-            color: 'text-purple-600',
-            bgColor: 'bg-purple-50 border-purple-200',
-            example: 'سبب الإحالة\nالفحص والتقييم\nالتوصيات المطلوبة'
-        },
-        {
-            id: 'discharge',
-            title: t('discharge'),
-            description: t('dischargeDescription'),
-            icon: FileText,
-            color: 'text-red-600',
-            bgColor: 'bg-red-50 border-red-200',
-            example: 'ملخص الإقامة\nالتشخيص النهائي\nالعلاج المطلوب\nمواعيد المتابعة'
-        },
-        {
-            id: 'freeform',
-            title: t('freeform'),
-            description: t('freeformDescription'),
-            icon: PenTool,
-            color: 'text-gray-600',
-            bgColor: 'bg-gray-50 border-gray-200',
-            example: 'تقرير مرن يمكن تخصيصه حسب الحاجة'
+            icon: UserCheck,
+            gradient: 'from-violet-500 to-purple-600',
+            shadowColor: 'shadow-violet-200',
+            iconBg: 'bg-violet-100'
         }
     ];
 
@@ -75,44 +48,102 @@ const NoteTypeSelector: React.FC<NoteTypeSelectorProps> = ({ selectedType, onSel
     };
 
     return (
-        <div className="max-w-5xl mx-auto" dir={direction}>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center px-2">
-                {t('selectNoteTypeTitle')}
-            </h2>
+        <div className="max-w-4xl mx-auto" dir={direction}>
+            {/* Header Section */}
+            <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                        {t('selectNoteTypeTitle')}
+                    </h2>
+                </div>
+                <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+                    {t('selectNoteTypeSubtitle')}
+                </p>
+            </div>
 
-            <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-base px-2">
-                {t('selectNoteTypeSubtitle')}
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+            {/* Note Type Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 {noteTypes.map((noteType) => (
                     <div
                         key={noteType.id}
-                        className={`p-4 sm:p-6 border-2 rounded-lg sm:rounded-xl cursor-pointer transition-all hover:shadow-lg ${selectedType === noteType.id
-                            ? `${noteType.bgColor} border-current`
-                            : 'bg-white border-gray-200 hover:border-gray-300'
-                            }`}
+                        className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-500 transform hover:scale-[1.02] ${
+                            selectedType === noteType.id
+                                ? `ring-4 ring-opacity-50 ${noteType.shadowColor} shadow-2xl`
+                                : 'hover:shadow-xl'
+                        }`}
                         onClick={() => handleSelect(noteType.id)}
                     >
-                        <div className="text-center">
-                            <div className={`w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center ${noteType.bgColor}`}>
-                                <noteType.icon className={`w-6 h-6 ${noteType.color}`} />
+                        {/* Background Gradient */}
+                        <div className={`absolute inset-0 bg-gradient-to-br ${noteType.gradient} ${
+                            selectedType === noteType.id ? 'opacity-15' : 'opacity-0 group-hover:opacity-10'
+                        } transition-opacity duration-300`} />
+                        
+                        {/* Card Content */}
+                        <div className={`relative p-8 ${
+                            selectedType === noteType.id 
+                                ? 'bg-white border-2 border-gray-300 shadow-lg' 
+                                : 'bg-white border-2 border-gray-200 group-hover:border-gray-300 group-hover:shadow-md'
+                        } transition-all duration-300 rounded-2xl`}>
+                            
+                            {/* Icon */}
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${
+                                selectedType === noteType.id 
+                                    ? `bg-gradient-to-br ${noteType.gradient} shadow-lg scale-105` 
+                                    : `${noteType.iconBg} group-hover:shadow-md group-hover:scale-105`
+                            }`}>
+                                <noteType.icon className={`w-8 h-8 transition-all duration-300 ${
+                                    selectedType === noteType.id 
+                                        ? 'text-white'
+                                        : 'text-gray-600 group-hover:text-gray-700'
+                                }`} />
                             </div>
-                            <h3 className={`font-semibold text-lg mb-2 ${noteType.color}`}>
+
+                            {/* Title */}
+                            <h3 className={`text-2xl font-bold mb-3 transition-all duration-300 ${
+                                selectedType === noteType.id 
+                                    ? 'text-gray-800'
+                                    : 'text-gray-800 group-hover:text-gray-900'
+                            }`}>
                                 {noteType.title}
                             </h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">
+
+                            {/* Description */}
+                            <p className={`text-gray-600 leading-relaxed transition-colors duration-300 ${
+                                selectedType === noteType.id ? 'text-gray-700' : 'group-hover:text-gray-700'
+                            }`}>
                                 {noteType.description}
                             </p>
+
+                            {/* Selection Indicator */}
+                            {selectedType === noteType.id && (
+                                <div className="absolute top-4 right-4">
+                                    <div className={`w-6 h-6 bg-gradient-to-r ${noteType.gradient} rounded-full flex items-center justify-center shadow-lg animate-pulse`}>
+                                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Hover Glow Effect */}
+                            <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
+                                noteType.shadowColor
+                            } shadow-xl`} />
                         </div>
                     </div>
                 ))}
             </div>
 
+            {/* Footer */}
             <div className="text-center">
-                <div className="inline-flex items-center gap-2 text-sm text-gray-500">
-                    <span>💡</span>
-                    <span>اختر نوع التقرير المناسب لنوع الاستشارة الطبية</span>
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm">💡</span>
+                    </div>
+                    <span className="text-gray-700 font-medium">
+                        اختر نوع التقرير المناسب لنوع الاستشارة الطبية
+                    </span>
                 </div>
             </div>
         </div>
