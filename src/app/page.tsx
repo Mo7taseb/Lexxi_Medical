@@ -218,19 +218,7 @@ function MainApp() {
 
                     {/* Button container */}
                     <div className="relative flex bg-white/30 backdrop-blur-xl rounded-2xl p-1 border border-white/40 shadow-xl shadow-blue-500/20 gap-0.5">
-                      <button
-                        onClick={() => setLanguage('ar')}
-                        className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'ar'
-                          ? 'bg-[#3c78bc] from-blue-600 to-indigo-600 text-white shadow-lg transform scale-101'
-                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50 active:bg-white/60'
-                          }`}
-                      >
-                        {/* Active button shine effect */}
-                        {language === 'ar' && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
-                        )}
-                        <span className="relative z-10 block text-center leading-tight">العربية</span>
-                      </button>
+
                       <button
                         onClick={() => setLanguage('en')}
                         className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'en'
@@ -243,6 +231,19 @@ function MainApp() {
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
                         )}
                         <span className="relative z-10 block text-center leading-tight">English</span>
+                      </button>
+                      <button
+                        onClick={() => setLanguage('ar')}
+                        className={`px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden min-w-[56px] sm:min-w-[64px] lg:min-w-[70px] touch-manipulation ${language === 'ar'
+                          ? 'bg-[#3c78bc] from-blue-600 to-indigo-600 text-white shadow-lg transform scale-101'
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-white/50 active:bg-white/60'
+                          }`}
+                      >
+                        {/* Active button shine effect */}
+                        {language === 'ar' && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-pulse" />
+                        )}
+                        <span className="relative z-10 block text-center leading-tight">العربية</span>
                       </button>
                     </div>
                   </div>
