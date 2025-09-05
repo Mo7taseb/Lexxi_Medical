@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useSession } from './SessionContext';
 import { PatientSession, PatientInfo } from './types';
+import { STANDARD_INPUT_CLASSES } from '../../styles/inputStyles';
 
 interface QuickRecordsManagerProps {
   language: 'ar' | 'en';
@@ -213,12 +214,12 @@ const QuickRecordsManager: React.FC<QuickRecordsManagerProps> = ({
         {isExpanded && (
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/60" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className={STANDARD_INPUT_CLASSES.search}
                 placeholder={language === 'ar' ? 'البحث في التسجيلات...' : 'Search records...'}
               />
             </div>
@@ -226,7 +227,7 @@ const QuickRecordsManager: React.FC<QuickRecordsManagerProps> = ({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-              className="px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+              className={STANDARD_INPUT_CLASSES.select}
             >
               <option value="all">{language === 'ar' ? 'الكل' : 'All'}</option>
               <option value="pending">{language === 'ar' ? 'في الانتظار' : 'Pending'}</option>
@@ -414,40 +415,40 @@ const AssignmentModal: React.FC<{
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className={STANDARD_INPUT_CLASSES.label}>
               {language === 'ar' ? 'اسم المريض' : 'Patient Name'} *
             </label>
             <input
               type="text"
               value={assignForm.name}
               onChange={(e) => setAssignForm({ ...assignForm, name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={STANDARD_INPUT_CLASSES.base}
               placeholder={language === 'ar' ? 'أدخل اسم المريض' : 'Enter patient name'}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className={STANDARD_INPUT_CLASSES.label}>
                 {language === 'ar' ? 'العمر' : 'Age'}
               </label>
               <input
                 type="number"
                 value={assignForm.age}
                 onChange={(e) => setAssignForm({ ...assignForm, age: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={STANDARD_INPUT_CLASSES.base}
                 placeholder={language === 'ar' ? 'العمر' : 'Age'}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className={STANDARD_INPUT_CLASSES.label}>
                 {language === 'ar' ? 'الجنس' : 'Gender'}
               </label>
               <select
                 value={assignForm.gender}
                 onChange={(e) => setAssignForm({ ...assignForm, gender: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={STANDARD_INPUT_CLASSES.select}
               >
                 <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
                 <option value="male">{language === 'ar' ? 'ذكر' : 'Male'}</option>
@@ -457,27 +458,27 @@ const AssignmentModal: React.FC<{
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className={STANDARD_INPUT_CLASSES.label}>
               {language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
             </label>
             <input
               type="tel"
               value={assignForm.phoneNumber}
               onChange={(e) => setAssignForm({ ...assignForm, phoneNumber: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={STANDARD_INPUT_CLASSES.base}
               placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone number'}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className={STANDARD_INPUT_CLASSES.label}>
               {language === 'ar' ? 'الشكوى الرئيسية' : 'Chief Complaint'}
             </label>
             <textarea
               value={assignForm.chiefComplaint}
               onChange={(e) => setAssignForm({ ...assignForm, chiefComplaint: e.target.value })}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+              className={STANDARD_INPUT_CLASSES.textarea}
               placeholder={language === 'ar' ? 'وصف الشكوى' : 'Describe the complaint'}
             />
           </div>
