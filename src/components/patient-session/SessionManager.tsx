@@ -23,6 +23,7 @@ import {
 import { PatientFormData, SessionManagerProps } from './types';
 import { useSession } from './SessionContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import QuickRecordBadge from './QuickRecordBadge';
 
 const SessionManager: React.FC<SessionManagerProps> = ({
   onSessionReady,
@@ -224,6 +225,17 @@ const SessionManager: React.FC<SessionManagerProps> = ({
                         <h4 className={`font-semibold text-gray-900 text-base sm:text-lg mb-2 ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                           {session.patientInfo.name || (language === 'ar' ? 'بدون اسم' : 'Unnamed')}
                         </h4>
+
+                        {/* ✨ Quick Record Badge */}
+                        <div className="mb-2">
+                          <QuickRecordBadge
+                            session={session}
+                            language={language}
+                            size="sm"
+                            showStatus={false}
+                          />
+                        </div>
+
                         <p className={`text-sm sm:text-base text-gray-600 line-clamp-2 mb-3 leading-relaxed ${language === 'ar' ? 'font-cairo' : 'font-inter'}`}>
                           {session.patientInfo.chiefComplaint || (language === 'ar' ? 'لا توجد شكوى مسجلة' : 'No complaint recorded')}
                         </p>

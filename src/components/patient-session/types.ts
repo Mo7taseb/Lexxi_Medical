@@ -14,6 +14,10 @@ export interface PatientInfo {
   chiefComplaint?: string;
   createdAt: string;
   updatedAt: string;
+  // Anonymous session support
+  isAnonymous?: boolean;
+  originalRecordingType?: 'session' | 'quick';
+  anonymousId?: string;
 }
 
 export interface SessionNote {
@@ -36,6 +40,17 @@ export interface PatientSession {
   recordingCompleted?: boolean;
   transcriptGenerated?: boolean;
   finalNoteGenerated?: boolean;
+  // Anonymous session enhancement
+  isQuickRecord?: boolean;
+  canAssignToPatient?: boolean;
+  originalAudioUrl?: string;
+  transcriptContent?: string;
+  generatedNoteContent?: string;
+  quickRecordMetadata?: {
+    processingStatus: 'pending' | 'transcribing' | 'generating' | 'completed';
+    suggestedPatients?: PatientSuggestion[];
+    autoProcessed?: boolean;
+  };
 }
 
 export interface SessionContextType {
@@ -49,6 +64,11 @@ export interface SessionContextType {
   setActiveSession: (sessionId: string | null) => void;
   deleteSession: (sessionId: string) => void;
   clearAllSessions: () => void;
+  // Anonymous session methods
+  createQuickRecordSession: (audioFile?: File, audioUrl?: string) => PatientSession;
+  getQuickRecordSessions: () => PatientSession[];
+  assignQuickRecordToPatient: (sessionId: string, patientInfo: Partial<PatientInfo>) => void;
+  convertToFullSession: (sessionId: string, patientInfo: Partial<PatientInfo>) => void;
 }
 
 export interface PatientFormData {
@@ -272,6 +292,31 @@ export type SessionStatus = 'active' | 'completed' | 'paused';
 export type NoteType = 'observation' | 'diagnosis' | 'plan' | 'general';
 export type NotePriority = 'low' | 'medium' | 'high';
 export type Gender = 'male' | 'female';
+
+// Enhanced types for anonymous sessions and smart suggestions
+export interface PatientSuggestion {
+  patientId: string;
+  patientName: string;
+  confidence: number;
+  matchReasons: string[];
+  patientInfo: Partial<PatientInfo>;
+}
+
+export interface QuickRecordProcessingResult {
+  transcript?: string;
+  generatedNote?: string;
+  suggestedPatients?: PatientSuggestion[];
+  processingTime: number;
+  success: boolean;
+  error?: string;
+}
+
+export interface AnonymousSessionOptions {
+  autoProcess?: boolean;
+  enableSuggestions?: boolean;
+  customName?: string;
+  metadata?: Record<string, any>;
+}
 
 // Custom Template Types
 export interface CustomTemplate {

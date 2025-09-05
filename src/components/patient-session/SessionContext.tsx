@@ -83,7 +83,10 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
       medicalHistory: patientInfo.medicalHistory,
       chiefComplaint: patientInfo.chiefComplaint,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      isAnonymous: patientInfo.isAnonymous || false,
+      originalRecordingType: patientInfo.originalRecordingType || 'session',
+      anonymousId: patientInfo.anonymousId
     };
 
     const newSession: PatientSession = {
@@ -96,7 +99,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
       lastAccessedAt: now,
       recordingCompleted: false,
       transcriptGenerated: false,
-      finalNoteGenerated: false
+      finalNoteGenerated: false,
+      isQuickRecord: patientInfo.originalRecordingType === 'quick'
     };
 
     // Pause any previously active sessions and prepend the new one
@@ -105,6 +109,100 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
       ...prev.map(s => (s.status === 'active' ? { ...s, status: 'paused' as const } : s))
     ]);
     setCurrentSession(newSession);
+  };
+
+  // ✨ Enhanced method for creating quick record sessions
+  const createQuickRecordSession = (audioFile?: File, audioUrl?: string): PatientSession => {
+    const now = new Date().toISOString();
+    const sessionId = `quick-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const anonymousId = `anon-${Date.now()}`;
+
+    const quickSession: PatientSession = {
+      id: sessionId,
+      patientInfo: {
+        id: anonymousId,
+        name: `🎙️ Quick Record - ${new Date().toLocaleString()}`,
+        chiefComplaint: 'Quick recording session',
+        createdAt: now,
+        updatedAt: now,
+        isAnonymous: true,
+        originalRecordingType: 'quick',
+        anonymousId: anonymousId
+      },
+      notes: [],
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+      lastAccessedAt: now,
+      recordingCompleted: false,
+      transcriptGenerated: false,
+      finalNoteGenerated: false,
+      isQuickRecord: true,
+      canAssignToPatient: true,
+      originalAudioUrl: audioUrl,
+      quickRecordMetadata: {
+        processingStatus: 'pending',
+        autoProcessed: false
+      }
+    };
+
+    // Pause any previously active sessions and prepend the new one
+    setSessions(prev => [
+      quickSession,
+      ...prev.map(s => (s.status === 'active' ? { ...s, status: 'paused' as const } : s))
+    ]);
+    setCurrentSession(quickSession);
+
+    return quickSession;
+  };
+
+  // 📋 Method to get all quick record sessions
+  const getQuickRecordSessions = (): PatientSession[] => {
+    return sessions.filter(session => session.isQuickRecord === true);
+  };
+
+  // 👤 Method to assign quick record to a patient
+  const assignQuickRecordToPatient = (sessionId: string, patientInfo: Partial<PatientInfo>) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (!session || !session.isQuickRecord) return;
+
+    const updatedPatientInfo = {
+      ...session.patientInfo,
+      ...patientInfo,
+      name: patientInfo.name || session.patientInfo.name,
+      isAnonymous: false,
+      originalRecordingType: 'quick' as const,
+      updatedAt: new Date().toISOString()
+    };
+
+    updateSession(sessionId, {
+      patientInfo: updatedPatientInfo,
+      canAssignToPatient: false,
+      lastAccessedAt: new Date().toISOString()
+    });
+  };
+
+  // 🔄 Method to convert quick record to full session
+  const convertToFullSession = (sessionId: string, patientInfo: Partial<PatientInfo>) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (!session || !session.isQuickRecord) return;
+
+    const updatedPatientInfo = {
+      ...patientInfo,
+      id: patientInfo.id || `patient-${Date.now()}`,
+      name: patientInfo.name || '',
+      createdAt: session.patientInfo.createdAt,
+      updatedAt: new Date().toISOString(),
+      isAnonymous: false,
+      originalRecordingType: 'quick' as const
+    };
+
+    updateSession(sessionId, {
+      patientInfo: updatedPatientInfo,
+      isQuickRecord: false,
+      canAssignToPatient: false,
+      lastAccessedAt: new Date().toISOString()
+    });
   };
 
   const updateSession = (sessionId: string, updates: Partial<PatientSession>) => {
@@ -194,7 +292,12 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
     deleteNote,
     setActiveSession,
     deleteSession,
-    clearAllSessions
+    clearAllSessions,
+    // ✨ Anonymous session methods
+    createQuickRecordSession,
+    getQuickRecordSessions,
+    assignQuickRecordToPatient,
+    convertToFullSession
   };
 
   return (

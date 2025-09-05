@@ -26,7 +26,8 @@ import {
   SessionManager,
   SessionSummary,
   NoteEditor,
-  SessionVoiceRecorder
+  SessionVoiceRecorder,
+  QuickRecordsManager
 } from '@/components/patient-session';
 import { PatientSession } from '@/components/patient-session/types';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -50,7 +51,7 @@ function MainApp() {
   const [patientConsent, setPatientConsent] = useState(false);
   const [currentSession, setCurrentSession] = useState<PatientSession | null>(null);
 
-  const { sessions, createNewSession, updateSession } = useSession();
+  const { sessions, createNewSession, updateSession, createQuickRecordSession } = useSession();
   const { language, setLanguage, t, direction } = useLanguage();
 
   const steps = [
@@ -91,11 +92,34 @@ function MainApp() {
       setCloudinaryUrl(null);
     }
 
+    // ✨ Update current session with audio info if it's a quick record
+    if (currentSession?.isQuickRecord) {
+      updateSession(currentSession.id, {
+        originalAudioUrl: url,
+        recordingCompleted: true,
+        lastAccessedAt: new Date().toISOString()
+      });
+    }
+
     setCurrentStep(4);
   };
 
   const handleTranscriptionComplete = (text: string) => {
     setTranscript(text);
+
+    // ✨ Update current session with transcript if it's a quick record
+    if (currentSession?.isQuickRecord) {
+      updateSession(currentSession.id, {
+        transcriptContent: text,
+        transcriptGenerated: true,
+        quickRecordMetadata: {
+          ...currentSession.quickRecordMetadata,
+          processingStatus: 'completed'
+        },
+        lastAccessedAt: new Date().toISOString()
+      });
+    }
+
     setCurrentStep(5);
   };
 
@@ -129,6 +153,19 @@ function MainApp() {
       const data = await response.json();
       console.log(`✅ Note generated in English from ${data.source} with confidence: ${data.confidence}`);
       setGeneratedNote(data.note);
+
+      // ✨ Update current session with generated note if it's a quick record
+      if (currentSession?.isQuickRecord) {
+        updateSession(currentSession.id, {
+          generatedNoteContent: data.note,
+          finalNoteGenerated: true,
+          quickRecordMetadata: {
+            ...currentSession.quickRecordMetadata,
+            processingStatus: 'completed'
+          },
+          lastAccessedAt: new Date().toISOString()
+        });
+      }
     } catch (error) {
       console.error('Error generating note:', error);
     } finally {
@@ -153,7 +190,9 @@ function MainApp() {
   };
 
   const goToQuickRecording = () => {
-    // Skip session creation and go directly to recording
+    // ✨ Create anonymous session for quick recording
+    const quickSession = createQuickRecordSession();
+    setCurrentSession(quickSession);
     setCurrentStep(3);
   };
 
@@ -384,6 +423,25 @@ function MainApp() {
                 language={language}
                 onQuickRecord={goToQuickRecording}
               />
+
+              {/* ✨ Quick Records Manager */}
+              <div className="mt-8">
+                <QuickRecordsManager
+                  language={language}
+                  onRecordSelect={(session) => {
+                    setCurrentSession(session);
+                    if (session.transcriptContent) {
+                      setTranscript(session.transcriptContent);
+                      setCurrentStep(session.generatedNoteContent ? 6 : 5);
+                    } else {
+                      setCurrentStep(3);
+                    }
+                  }}
+                  onAssignComplete={(sessionId, patientInfo) => {
+                    console.log(`✅ Quick record ${sessionId} assigned to ${patientInfo.name}`);
+                  }}
+                />
+              </div>
             </div>
           )}
 

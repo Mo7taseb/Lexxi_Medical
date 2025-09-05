@@ -5,6 +5,7 @@ export { default as NoteEditor } from './NoteEditor';
 export { default as SessionSummary } from './SessionSummary';
 export { default as SessionVoiceRecorder } from './SessionVoiceRecorder';
 export { default as TemplateManager } from './TemplateManager';
+export { default as QuickRecordsManager } from './QuickRecordsManager';
 
 // Types and Constants
 export * from './types';

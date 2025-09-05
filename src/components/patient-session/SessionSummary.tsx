@@ -15,7 +15,8 @@ import {
   Phone,
   Calendar,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Zap
 } from 'lucide-react';
 import { SessionSummaryProps } from './types';
 import { sessionLanguageTexts } from './constants';
@@ -103,15 +104,31 @@ const SessionSummary: React.FC<SessionSummaryProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-            <User className="h-6 w-6 text-blue-600" />
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${session.isQuickRecord
+              ? 'bg-orange-100'
+              : 'bg-blue-100'
+            }`}>
+            {session.isQuickRecord ? (
+              <Zap className="h-6 w-6 text-orange-600" />
+            ) : (
+              <User className="h-6 w-6 text-blue-600" />
+            )}
           </div>
           <div>
             <h3 className="text-lg font-semibold text-blue-900">
-              {session.patientInfo.name}
+              {session.isQuickRecord && session.patientInfo.isAnonymous
+                ? (language === 'ar' ? 'تسجيل سريع' : 'Quick Record')
+                : session.patientInfo.name
+              }
             </h3>
             <p className="text-sm text-blue-600">
-              {language === 'ar' ? 'جلسة نشطة' : 'Active Session'}
+              {session.isQuickRecord
+                ? (session.patientInfo.isAnonymous
+                  ? (language === 'ar' ? 'غير مُعين لمريض' : 'Not assigned to patient')
+                  : (language === 'ar' ? 'تسجيل سريع مُعين' : 'Assigned quick record')
+                )
+                : (language === 'ar' ? 'جلسة نشطة' : 'Active Session')
+              }
             </p>
           </div>
         </div>
