@@ -213,7 +213,7 @@ const QuickRecordsManager: React.FC<QuickRecordsManagerProps> = ({
         {/* Search and Filter */}
         {isExpanded && (
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
+            <div className="relative flex-[3] sm:flex-[4]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
@@ -227,7 +227,7 @@ const QuickRecordsManager: React.FC<QuickRecordsManagerProps> = ({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-              className={STANDARD_INPUT_CLASSES.select}
+              className={`${STANDARD_INPUT_CLASSES.select} flex-1 sm:flex-none sm:w-40`}
             >
               <option value="all">{language === 'ar' ? 'الكل' : 'All'}</option>
               <option value="pending">{language === 'ar' ? 'في الانتظار' : 'Pending'}</option>

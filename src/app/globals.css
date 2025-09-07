@@ -407,6 +407,27 @@ body {
   scroll-behavior: smooth;
 }
 
+/* Custom scrollbar for consultation note content */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
 /* Utility classes for medical theme */
 .medical-gradient {
   background: linear-gradient(135deg, #0066cc 0%, #3b82f6 100%);

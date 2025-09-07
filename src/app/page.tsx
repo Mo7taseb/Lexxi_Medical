@@ -432,7 +432,8 @@ function MainApp() {
                     setCurrentSession(session);
                     if (session.transcriptContent) {
                       setTranscript(session.transcriptContent);
-                      setCurrentStep(session.generatedNoteContent ? 6 : 5);
+                      // For quick records, we want to show consultation note view (step 7) instead of SOAP generation
+                      setCurrentStep(7);
                     } else {
                       setCurrentStep(3);
                     }
@@ -549,6 +550,220 @@ function MainApp() {
                   onReset={resetApp}
                 />
               </Suspense>
+            </div>
+          )}
+
+          {/* Step 7: Consultation Note Viewer (for Quick Records) */}
+          {currentStep === 7 && currentSession && (
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl border border-white/40 overflow-hidden">
+              {/* Header Section with Medical Styling */}
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 sm:p-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Stethoscope className="h-8 w-8" />
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                    {language === 'ar' ? 'تقرير الاستشارة الطبية' : 'Medical Consultation Report'}
+                  </h1>
+                  <p className="text-blue-100 text-sm sm:text-base">
+                    {language === 'ar' ? 'تقرير شامل للاستشارة الطبية' : 'Comprehensive Medical Consultation Report'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-6 sm:p-8 lg:p-10 space-y-8">
+                {/* Document Header */}
+                <div className="border-b border-gray-200 pb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <User className="h-5 w-5 text-blue-600" />
+                        {language === 'ar' ? 'معلومات المريض' : 'Patient Information'}
+                      </h2>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-center py-1">
+                          <span className="font-medium text-gray-600">
+                            {language === 'ar' ? 'اسم المريض:' : 'Patient Name:'}
+                          </span>
+                          <span className="text-gray-900 font-medium">
+                            {currentSession.patientInfo.name.replace('🎙️ Quick Record - ', '')}
+                          </span>
+                        </div>
+                        {currentSession.patientInfo.age && (
+                          <div className="flex justify-between items-center py-1">
+                            <span className="font-medium text-gray-600">
+                              {language === 'ar' ? 'العمر:' : 'Age:'}
+                            </span>
+                            <span className="text-gray-900">{currentSession.patientInfo.age} {language === 'ar' ? 'سنة' : 'years'}</span>
+                          </div>
+                        )}
+                        {currentSession.patientInfo.gender && (
+                          <div className="flex justify-between items-center py-1">
+                            <span className="font-medium text-gray-600">
+                              {language === 'ar' ? 'الجنس:' : 'Gender:'}
+                            </span>
+                            <span className="text-gray-900">
+                              {currentSession.patientInfo.gender === 'male'
+                                ? (language === 'ar' ? 'ذكر' : 'Male')
+                                : (language === 'ar' ? 'أنثى' : 'Female')
+                              }
+                            </span>
+                          </div>
+                        )}
+                        {currentSession.patientInfo.chiefComplaint && (
+                          <div className="flex justify-between items-center py-1">
+                            <span className="font-medium text-gray-600">
+                              {language === 'ar' ? 'الشكوى الرئيسية:' : 'Chief Complaint:'}
+                            </span>
+                            <span className="text-gray-900">{currentSession.patientInfo.chiefComplaint}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-blue-600" />
+                        {language === 'ar' ? 'معلومات الاستشارة' : 'Consultation Details'}
+                      </h2>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between items-center py-1">
+                          <span className="font-medium text-gray-600">
+                            {language === 'ar' ? 'تاريخ الاستشارة:' : 'Consultation Date:'}
+                          </span>
+                          <span className="text-gray-900">
+                            {new Date(currentSession.createdAt).toLocaleDateString(
+                              language === 'ar' ? 'ar-SA' : 'en-US',
+                              {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              }
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center py-1">
+                          <span className="font-medium text-gray-600">
+                            {language === 'ar' ? 'وقت الاستشارة:' : 'Consultation Time:'}
+                          </span>
+                          <span className="text-gray-900">
+                            {new Date(currentSession.createdAt).toLocaleTimeString(
+                              language === 'ar' ? 'ar-SA' : 'en-US',
+                              {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center py-1">
+                          <span className="font-medium text-gray-600">
+                            {language === 'ar' ? 'نوع التسجيل:' : 'Record Type:'}
+                          </span>
+                          <span className="text-blue-600 font-medium">
+                            {language === 'ar' ? 'تسجيل سريع' : 'Quick Record'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center py-1">
+                          <span className="font-medium text-gray-600">
+                            {language === 'ar' ? 'معرف الجلسة:' : 'Session ID:'}
+                          </span>
+                          <span className="text-gray-900 font-mono text-xs">
+                            {currentSession.id.slice(0, 8)}...
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Consultation Content */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-green-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      {language === 'ar' ? 'محتوى الاستشارة الطبية' : 'Medical Consultation Content'}
+                    </h2>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm">
+                    <div className="p-6">
+                      <div
+                        className="prose prose-lg max-w-none overflow-y-auto max-h-96 custom-scrollbar"
+                        dir={language === 'ar' ? 'rtl' : 'ltr'}
+                        style={{
+                          fontFamily: language === 'ar' ? 'Cairo, sans-serif' : 'Inter, sans-serif',
+                          lineHeight: '1.8'
+                        }}
+                      >
+                        <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                          {transcript || currentSession.transcriptContent ||
+                            (language === 'ar' ? 'لا يوجد محتوى متاح للاستشارة' : 'No consultation content available')
+                          }
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Statistics */}
+                    <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 rounded-b-xl">
+                      <div className="flex flex-wrap gap-6 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span>
+                            {language === 'ar' ? 'عدد الكلمات:' : 'Words:'}
+                            <span className="font-semibold text-gray-800 ml-1">
+                              {(transcript || currentSession.transcriptContent || '').split(/\s+/).filter(word => word.trim()).length}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span>
+                            {language === 'ar' ? 'عدد الأحرف:' : 'Characters:'}
+                            <span className="font-semibold text-gray-800 ml-1">
+                              {(transcript || currentSession.transcriptContent || '').length}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <span>
+                            {language === 'ar' ? 'وقت القراءة المتوقع:' : 'Est. reading time:'}
+                            <span className="font-semibold text-gray-800 ml-1">
+                              {Math.max(1, Math.ceil((transcript || currentSession.transcriptContent || '').split(/\s+/).length / 200))}
+                              {language === 'ar' ? ' دقيقة' : ' min'}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                    <button
+                      onClick={resetApp}
+                      className="inline-flex items-center justify-center gap-2 bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                    >
+                      <Edit className="h-4 w-4" />
+                      {language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
+                    </button>
+
+                    <div className="text-center sm:text-right">
+                      <p className="text-xs text-gray-500 mb-2">
+                        {language === 'ar' ? 'تم إنشاء هذا التقرير بواسطة' : 'Report generated by'}
+                      </p>
+                      <div className="text-sm font-semibold text-blue-600">
+                        Lexxi Medical AI
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
