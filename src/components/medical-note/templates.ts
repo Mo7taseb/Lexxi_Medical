@@ -12,6 +12,13 @@ export interface SectionTemplate {
 // English section templates
 export const englishSectionTemplates: SectionTemplate[] = [
   {
+    pattern: /^([A-Z][A-Z\s]+CONSULTATION NOTE)\s*$/gmi,
+    type: 'header',
+    color: '#0066cc',
+    icon: '📋',
+    priority: 0
+  },
+  {
     pattern: /^[\*]*\s*(Consultation Details):?\s*[\*]*(.*)$/gmi,
     type: 'header',
     color: '#ffffffff',

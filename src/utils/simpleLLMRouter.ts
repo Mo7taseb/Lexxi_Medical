@@ -717,57 +717,50 @@ Rules:
 
     switch (noteType) {
       case 'consultation':
-        return `Create a comprehensive consultation note using this EXACT structure and formatting. Each section title should be on its own line with content below:
+        return `Create a consultation note using this EXACT structure and format. Follow this template precisely:
 
 **Consultation Details:**
 Date of Consultation: ${currentDate}
-Patient Location: [Extract patient location, facility name, or department from the conversation]
-Consulting Service: [Extract the medical service or specialty involved from the conversation]
-Reason for Consult: [Extract and clearly state the main reason for consultation from the conversation]
-[If there is additional narrative about the consultation context, include it here on separate lines]
+Patient Location: [Extract facility name, department, or clinic from conversation]
+Consulting Service: [Extract medical service/specialty from conversation]
+Reason for Consult: [Extract main reason from conversation]
 
-**Patient Identification:**
-[Include patient demographics, age, location, and identifying information mentioned in the conversation]
+[Write a brief 1-2 sentence summary of the assessment, e.g., "I assessed [Patient] at [Location] for [condition]."]
 
-**Past Medical History:**
-List any previous medical conditions, surgeries, or significant medical events mentioned. If none discussed, note this appropriately.
+**HISTORY OF PRESENTING ILLNESS:**
+[Write a detailed narrative paragraph describing the patient's condition. Include patient demographics, timeline of symptom development, detailed symptom description, associated symptoms, previous treatments, and current status. Format as continuous prose, not bullet points.]
 
-**History of Presenting Illness:**
-Write a detailed narrative describing the patient's current condition based on the conversation. Include:
-- Patient demographics and presentation
-- Timeline of symptom development  
-- Detailed symptom description (location, quality, duration, triggers)
-- Associated symptoms
-- Previous treatments or interventions mentioned
-- Current status and patient's concerns
+**PAST MEDICAL HISTORY:**
+[List relevant past medical conditions using bullet points with dashes. If none, state "- No significant past medical history"]
 
-**Physical Examination:**
-Include any physical examination findings mentioned in the conversation. If no examination was performed/mentioned, note this appropriately.
+**Home medications:**
+[List current medications using bullet points with dashes, or state "- None"]
+
+**Allergies:**
+[List known allergies using bullet points with dashes, or state "- No known drug allergies"]
+
+**Social history:**
+[Include relevant social history details mentioned in conversation using bullet points with dashes - occupation, travel, lifestyle factors, family situation, etc.]
+
+**Physical examination:**
+[Describe physical examination findings mentioned in conversation using bullet points with dashes. If no examination mentioned, state appropriately.]
 
 **Investigation:**
 
-Lab Work:
-[List any laboratory results or tests mentioned in the conversation]
+Lab work:
+[List laboratory results using bullet points with dashes]
 
-Imaging Studies:
-[Include any imaging studies discussed with dates, types, results]
+Imaging:
+[List imaging studies using bullet points with dashes]
 
 Microbiology:
-[Include any cultures or microbiology results mentioned]
-
-Others:
-[Any additional tests or investigations discussed]
+[List microbiology results using bullet points with dashes, or state "- No microbiology results mentioned"]
 
 **Assessment:**
-Provide a clinical assessment based on the presenting symptoms and information gathered. Include:
-- Clinical impression based on symptoms
-- Differential considerations if appropriate
-- Severity assessment
+[Provide clinical assessment using bullet points with dashes for clinical impression, differential diagnosis, and problem prioritization]
 
 **Plan:**
-Outline the management plan based on the conversation, including:
-- Further evaluation needed
-- Treatment recommendations discussed
+[Provide detailed management plan using bullet points with dashes for specific actions and follow-up arrangements]
 - Follow-up arrangements
 - Patient education points
 
@@ -823,14 +816,50 @@ Note: This is an automatically generated template based on patient's verbal repo
 
     switch (noteType) {
       case 'consultation':
-        return `يرجى اتباع هذا الهيكل والتنسيق بالضبط. كل عنوان قسم يجب أن يكون في سطر منفصل مع المحتوى تحته:
+        return `أنشئ تقرير استشارة باستخدام هذا الهيكل والتنسيق بالضبط. اتبع هذا النموذج بدقة:
 
 **تفاصيل الاستشارة:**
 تاريخ الاستشارة: ${currentDate}
-موقع المريض: [استخرج موقع المريض أو اسم المرفق من المحادثة]
-الخدمة الاستشارية: [استخرج الخدمة الطبية أو التخصص المعني من المحادثة]
+موقع المريض: [استخرج اسم المرفق، القسم، أو العيادة من المحادثة]
+الخدمة الاستشارية: [استخرج الخدمة الطبية/التخصص من المحادثة]
 سبب الاستشارة: [استخرج السبب الرئيسي من المحادثة]
-[إذا كان هناك سرد إضافي حول سياق الاستشارة، أدرجه هنا في أسطر منفصلة]
+
+[اكتب ملخصاً موجزاً من 1-2 جملة للتقييم، مثل "قمت بتقييم [المريض] في [الموقع] لحالة [الحالة]."]
+
+**تاريخ المرض الحالي:**
+[اكتب فقرة سردية مفصلة تصف حالة المريض. اشمل التركيبة السكانية للمريض، الجدول الزمني لتطور الأعراض، وصف مفصل للأعراض، الأعراض المصاحبة، العلاجات السابقة، والحالة الحالية. اكتب كنثر مستمر، وليس نقاط.]
+
+**التاريخ المرضي السابق:**
+[اذكر الحالات الطبية السابقة باستخدام نقاط مع شرطات. إذا لم يكن هناك شيء، اكتب "- لا يوجد تاريخ مرضي مهم سابق"]
+
+**الأدوية المنزلية:**
+[اذكر الأدوية الحالية باستخدام نقاط مع شرطات، أو اكتب "- لا توجد"]
+
+**الحساسية:**
+[اذكر الحساسيات المعروفة باستخدام نقاط مع شرطات، أو اكتب "- لا توجد حساسية دوائية معروفة"]
+
+**التاريخ الاجتماعي:**
+[اشمل تفاصيل التاريخ الاجتماعي باستخدام نقاط مع شرطات - المهنة، السفر، عوامل نمط الحياة، الوضع العائلي، إلخ.]
+
+**الفحص البدني:**
+[اوصف نتائج الفحص البدني باستخدام نقاط مع شرطات. إذا لم يُذكر فحص، اذكر ذلك بشكل مناسب.]
+
+**الفحوصات:**
+
+الفحوصات المخبرية:
+[اذكر نتائج المختبر باستخدام نقاط مع شرطات]
+
+التصوير:
+[اذكر دراسات التصوير باستخدام نقاط مع شرطات]
+
+علم الأحياء الدقيقة:
+[اذكر نتائج علم الأحياء الدقيقة باستخدام نقاط مع شرطات، أو اكتب "- لم تُذكر نتائج علم أحياء دقيقة"]
+
+**التقييم:**
+[قدم التقييم الإكلينيكي باستخدام نقاط مع شرطات للانطباع الإكلينيكي، التشخيص التفريقي، وترتيب أولويات المشاكل]
+
+**الخطة:**
+[قدم خطة إدارة مفصلة باستخدام نقاط مع شرطات للإجراءات المحددة وترتيبات المتابعة]
 
 **تعريف المريض:**
 [استخرج تفاصيل المريض المذكورة في المحادثة]

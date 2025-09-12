@@ -279,22 +279,48 @@ function generateConsultationNote(transcript: string, medicalTerms: string[], sy
   const symptomDetails = extractSymptomDetails(transcript);
   
   if (language === 'en') {
-    return `Consultation Note
-
-**Consultation Details:**
+    return `**Consultation Details:**
 Date of Consultation: ${timestamp}
 Patient Location: [To be documented by healthcare provider]
 Consulting Service: [To be documented by healthcare provider]
 Reason for Consult: ${symptomDetails.mainComplaint || 'Medical consultation for evaluation and management'}
 
-**Patient Identification:**
-${patientInfo.description || 'Patient details to be documented by healthcare provider'}
+Brief assessment summary to be completed by healthcare provider.
 
-**Past Medical History:**
-${patientInfo.medicalHistory || 'Past medical history to be obtained and documented'}
-
-**History of Presenting Illness:**
+**HISTORY OF PRESENTING ILLNESS:**
 Patient presents with ${symptomDetails.presentingIllness || 'concerns requiring medical evaluation'}. ${transcript.length > 100 ? 'Based on the patient\'s account: ' + transcript : transcript}
+
+**PAST MEDICAL HISTORY:**
+- ${patientInfo.medicalHistory || 'Past medical history to be obtained and documented'}
+
+**Home medications:**
+- Current medications to be documented by healthcare provider
+
+**Allergies:**
+- Drug allergies to be documented by healthcare provider
+
+**Social history:**
+- Social history details to be obtained and documented
+
+**Physical examination:**
+- Physical examination findings to be documented by healthcare provider
+
+**Investigation:**
+
+Lab work:
+- Laboratory studies to be completed as clinically indicated
+
+Imaging:
+- Imaging studies as appropriate based on clinical presentation
+
+Microbiology:
+- No microbiology results mentioned
+
+**Assessment:**
+- Clinical assessment to be documented by healthcare provider
+
+**Plan:**
+- Management plan to be documented by healthcare provider
 
 ${symptomDetails.timeline ? `Timeline: ${symptomDetails.timeline}` : ''}
 ${symptomDetails.associatedSymptoms ? `Associated symptoms: ${symptomDetails.associatedSymptoms}` : ''}
@@ -327,19 +353,48 @@ Management plan based on clinical presentation:
 *Professional medical formatting and structure applied*`;
   }
 
-  return `تقرير استشارة
-
-**تفاصيل الاستشارة:**
+  return `**تفاصيل الاستشارة:**
 تاريخ الاستشارة: ${timestamp}
 موقع المريض: [يُملأ من قِبل مقدم الرعاية الصحية]
 الخدمة الاستشارية: [يُملأ من قِبل مقدم الرعاية الصحية]
 سبب الاستشارة: ${symptoms.length > 0 ? symptoms[0] : 'طلب استشارة طبية'}
 
-**بيانات المريض:**
-[يُملأ من قِبل مقدم الرعاية الصحية]
+ملخص موجز للتقييم يُملأ من قِبل مقدم الرعاية الصحية.
+
+**تاريخ المرض الحالي:**
+المريض يراجع بسبب ${symptoms.length > 0 ? symptoms.join('، ') : 'أعراض تتطلب تقييماً طبياً'}. تفاصيل إضافية تُملأ من قِبل مقدم الرعاية الصحية.
 
 **التاريخ المرضي السابق:**
-[يُملأ من قِبل مقدم الرعاية الصحية]
+- تاريخ مرضي سابق يُملأ من قِبل مقدم الرعاية الصحية
+
+**الأدوية المنزلية:**
+- الأدوية الحالية تُملأ من قِبل مقدم الرعاية الصحية
+
+**الحساسية:**
+- حساسيات الأدوية تُملأ من قِبل مقدم الرعاية الصحية
+
+**التاريخ الاجتماعي:**
+- تفاصيل التاريخ الاجتماعي تُملأ من قِبل مقدم الرعاية الصحية
+
+**الفحص البدني:**
+- نتائج الفحص البدني تُملأ من قِبل مقدم الرعاية الصحية
+
+**الفحوصات:**
+
+الفحوصات المخبرية:
+- فحوصات مختبرية حسب الحاجة الإكلينيكية
+
+التصوير:
+- دراسات التصوير حسب الحاجة الإكلينيكية
+
+علم الأحياء الدقيقة:
+- لم تُذكر نتائج علم أحياء دقيقة
+
+**التقييم:**
+- التقييم الإكلينيكي يُملأ من قِبل مقدم الرعاية الصحية
+
+**الخطة:**
+- خطة العلاج تُملأ من قِبل مقدم الرعاية الصحية
 
 **الأدوية المنزلية:**
 [قائمة بكل دواء مع الجرعة والتكرار المحدد - يُملأ من قِبل مقدم الرعاية الصحية]

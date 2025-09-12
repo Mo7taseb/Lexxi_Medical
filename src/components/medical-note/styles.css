@@ -147,6 +147,17 @@
     line-height: 1.5;
 }
 
+/* Consultation Note Title Styling */
+.medical-note-title {
+    text-align: center;
+    font-weight: 700 !important;
+    font-size: 1.3em;
+    margin: 16px 0 24px 0;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Consultation Details styling for combined section */
 .consultation-details-item {
     display: flex;
