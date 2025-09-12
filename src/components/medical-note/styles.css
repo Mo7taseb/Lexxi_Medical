@@ -107,16 +107,16 @@
     font-weight: 800 !important;
     color: #1e293b !important;
     font-size: 1.15em;
-    margin-bottom: -30px;
-    margin-top: -20px;
+    margin-bottom: 4px;
+    margin-top: 16px;
 }
 
 .investigation-subsection-header:first-child {
-    margin-top: 0px;
+    margin-top: 8px;
 }
 
 .investigation-subsection {
-    margin: 8px 0;
+    margin: 4px 0 8px 0;
     font-weight: 600 !important;
     color: #1e293b !important;
     font-size: 1.1em;
@@ -124,6 +124,27 @@
 
 .investigation-subsection:first-child {
     margin-top: 0;
+}
+
+/* New optimized investigation styling */
+.investigation-subsection-title {
+    margin: 12px 0 -20px 0;
+}
+
+.investigation-subsection-title:first-child {
+    margin-top: 4px;
+}
+
+.investigation-subsection-title strong {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    font-size: 1.1em;
+    display: block;
+}
+
+.investigation-content {
+    margin: 2px 0 8px 0;
+    line-height: 1.5;
 }
 
 /* Consultation Details styling for combined section */

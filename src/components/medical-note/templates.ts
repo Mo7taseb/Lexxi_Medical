@@ -414,13 +414,13 @@ export const formatSectionContent = (section: MedicalSection, language: Language
         }
         // Check if this line is a subsection header (with or without colon)
         else if (line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Pathology|Radiology|Blood\s*work|Urine\s*analysis|Stool\s*analysis|Other\s*Investigations|Others):?\s*$/i)) {
-          formattedLines.push(`<div class="investigation-subsection"><strong style="font-size: 1.1em; font-weight: 600;">${line.replace(/:$/, '')}</strong></div>`);
+          formattedLines.push(`<div class="investigation-subsection-title"><strong>${line.replace(/:$/, '')}</strong></div>`);
         } else if (line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Pathology|Radiology|Blood\s*work|Urine\s*analysis|Stool\s*analysis|Other\s*Investigations|Others):\s*(.+)/i)) {
           // Handle subsection with content on same line
           const match = line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Pathology|Radiology|Blood\s*work|Urine\s*analysis|Stool\s*analysis|Other\s*Investigations|Others):\s*(.+)/i);
           if (match) {
-            formattedLines.push(`<div class="investigation-subsection"><strong style="font-size: 1.1em; font-weight: 600;">${match[1]}:</strong></div>`);
-            formattedLines.push(match[2]);
+            formattedLines.push(`<div class="investigation-subsection-title"><strong>${match[1]}:</strong></div>`);
+            formattedLines.push(`<div class="investigation-content">${match[2]}</div>`);
           }
         } else {
           formattedLines.push(line);
