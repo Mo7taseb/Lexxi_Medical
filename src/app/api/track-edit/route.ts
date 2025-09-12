@@ -1,0 +1,325 @@
+// API Route: Track Note Edit
+// Server-side endpoint to securely store doctor's final edits
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { DataRedactionService } from '@/services/dataRedaction';
+import { DiffAnalysisService } from '@/services/diffAnalysis';
+
+// Server-side Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const redactionService = DataRedactionService.getInstance();
+const diffService = DiffAnalysisService.getInstance();
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      generationId,
+      finalNote,
+      finalSections,
+      editDurationSeconds
+    } = body;
+
+    // Validate required fields
+    if (!generationId || !finalNote || !finalSections) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Get original note generation
+    const { data: generation, error: fetchError } = await supabase
+      .from('note_generations')
+      .select('*')
+      .eq('id', generationId)
+      .single();
+
+    if (fetchError || !generation) {
+      console.error('Failed to fetch original generation:', fetchError);
+      return NextResponse.json(
+        { error: 'Original generation not found' },
+        { status: 404 }
+      );
+    }
+
+    // Redact PHI from final content
+    const redactedFinalNote = redactionService.redactMedicalNote(finalNote, generation.language);
+    const redactedFinalSections = redactionService.redactMedicalSections(finalSections, generation.language);
+
+    // Validate redaction
+    const noteValidation = redactionService.validateRedaction(redactedFinalNote, generation.language);
+    if (!noteValidation.isValid) {
+      console.warn('Potential PHI in final note:', noteValidation.potentialLeaks);
+    }
+
+    // Analyze differences between original and final
+    const noteDiff = diffService.analyzeMedicalNoteDiff(
+      generation.generated_note,
+      redactedFinalNote,
+      generation.language
+    );
+
+    const sectionDiffs = diffService.analyzeSectionDiffs(
+      generation.generated_sections,
+      redactedFinalSections,
+      generation.language
+    );
+
+    // Generate change summary
+    const changeSummary = diffService.generateChangeSummary(noteDiff);
+    
+    // Identify sections that changed significantly (less than 95% similarity)
+    const sectionsChanged = Object.keys(sectionDiffs).filter(
+      sectionId => sectionDiffs[sectionId].similarity < 0.95
+    );
+
+    // Calculate changes by section
+    const changesBySection: Record<string, { added: number; removed: number }> = {};
+    for (const [sectionId, diff] of Object.entries(sectionDiffs)) {
+      changesBySection[sectionId] = {
+        added: diff.additions.length,
+        removed: diff.deletions.length
+      };
+    }
+
+    // 🔧 VALIDATION: Ensure minimum edit duration for significant changes
+    const adjustedEditDuration = Math.max(
+      editDurationSeconds || 0,
+      changeSummary.totalChanges > 5 ? 1 : 0 // Minimum 1 second for substantial edits
+    );
+
+    // 🔧 VALIDATION: Log suspicious data patterns
+    if (changeSummary.totalChanges > 20 && adjustedEditDuration === 0) {
+      console.warn('⚠️ Suspicious: Large changes with 0 edit time:', {
+        totalChanges: changeSummary.totalChanges,
+        characterChanges: changeSummary.characterDifference,
+        generationId
+      });
+    }
+
+    // Extract medical term changes for learning
+    const medicalTermChanges = diffService.extractChangedMedicalTerms(
+      generation.generated_note,
+      redactedFinalNote,
+      generation.language
+    );
+
+    // Check for existing edit to prevent duplicates
+    const { data: existingEdit } = await supabase
+      .from('note_edits')
+      .select('id')
+      .eq('note_generation_id', generationId)
+      .single();
+
+    let noteEdit;
+    
+    if (existingEdit) {
+      // Update existing edit instead of creating duplicate
+      console.log(`🔄 Updating existing edit: ${existingEdit.id}`);
+      
+      const { data: updatedEdit, error: updateError } = await supabase
+        .from('note_edits')
+        .update({
+          final_note: redactedFinalNote,
+          final_sections: redactedFinalSections,
+          sections_changed: sectionsChanged,
+          total_changes: changeSummary.totalChanges,
+          changes_by_section: changesBySection,
+          edit_duration_seconds: adjustedEditDuration,
+          character_changes: changeSummary.characterDifference,
+          word_changes: changeSummary.additionsCount - changeSummary.deletionsCount,
+          saved_at: new Date().toISOString()
+        })
+        .eq('id', existingEdit.id)
+        .select()
+        .single();
+        
+      if (updateError) {
+        console.error('Database error updating edit:', updateError);
+        return NextResponse.json(
+          { error: 'Failed to update edit data' },
+          { status: 500 }
+        );
+      }
+      
+      noteEdit = updatedEdit;
+      
+      // Delete old section diffs before inserting new ones
+      await supabase
+        .from('section_diffs')
+        .delete()
+        .eq('note_edit_id', existingEdit.id);
+        
+    } else {
+      // Create new edit
+      console.log('➕ Creating new edit record');
+      
+      const { data: newEdit, error: editError } = await supabase
+        .from('note_edits')
+        .insert({
+          note_generation_id: generationId,
+          final_note: redactedFinalNote,
+          final_sections: redactedFinalSections,
+          sections_changed: sectionsChanged,
+          total_changes: changeSummary.totalChanges,
+          changes_by_section: changesBySection,
+          edit_duration_seconds: adjustedEditDuration,
+          character_changes: changeSummary.characterDifference,
+          word_changes: changeSummary.additionsCount - changeSummary.deletionsCount
+        })
+        .select()
+        .single();
+
+      if (editError) {
+        console.error('Database error storing edit:', editError);
+        return NextResponse.json(
+          { error: 'Failed to store edit data' },
+          { status: 500 }
+        );
+      }
+      
+      noteEdit = newEdit;
+    }
+
+    // Store detailed section diffs
+    const sectionDiffInserts = Object.entries(sectionDiffs)
+      .filter(([_, diff]) => diff.similarity < 1.0) // Only store sections that actually changed
+      .map(([sectionId, diff]) => {
+        const originalSection = generation.generated_sections.find((s: any) => s.id === sectionId);
+        const finalSection = redactedFinalSections.find(s => s.id === sectionId);
+        
+        return {
+          note_edit_id: noteEdit.id,
+          section_id: sectionId,
+          section_title: finalSection?.title || originalSection?.title,
+          section_type: finalSection?.type || originalSection?.type,
+          original_content: originalSection?.content || '',
+          final_content: finalSection?.content || '',
+          content_diff: diff,
+          change_type: categorizeChange(diff),
+          medical_terms_changed: Object.values(medicalTermChanges).flat()
+        };
+      });
+
+    if (sectionDiffInserts.length > 0) {
+      const { error: sectionError } = await supabase
+        .from('section_diffs')
+        .insert(sectionDiffInserts);
+
+      if (sectionError) {
+        console.warn('Failed to store section diffs:', sectionError);
+      }
+    }
+
+    // Update generation record to mark as edited
+    await supabase
+      .from('note_generations')
+      .update({
+        is_edited: true,
+        edit_completed_at: new Date().toISOString()
+      })
+      .eq('id', generationId);
+
+    // Store learning insights for high-relevance changes
+    await storeLearningInsights(
+      generation,
+      medicalTermChanges,
+      changeSummary,
+      sectionsChanged
+    );
+
+    // Log successful tracking
+    console.log(`✅ Note edit tracked: ${noteEdit.id} (${changeSummary.totalChanges} changes)`);
+    console.log(`📊 Sections changed: ${sectionsChanged.join(', ')}`);
+    console.log(`🔍 Medical terms: +${medicalTermChanges.added.length}, -${medicalTermChanges.removed.length}, ~${medicalTermChanges.modified.length}`);
+
+    return NextResponse.json({
+      success: true,
+      editId: noteEdit.id,
+      changesDetected: changeSummary.totalChanges,
+      sectionsChanged,
+      medicalTermChanges,
+      changeSummary,
+      message: 'Note edit tracked successfully'
+    });
+
+  } catch (error) {
+    console.error('Error in track-edit API:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+function categorizeChange(diff: any): 'addition' | 'deletion' | 'modification' | 'no_change' {
+  if (diff.additions.length > 0 && diff.deletions.length > 0) return 'modification';
+  if (diff.additions.length > 0) return 'addition';
+  if (diff.deletions.length > 0) return 'deletion';
+  return 'no_change';
+}
+
+async function storeLearningInsights(
+  generation: any,
+  medicalTermChanges: any,
+  changeSummary: any,
+  sectionsChanged: string[]
+) {
+  try {
+    const insights = [];
+
+    // Track common corrections
+    for (const modification of medicalTermChanges.modified) {
+      insights.push({
+        pattern_type: 'common_correction',
+        original_pattern: modification.from,
+        corrected_pattern: modification.to,
+        context_data: {
+          note_type: generation.note_type,
+          language: generation.language,
+          generation_source: generation.generation_source
+        },
+        note_type: generation.note_type,
+        language: generation.language,
+        confidence_score: 0.8
+      });
+    }
+
+    // Track frequent additions (new medical terms)
+    for (const addition of medicalTermChanges.added.slice(0, 5)) { // Limit to top 5
+      insights.push({
+        pattern_type: 'frequent_addition',
+        original_pattern: '',
+        corrected_pattern: addition,
+        context_data: {
+          note_type: generation.note_type,
+          language: generation.language,
+          sections_affected: sectionsChanged
+        },
+        note_type: generation.note_type,
+        language: generation.language,
+        confidence_score: 0.6
+      });
+    }
+
+    if (insights.length > 0) {
+      // Use upsert to handle duplicate patterns
+      for (const insight of insights) {
+        await supabase
+          .from('learning_insights')
+          .upsert(insight, {
+            onConflict: 'original_pattern,corrected_pattern,note_type,language'
+          });
+      }
+    }
+
+  } catch (error) {
+    console.warn('Failed to store learning insights:', error);
+  }
+}

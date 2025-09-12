@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { SimpleLLMRouter } from '@/utils/simpleLLMRouter';
 import { generateEnhancedFallbackNote } from '@/utils/simpleFallbackGenerator';
+import { parseNoteToSections } from '@/components/medical-note/templates';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -159,12 +160,24 @@ export async function POST(request: NextRequest) {
       console.log(`🧹 Cleaned note (first 200 chars): "${cleanedNote.substring(0, 200)}..."`);
       console.log(`✅ Note generated using ${noteResult.source} in English`);
 
-      return NextResponse.json({
+      const response = {
         note: cleanedNote,
         source: noteResult.source,
         confidence: 0.9,
         language: language
-      });
+      };
+
+      // Track note generation in background (non-blocking)
+      trackNoteGeneration(
+        transcript,
+        noteType,
+        language,
+        cleanedNote,
+        noteResult.source,
+        0.9
+      ).catch((error: any) => console.warn('Failed to track note generation:', error));
+
+      return NextResponse.json(response);
     } catch (routerError) {
       console.log(`⚠️ Smart LLM Router failed (English), trying OpenAI...`, routerError);
     }
@@ -199,24 +212,49 @@ export async function POST(request: NextRequest) {
       console.log(`🧹 Cleaned note (first 200 chars): "${cleanedNote.substring(0, 200)}..."`);
       console.log(`✅ Note generated with OpenAI in English`);
 
-      return NextResponse.json({
+      const response = {
         note: cleanedNote,
         source: 'openai',
         confidence: 0.95,
         language: language
-      });
+      };
+
+      // Track note generation in background
+      trackNoteGeneration(
+        transcript,
+        noteType,
+        language,
+        cleanedNote,
+        'openai',
+        0.95
+      ).catch((error: any) => console.warn('Failed to track OpenAI note generation:', error));
+
+      return NextResponse.json(response);
     }
 
     // Final fallback to enhanced note generation
     console.log(`📝 Using enhanced fallback note generator for English...`);
     const fallbackNote = generateEnhancedFallbackNote({ transcript, noteType, language });
     const cleanedFallbackNote = cleanNoteContent(fallbackNote, language);
-    return NextResponse.json({
+    
+    const response = {
       note: cleanedFallbackNote,
       source: 'fallback',
       confidence: 0.3,
       language: language
-    });
+    };
+
+    // Track fallback note generation
+    trackNoteGeneration(
+      transcript,
+      noteType,
+      language,
+      cleanedFallbackNote,
+      'fallback',
+      0.3
+    ).catch((error: any) => console.warn('Failed to track fallback note generation:', error));
+
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error('Note generation error:', error);
@@ -240,6 +278,54 @@ export async function POST(request: NextRequest) {
     const fallbackNote = generateEnhancedFallbackNote({ transcript, noteType, language });
     const cleanedErrorFallbackNote = cleanNoteContent(fallbackNote, language);
     return NextResponse.json({ note: cleanedErrorFallbackNote, source: 'error-fallback', confidence: 0.1 });
+  }
+}
+
+// Helper function to track note generation (non-blocking)
+async function trackNoteGeneration(
+  transcript: string,
+  noteType: string,
+  language: string,
+  generatedNote: string,
+  source: string,
+  confidence: number
+): Promise<void> {
+  try {
+    // Only track if tracking is enabled (check via header or env var)
+    const trackingEnabled = process.env.ENABLE_CHANGE_TRACKING === 'true';
+    if (!trackingEnabled) return;
+
+    // Parse note into sections
+    const sections = parseNoteToSections(generatedNote, language as 'ar' | 'en');
+    
+    // Generate session ID for this tracking instance
+    const sessionId = `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Call internal tracking API
+    const trackingResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/track-generation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId,
+        doctorAnonId: 'anonymous', // Will be set by client later
+        transcript,
+        noteType,
+        language,
+        generatedNote,
+        generatedSections: sections,
+        generationSource: source,
+        generationConfidence: confidence,
+        processingTimeMs: Date.now()
+      })
+    });
+
+    if (!trackingResponse.ok) {
+      console.warn('Failed to track note generation:', await trackingResponse.text());
+    }
+  } catch (error) {
+    console.warn('Error in note generation tracking:', error);
   }
 }
 

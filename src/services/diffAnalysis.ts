@@ -1,0 +1,428 @@
+// Medical Note Diff Analysis Service
+// Analyzes changes between original and edited medical notes
+
+import { DiffResult, DiffChange, MedicalSection } from '@/types/changeTracking';
+
+export class DiffAnalysisService {
+  private static instance: DiffAnalysisService;
+
+  public static getInstance(): DiffAnalysisService {
+    if (!DiffAnalysisService.instance) {
+      DiffAnalysisService.instance = new DiffAnalysisService();
+    }
+    return DiffAnalysisService.instance;
+  }
+
+  /**
+   * Compare two medical notes and generate detailed diff
+   */
+  public analyzeMedicalNoteDiff(
+    originalNote: string,
+    finalNote: string,
+    language: 'ar' | 'en' = 'ar'
+  ): DiffResult {
+    // Normalize both texts
+    const normalizedOriginal = this.normalizeText(originalNote, language);
+    const normalizedFinal = this.normalizeText(finalNote, language);
+
+    // Generate word-level diff
+    const wordDiff = this.generateWordDiff(normalizedOriginal, normalizedFinal);
+    
+    // Analyze changes
+    const additions = this.extractAdditions(wordDiff);
+    const deletions = this.extractDeletions(wordDiff);
+    const modifications = this.extractModifications(wordDiff);
+
+    // Calculate similarity score
+    const similarity = this.calculateSimilarity(normalizedOriginal, normalizedFinal);
+
+    return {
+      additions: additions.map(change => ({
+        ...change,
+        medicalRelevance: this.assessMedicalRelevance(change.content, language)
+      })),
+      deletions: deletions.map(change => ({
+        ...change,
+        medicalRelevance: this.assessMedicalRelevance(change.content, language)
+      })),
+      modifications: modifications.map(change => ({
+        ...change,
+        medicalRelevance: this.assessMedicalRelevance(change.content, language)
+      })),
+      similarity
+    };
+  }
+
+  /**
+   * Compare medical sections and identify changes
+   */
+  public analyzeSectionDiffs(
+    originalSections: MedicalSection[],
+    finalSections: MedicalSection[],
+    language: 'ar' | 'en' = 'ar'
+  ): Record<string, DiffResult> {
+    const sectionDiffs: Record<string, DiffResult> = {};
+
+    // Create maps for easier lookup
+    const originalMap = new Map(originalSections.map(s => [s.id, s]));
+    const finalMap = new Map(finalSections.map(s => [s.id, s]));
+
+    // Analyze each section
+    const allSectionIds = new Set([
+      ...originalSections.map(s => s.id),
+      ...finalSections.map(s => s.id)
+    ]);
+
+    for (const sectionId of allSectionIds) {
+      const original = originalMap.get(sectionId);
+      const final = finalMap.get(sectionId);
+
+      if (!original && final) {
+        // New section added
+        sectionDiffs[sectionId] = {
+          additions: [{
+            position: 0,
+            content: final.content,
+            context: `New section: ${final.title || 'Untitled'}`,
+            medicalRelevance: this.assessMedicalRelevance(final.content, language)
+          }],
+          deletions: [],
+          modifications: [],
+          similarity: 0
+        };
+      } else if (original && !final) {
+        // Section removed
+        sectionDiffs[sectionId] = {
+          additions: [],
+          deletions: [{
+            position: 0,
+            content: original.content,
+            context: `Removed section: ${original.title || 'Untitled'}`,
+            medicalRelevance: this.assessMedicalRelevance(original.content, language)
+          }],
+          modifications: [],
+          similarity: 0
+        };
+      } else if (original && final) {
+        // Section modified
+        sectionDiffs[sectionId] = this.analyzeMedicalNoteDiff(
+          original.content,
+          final.content,
+          language
+        );
+      }
+    }
+
+    return sectionDiffs;
+  }
+
+  /**
+   * Extract medical terms that changed
+   */
+  public extractChangedMedicalTerms(
+    originalText: string,
+    finalText: string,
+    language: 'ar' | 'en' = 'ar'
+  ): { added: string[]; removed: string[]; modified: Array<{ from: string; to: string }> } {
+    const originalTerms = this.extractMedicalTerms(originalText, language);
+    const finalTerms = this.extractMedicalTerms(finalText, language);
+
+    const added = finalTerms.filter(term => !originalTerms.includes(term));
+    const removed = originalTerms.filter(term => !finalTerms.includes(term));
+    
+    // Find potential modifications (terms that are similar but not identical)
+    const modified: Array<{ from: string; to: string }> = [];
+    for (const removedTerm of removed) {
+      for (const addedTerm of added) {
+        if (this.areTermsSimilar(removedTerm, addedTerm)) {
+          modified.push({ from: removedTerm, to: addedTerm });
+        }
+      }
+    }
+
+    // Remove modified terms from added/removed lists
+    const modifiedFrom = modified.map(m => m.from);
+    const modifiedTo = modified.map(m => m.to);
+
+    return {
+      added: added.filter(term => !modifiedTo.includes(term)),
+      removed: removed.filter(term => !modifiedFrom.includes(term)),
+      modified
+    };
+  }
+
+  /**
+   * Normalize text for comparison (ignore whitespace, punctuation)
+   */
+  private normalizeText(text: string, language: 'ar' | 'en'): string {
+    let normalized = text.toLowerCase().trim();
+    
+    // Remove extra whitespace
+    normalized = normalized.replace(/\s+/g, ' ');
+    
+    // Remove common punctuation (but keep medical-relevant ones)
+    normalized = normalized.replace(/[.,;!?()[\]{}""'']/g, '');
+    
+    // Arabic-specific normalization
+    if (language === 'ar') {
+      // Remove diacritics
+      normalized = normalized.replace(/[\u064B-\u0652\u0670\u0640]/g, '');
+      // Normalize Arabic letters
+      normalized = normalized.replace(/[أإآ]/g, 'ا');
+      normalized = normalized.replace(/[ة]/g, 'ه');
+    }
+    
+    return normalized;
+  }
+
+  /**
+   * Generate word-level diff using simple algorithm
+   */
+  private generateWordDiff(original: string, final: string): Array<{
+    type: 'equal' | 'insert' | 'delete';
+    content: string;
+    position: number;
+  }> {
+    const originalWords = original.split(/\s+/);
+    const finalWords = final.split(/\s+/);
+    
+    // Simple LCS-based diff algorithm
+    const diff: Array<{ type: 'equal' | 'insert' | 'delete'; content: string; position: number }> = [];
+    
+    let i = 0, j = 0, position = 0;
+    
+    while (i < originalWords.length || j < finalWords.length) {
+      if (i >= originalWords.length) {
+        // Remaining words are insertions
+        diff.push({ type: 'insert', content: finalWords[j], position });
+        j++;
+      } else if (j >= finalWords.length) {
+        // Remaining words are deletions
+        diff.push({ type: 'delete', content: originalWords[i], position });
+        i++;
+      } else if (originalWords[i] === finalWords[j]) {
+        // Words match
+        diff.push({ type: 'equal', content: originalWords[i], position });
+        i++;
+        j++;
+      } else {
+        // Look ahead to find matches
+        let foundMatch = false;
+        for (let k = 1; k <= 3 && j + k < finalWords.length; k++) {
+          if (originalWords[i] === finalWords[j + k]) {
+            // Insert the skipped words
+            for (let l = 0; l < k; l++) {
+              diff.push({ type: 'insert', content: finalWords[j + l], position });
+            }
+            j += k;
+            foundMatch = true;
+            break;
+          }
+        }
+        
+        if (!foundMatch) {
+          for (let k = 1; k <= 3 && i + k < originalWords.length; k++) {
+            if (originalWords[i + k] === finalWords[j]) {
+              // Delete the skipped words
+              for (let l = 0; l < k; l++) {
+                diff.push({ type: 'delete', content: originalWords[i + l], position });
+              }
+              i += k;
+              foundMatch = true;
+              break;
+            }
+          }
+        }
+        
+        if (!foundMatch) {
+          // No match found, treat as substitution
+          diff.push({ type: 'delete', content: originalWords[i], position });
+          diff.push({ type: 'insert', content: finalWords[j], position });
+          i++;
+          j++;
+        }
+      }
+      position++;
+    }
+    
+    return diff;
+  }
+
+  /**
+   * Extract additions from diff
+   */
+  private extractAdditions(diff: Array<{ type: string; content: string; position: number }>): DiffChange[] {
+    return diff
+      .filter(item => item.type === 'insert')
+      .map(item => ({
+        position: item.position,
+        content: item.content,
+        context: this.getContext(diff, item.position)
+      }));
+  }
+
+  /**
+   * Extract deletions from diff
+   */
+  private extractDeletions(diff: Array<{ type: string; content: string; position: number }>): DiffChange[] {
+    return diff
+      .filter(item => item.type === 'delete')
+      .map(item => ({
+        position: item.position,
+        content: item.content,
+        context: this.getContext(diff, item.position)
+      }));
+  }
+
+  /**
+   * Extract modifications from diff
+   */
+  private extractModifications(diff: Array<{ type: string; content: string; position: number }>): DiffChange[] {
+    const modifications: DiffChange[] = [];
+    
+    for (let i = 0; i < diff.length - 1; i++) {
+      if (diff[i].type === 'delete' && diff[i + 1].type === 'insert') {
+        modifications.push({
+          position: diff[i].position,
+          content: `${diff[i].content} → ${diff[i + 1].content}`,
+          context: this.getContext(diff, diff[i].position)
+        });
+      }
+    }
+    
+    return modifications;
+  }
+
+  /**
+   * Get context around a change
+   */
+  private getContext(diff: Array<{ type: string; content: string; position: number }>, position: number): string {
+    const contextRange = 2;
+    const start = Math.max(0, position - contextRange);
+    const end = Math.min(diff.length, position + contextRange + 1);
+    
+    return diff
+      .slice(start, end)
+      .filter(item => item.type === 'equal')
+      .map(item => item.content)
+      .join(' ');
+  }
+
+  /**
+   * Calculate similarity between two texts (0-1 score)
+   */
+  private calculateSimilarity(text1: string, text2: string): number {
+    if (text1 === text2) return 1;
+    if (!text1 || !text2) return 0;
+    
+    const words1 = text1.split(/\s+/);
+    const words2 = text2.split(/\s+/);
+    
+    const commonWords = words1.filter(word => words2.includes(word));
+    const totalWords = Math.max(words1.length, words2.length);
+    
+    return totalWords > 0 ? commonWords.length / totalWords : 0;
+  }
+
+  /**
+   * Assess medical relevance of a change
+   */
+  private assessMedicalRelevance(content: string, language: 'ar' | 'en'): 'high' | 'medium' | 'low' {
+    const medicalKeywords = language === 'ar' ? [
+      // Arabic medical terms
+      'تشخيص', 'علاج', 'دواء', 'جرعة', 'أعراض', 'فحص', 'تحليل', 'مرض',
+      'طبي', 'سريري', 'صحي', 'دم', 'قلب', 'رئة', 'كبد', 'كلى'
+    ] : [
+      // English medical terms
+      'diagnosis', 'treatment', 'medication', 'dosage', 'symptoms', 'examination',
+      'test', 'disease', 'medical', 'clinical', 'health', 'blood', 'heart',
+      'lung', 'liver', 'kidney', 'mg', 'ml', 'twice', 'daily', 'patient'
+    ];
+
+    const lowerContent = content.toLowerCase();
+    const matchCount = medicalKeywords.filter(keyword => lowerContent.includes(keyword)).length;
+    
+    if (matchCount >= 2) return 'high';
+    if (matchCount >= 1) return 'medium';
+    return 'low';
+  }
+
+  /**
+   * Extract medical terms from text
+   */
+  private extractMedicalTerms(text: string, language: 'ar' | 'en'): string[] {
+    const medicalPatterns = language === 'ar' ? [
+      /\b(?:مرض|داء|متلازمة|التهاب|ورم|سرطان|عدوى|فيروس|بكتيريا)\s+[\u0600-\u06FF\s]+/g,
+      /\b(?:دواء|علاج|جرعة)\s+[\u0600-\u06FF\s]+/g,
+    ] : [
+      /\b(?:disease|syndrome|infection|inflammation|tumor|cancer|virus|bacteria)\s+[A-Za-z\s]+/gi,
+      /\b(?:medication|drug|treatment|therapy)\s+[A-Za-z\s]+/gi,
+      /\b[A-Z][a-z]+(?:ine|ol|um|ate|ide)\b/g, // Common drug suffixes
+    ];
+
+    const terms: string[] = [];
+    
+    for (const pattern of medicalPatterns) {
+      const matches = text.match(pattern);
+      if (matches) {
+        terms.push(...matches.map(match => match.trim()));
+      }
+    }
+
+    return [...new Set(terms)]; // Remove duplicates
+  }
+
+  /**
+   * Check if two terms are similar (for detecting modifications)
+   */
+  private areTermsSimilar(term1: string, term2: string): boolean {
+    if (term1 === term2) return false; // Identical terms, not similar
+    
+    // Simple similarity check using Levenshtein-like approach
+    const maxLength = Math.max(term1.length, term2.length);
+    const minLength = Math.min(term1.length, term2.length);
+    
+    // If length difference is too large, likely not similar
+    if ((maxLength - minLength) / maxLength > 0.5) return false;
+    
+    // Count common characters
+    const commonChars = term1.split('').filter(char => term2.includes(char)).length;
+    const similarity = commonChars / maxLength;
+    
+    return similarity > 0.6; // 60% similarity threshold
+  }
+
+  /**
+   * Generate summary statistics for changes
+   */
+  public generateChangeSummary(diffResult: DiffResult): {
+    totalChanges: number;
+    additionsCount: number;
+    deletionsCount: number;
+    modificationsCount: number;
+    highRelevanceChanges: number;
+    characterDifference: number;
+  } {
+    const additionsCount = diffResult.additions.length;
+    const deletionsCount = diffResult.deletions.length;
+    const modificationsCount = diffResult.modifications.length;
+    
+    const highRelevanceChanges = [
+      ...diffResult.additions,
+      ...diffResult.deletions,
+      ...diffResult.modifications
+    ].filter(change => change.medicalRelevance === 'high').length;
+
+    const addedChars = diffResult.additions.reduce((sum, change) => sum + change.content.length, 0);
+    const removedChars = diffResult.deletions.reduce((sum, change) => sum + change.content.length, 0);
+    
+    return {
+      totalChanges: additionsCount + deletionsCount + modificationsCount,
+      additionsCount,
+      deletionsCount,
+      modificationsCount,
+      highRelevanceChanges,
+      characterDifference: addedChars - removedChars
+    };
+  }
+}
