@@ -26,17 +26,31 @@ export const englishSectionTemplates: SectionTemplate[] = [
     priority: 1
   },
   {
-    pattern: /^[\*]*\s*(Patient (?:identification|location)):?\s*[\*]*(.*)$/gmi,
+    pattern: /^[\*]*\s*(Reason (?:for )?(?:of )?consult(?:ation)?):?\s*[\*]*(.*)$/gmi,
     type: 'header',
     color: '#ffffffff',
-    icon: '👤',
+    icon: '📋',
     priority: 2
+  },
+  {
+    pattern: /^[\*]*\s*(Date of consult(?:ation)?):?\s*[\*]*(.*)$/gmi,
+    type: 'header',
+    color: '#ffffffff',
+    icon: '📅',
+    priority: 1
   },
   {
     pattern: /^[\*]*\s*(Reason (?:for )?(?:of )?consult(?:ation)?):?\s*[\*]*(.*)$/gmi,
     type: 'header',
     color: '#ffffffff',
-    icon: '📋',
+    icon: '�',
+    priority: 2
+  },
+  {
+    pattern: /^[\*]*\s*(Patient (?:identification|location)):?\s*[\*]*(.*)$/gmi,
+    type: 'header',
+    color: '#ffffffff',
+    icon: '👤',
     priority: 3
   },
   {
@@ -106,6 +120,13 @@ export const englishSectionTemplates: SectionTemplate[] = [
 
 // Arabic section templates
 export const arabicSectionTemplates: SectionTemplate[] = [
+  {
+    pattern: /^(تفاصيل الاستشارة:.*?)$/gmi,
+    type: 'header',
+    color: '#0066cc',
+    icon: '📅',
+    priority: 1
+  },
   {
     pattern: /^(تاريخ الاستشارة:.*?)$/gmi,
     type: 'header',
@@ -184,21 +205,20 @@ export const parseNoteToSections = (note: string, language: Language): MedicalSe
   let sectionCounter = 0;
   let isInConsultationDetails = false;
 
-  // List of major sections that should break consultation details grouping
-  const majorSections = [
-    'Patient identification',
-    'Past medical history',
-    'History of presenting illness',
-    'Physical examination',
-    'Investigation',
-    'Assessment',
-    'Plan',
-    'Home medications',
-    'Allergies',
-    'Social history'
-  ];
-
-  for (const line of lines) {
+    // List of major sections that should break consultation details grouping
+    const majorSections = [
+      'Consultation details',
+      'Patient identification',
+      'Past medical history',
+      'History of presenting illness',
+      'Physical examination',
+      'Investigation',
+      'Assessment',
+      'Plan',
+      'Home medications',
+      'Allergies',
+      'Social history'
+    ];  for (const line of lines) {
     let matched = false;
     const cleanLine = line.trim();
 
@@ -385,9 +405,23 @@ export const formatSectionContent = (section: MedicalSection, language: Language
 
       // Regular line
       if (line) {
-        // Check if this line is a subsection header (ends with colon)
-        if (line.match(/^(Lab work|Imaging|Microbiology|Pathology|Radiology|Laboratory|Blood work|Urine analysis|Stool analysis):?\s*$/i)) {
-          formattedLines.push(`<p class="investigation-subsection-header"><strong>${line}</strong></p>`);
+        // Check for consultation details format  
+        if (line.match(/^(Date of Consult(?:ation)?|Patient Location|Consulting Service|Reason for Consult|تاريخ الاستشارة|موقع المريض|الخدمة الاستشارية|سبب الاستشارة):\s*(.+)/i)) {
+          const match = line.match(/^(Date of Consult(?:ation)?|Patient Location|Consulting Service|Reason for Consult|تاريخ الاستشارة|موقع المريض|الخدمة الاستشارية|سبب الاستشارة):\s*(.+)/i);
+          if (match) {
+            formattedLines.push(`${match[1]}: ${match[2]}`);
+          }
+        }
+        // Check if this line is a subsection header (with or without colon)
+        else if (line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Pathology|Radiology|Blood\s*work|Urine\s*analysis|Stool\s*analysis|Other\s*Investigations|Others):?\s*$/i)) {
+          formattedLines.push(`<div class="investigation-subsection"><strong style="font-size: 1.1em; font-weight: 600;">${line.replace(/:$/, '')}</strong></div>`);
+        } else if (line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Pathology|Radiology|Blood\s*work|Urine\s*analysis|Stool\s*analysis|Other\s*Investigations|Others):\s*(.+)/i)) {
+          // Handle subsection with content on same line
+          const match = line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Pathology|Radiology|Blood\s*work|Urine\s*analysis|Stool\s*analysis|Other\s*Investigations|Others):\s*(.+)/i);
+          if (match) {
+            formattedLines.push(`<div class="investigation-subsection"><strong style="font-size: 1.1em; font-weight: 600;">${match[1]}:</strong></div>`);
+            formattedLines.push(match[2]);
+          }
         } else {
           formattedLines.push(line);
         }

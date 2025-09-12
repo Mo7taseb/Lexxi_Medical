@@ -115,12 +115,49 @@
     margin-top: 0px;
 }
 
-
-.medical-section-content p:has(+ .medical-bullet-list),
-.medical-section-content p:has(+ ul) {
-    font-weight: 700;
-    color: #1e293b;
+.investigation-subsection {
+    margin: 8px 0;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    font-size: 1.1em;
 }
+
+.investigation-subsection:first-child {
+    margin-top: 0;
+}
+
+/* Consultation Details styling for combined section */
+.consultation-details-item {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.5;
+}
+
+.consultation-details-label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.consultation-details-content {
+    flex: 1;
+    color: #1f2937;
+}
+
+/* Style for consultation details in medical notes */
+.consultation-details-item {
+    margin: 4px 0;
+}
+
+/* Enhanced formatting for consultation details lines */
+.medical-section-content br + strong {
+    margin-top: 8px;
+    display: inline-block;
+}
+
+
+/* Removed :has() selector for better compatibility */
 
 
 /* Professional button styling for save/cancel */
@@ -357,7 +394,7 @@
 }
 
 /* Editing state styling */
-.medical-section:has(textarea) {
+.medical-section.editing {
     background: linear-gradient(135deg, #fefffe 0%, #f0f9ff 100%);
     border: 2px solid #3b82f6;
     box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);

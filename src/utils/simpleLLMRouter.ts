@@ -201,6 +201,16 @@ export class SimpleLLMRouter {
       if (this.validateMedicalNote(cleanedNote, transcript)) {
         console.log('✅ Medical note generated with Groq 70B');
         return { note: cleanedNote, source: 'groq-70b' };
+      } else {
+        console.log('⚠️ Primary model note failed validation, trying strict mode');
+        
+        // Try again with stricter prompt emphasizing no hallucinations
+        const strictNote = await this.generateStrictNoteWithGroq(transcript, noteType, language, this.primaryModel);
+        const cleanedStrictNote = this.cleanNoteContent(strictNote, language);
+        if (this.validateMedicalNote(cleanedStrictNote, transcript)) {
+          console.log('✅ Strict mode note generated with Groq 70B');
+          return { note: cleanedStrictNote, source: 'groq-70b-strict' };
+        }
       }
     } catch (error) {
       console.log('⚠️ Primary model failed for note generation:', error);
@@ -213,6 +223,16 @@ export class SimpleLLMRouter {
       if (this.validateMedicalNote(cleanedNote, transcript)) {
         console.log('✅ Medical note generated with Groq 8B fallback');
         return { note: cleanedNote, source: 'groq-8b' };
+      } else {
+        console.log('⚠️ Fallback model note failed validation, trying strict mode');
+        
+        // Try again with stricter prompt
+        const strictNote = await this.generateStrictNoteWithGroq(transcript, noteType, language, this.fallbackModel);
+        const cleanedStrictNote = this.cleanNoteContent(strictNote, language);
+        if (this.validateMedicalNote(cleanedStrictNote, transcript)) {
+          console.log('✅ Strict mode note generated with Groq 8B');
+          return { note: cleanedStrictNote, source: 'groq-8b-strict' };
+        }
       }
     } catch (error) {
       console.log('❌ All Groq models failed for note generation:', error);
@@ -309,55 +329,52 @@ Enhancement requirements:
     return enhanced;
   }
 
-  private async generateNoteWithGroq(transcript: string, noteType: string, language: string, model: string): Promise<string> {
+  private async generateStrictNoteWithGroq(transcript: string, noteType: string, language: string, model: string): Promise<string> {
     let systemPrompt: string;
     let userPrompt: string;
     
     if (language === 'ar') {
-      systemPrompt = "أنت طبيب خبير متخصص في كتابة التقارير الطبية الاحترافية باللغة العربية. تتميز بالدقة والوضوح والالتزام بالمعايير الطبية. ابدأ مباشرة بالتقرير بدون أي مقدمات أو عبارات تمهيدية.";
-      
-      const noteTypeArabic = {
-        'consultation': 'استشارة طبية',
-        'examination': 'فحص طبي',
-        'diagnosis': 'تشخيص',
-        'treatment': 'خطة علاج',
-        'follow-up': 'متابعة',
-        'general': 'تقرير عام'
-      }[noteType] || 'تقرير طبي';
+      systemPrompt = `أنت مساعد طبي محافظ ودقيق. مهمتك كتابة تقارير طبية بسيطة ومنظمة بدون إضافة أي معلومات غير موجودة.
 
-      userPrompt = `اكتب ${noteTypeArabic} احترافي مفصل بناءً على هذه المحادثة الطبية. ابدأ مباشرة بالتقرير:
+قواعد صارمة:
+1. استخدم فقط النص المُقدم - لا تخترع أي شيء
+2. لا تضيف أرقام أو تواريخ أو قياسات غير مذكورة
+3. لا تضيف أدوية أو علاجات غير مذكورة
+4. إذا لم تُذكر معلومة، اتركها فارغة أو اكتب "[غير مذكور]"
+5. ابدأ مباشرة بالتقرير`;
+      
+      userPrompt = `اكتب تقرير طبي بسيط ومحافظ بناءً فقط على هذا النص:
 
 "${transcript}"
 
-${this.getArabicNoteStructure(noteType)}
+اكتب تقرير منظم بالأقسام التالية:
+- سبب الزيارة: [من النص فقط]
+- وصف الأعراض: [من النص فقط]
+- التقييم: [عام بناءً على الأعراض]
+- التوصيات: [عامة ومحافظة]
 
-متطلبات التقرير:
-- ابدأ مباشرة بالتقرير بدون مقدمات مثل "إليك التقرير" أو "فيما يلي"
-- اكتب تقرير طبي شامل ومنظم
-- استخدم المصطلحات الطبية العربية المناسبة
-- اتبع الهيكل المحدد بدقة
-- اذكر كل التفاصيل المهمة من المحادثة
-- استخدم لغة طبية احترافية
-- تأكد من الدقة والوضوح
-- لا تضيف معلومات غير موجودة في النص`;
+لا تضيف: أرقام، تواريخ، أدوية، أو فحوصات غير مذكورة`;
     } else {
-      systemPrompt = "You are an expert physician specialized in writing professional medical reports. You are known for accuracy, clarity, and adherence to medical standards. Start directly with the report content without any introductory phrases.";
+      systemPrompt = `You are a conservative medical assistant. Your task is to write simple, organized medical reports without adding any information not present in the source.
+
+STRICT RULES:
+1. Use only the provided text - do not invent anything
+2. Do not add numbers, dates, or measurements not mentioned
+3. Do not add medications or treatments not mentioned
+4. If information is not mentioned, leave blank or write "[not mentioned]"
+5. Start directly with the report`;
       
-      userPrompt = `Write a comprehensive professional ${noteType} report based on this medical conversation. Start directly with the report:
+      userPrompt = `Write a simple, conservative medical report based ONLY on this text:
 
 "${transcript}"
 
-${this.getEnglishNoteStructure(noteType)}
+Write an organized report with these sections:
+- Reason for visit: [from text only]
+- Symptom description: [from text only] 
+- Assessment: [general based on symptoms]
+- Recommendations: [general and conservative]
 
-Report requirements:
-- Start directly with the report without introductory phrases like "Here is the report" or "The following is"
-- Write a thorough and organized medical report
-- Use appropriate medical terminology
-- Follow the specified structure exactly
-- Include all important details from the conversation
-- Use professional medical language
-- Ensure accuracy and clarity
-- Do not add information not present in the text`;
+Do NOT add: numbers, dates, medications, or tests not mentioned`;
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -372,9 +389,112 @@ Report requirements:
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.1,
-        max_tokens: Math.min(transcript.length * 3, 1500),
+        temperature: 0.05, // Very low for conservative approach
+        max_tokens: Math.min(transcript.length * 2, 800), // Shorter for simpler output
+        top_p: 0.8,
+        frequency_penalty: 0.5, // Reduce repetition
+        presence_penalty: 0.4, // Stay focused
+        stop: null
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const note = data.choices?.[0]?.message?.content?.trim() || '';
+    
+    console.log(`📄 Generated strict note (${model}): ${note.substring(0, 150)}...`);
+    return note;
+  }
+
+  private async generateNoteWithGroq(transcript: string, noteType: string, language: string, model: string): Promise<string> {
+    let systemPrompt: string;
+    let userPrompt: string;
+    
+    if (language === 'ar') {
+      systemPrompt = `أنت طبيب خبير متخصص في كتابة التقارير الطبية الاحترافية باللغة العربية. تتميز بالدقة والوضوح والالتزام بالمعايير الطبية.
+
+قواعد صارمة يجب اتباعها:
+1. استخدم فقط المعلومات الموجودة في النص المُقدم
+2. لا تخترع أو تضيف أي معلومات طبية غير موجودة (مثل: علامات حيوية، نتائج فحوصات، أدوية، تواريخ محددة)
+3. إذا لم تُذكر معلومة، اتركها فارغة أو استخدم "[يحتاج لتوثيق]"
+4. ابدأ مباشرة بالتقرير بدون مقدمات`;
+      
+      const noteTypeArabic = {
+        'consultation': 'استشارة طبية',
+        'examination': 'فحص طبي',
+        'diagnosis': 'تشخيص',
+        'treatment': 'خطة علاج',
+        'follow-up': 'متابعة',
+        'general': 'تقرير عام'
+      }[noteType] || 'تقرير طبي';
+
+      userPrompt = `اكتب ${noteTypeArabic} احترافي مفصل بناءً فقط على هذه المحادثة الطبية:
+
+"${transcript}"
+
+${this.getArabicNoteStructure(noteType)}
+
+متطلبات التقرير:
+- ابدأ مباشرة بالتقرير بدون مقدمات
+- استخدم فقط المعلومات الموجودة في المحادثة أعلاه
+- لا تضيف: علامات حيوية، نتائج فحوصات، أدوية، أو تواريخ غير مذكورة
+- استخدم "[يحتاج لتوثيق]" للمعلومات المفقودة
+- اكتب تقرير طبي منظم وواضح
+- استخدم المصطلحات الطبية العربية المناسبة`;
+    } else {
+      systemPrompt = `You are an expert physician specialized in writing comprehensive, professional medical consultation notes. You excel at extracting relevant information from patient conversations and organizing it into proper medical documentation format.
+
+Your expertise includes:
+- Extracting patient demographics and presentation details
+- Organizing symptom descriptions chronologically  
+- Writing comprehensive History of Presenting Illness narratives
+- Providing appropriate clinical assessments
+- Recommending suitable follow-up care
+
+IMPORTANT GUIDELINES:
+1. Extract and use ALL relevant information from the conversation
+2. Write detailed, professional medical narratives
+3. For missing standard information, use appropriate medical notations
+4. Maintain professional medical terminology and structure
+5. Start directly with the medical report`;
+      
+      userPrompt = `Create a comprehensive ${noteType} report from this patient consultation:
+
+"${transcript}"
+
+${this.getEnglishNoteStructure(noteType)}
+
+CRITICAL FORMATTING REQUIREMENTS:
+- Each section header should be on its own line with ONLY the section name
+- Content should go on separate lines below each header
+- Do NOT put content in the same line as section headers
+- For Investigation section: use "Lab Work:", "Imaging Studies:", "Microbiology:", "Others:" as subsection headers
+- Extract ALL relevant patient information from the conversation
+- Write detailed, professional medical narratives
+- Start directly with the report content`;
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.groqApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.2, // Slight increase for better narrative flow
+        max_tokens: Math.min(transcript.length * 4, 2500), // Increased for comprehensive notes
         top_p: 0.9,
+        frequency_penalty: 0.2, // Reduced to allow proper medical terminology
+        presence_penalty: 0.1, // Reduced to allow thorough documentation
         stop: null
       })
     });
@@ -587,237 +707,201 @@ Rules:
   }
 
   private getEnglishNoteStructure(noteType: string): string {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
     switch (noteType) {
       case 'consultation':
-        return `Please follow this EXACT structure:
+        return `Create a comprehensive consultation note using this EXACT structure and formatting. Each section title should be on its own line with content below:
 
 **Consultation Details:**
-Date of Consultation: [Current date]
-Patient Location: [Hospital/Clinic location from transcript]
-Consulting Service: Infectious Diseases
-Reason for Consult: [Main reason from transcript]
+Date of Consultation: ${currentDate}
+Patient Location: [Extract patient location, facility name, or department from the conversation]
+Consulting Service: [Extract the medical service or specialty involved from the conversation]
+Reason for Consult: [Extract and clearly state the main reason for consultation from the conversation]
+[If there is additional narrative about the consultation context, include it here on separate lines]
 
+**Patient Identification:**
+[Include patient demographics, age, location, and identifying information mentioned in the conversation]
 
-I assessed [Patient name/identifier] at [location] for [main complaint/reason].
+**Past Medical History:**
+List any previous medical conditions, surgeries, or significant medical events mentioned. If none discussed, note this appropriately.
 
+**History of Presenting Illness:**
+Write a detailed narrative describing the patient's current condition based on the conversation. Include:
+- Patient demographics and presentation
+- Timeline of symptom development  
+- Detailed symptom description (location, quality, duration, triggers)
+- Associated symptoms
+- Previous treatments or interventions mentioned
+- Current status and patient's concerns
 
-**HISTORY OF PRESENTING ILLNESS:**
-Write as a comprehensive narrative describing the patient's journey with their current illness. Start with patient demographics (e.g., "Mr. X is a 33-year-old previously healthy male who..."). Include detailed timeline, symptom progression, associated symptoms, treatment received, and current status. Write in paragraph form, not bullet points. Include all relevant details from the conversation such as how the condition started, what treatments were given, current symptoms, and patient's current state.
-
-
-**PAST MEDICAL HISTORY:**
-- [Previous medical conditions]
-- [Surgical history]
-- [Significant medical events]
-
-**Home medications:**(this is a section title)
-- List each medication followed by specific dosage and frequency (e.g., Medication Name 500mg twice daily)
-- Include route of administration when relevant
-- Recent medication changes with dosages
-
-**Allergies:**(this is a section title)
-- [Known drug allergies]
-- [Food or environmental allergies]
-- [Allergic reactions]
-
-**Social history:**(this is a section title)
-- [Smoking, alcohol, drug use]
-- [Occupation and lifestyle factors]
-- [Family history if relevant]
-
-**Physical examination:**(this is a section title)
-- [Vital signs]
-- [Systematic physical findings]
-- [Relevant examination results]
+**Physical Examination:**
+Include any physical examination findings mentioned in the conversation. If no examination was performed/mentioned, note this appropriately.
 
 **Investigation:**
-Lab work:
-- Laboratory test results
-- Pending lab work
 
-Imaging:
-- [Date of imaging]
-- [Type of imaging study]
-- [Anatomical site examined]
-- [Detailed findings and interpretation]
+Lab Work:
+[List any laboratory results or tests mentioned in the conversation]
+
+Imaging Studies:
+[Include any imaging studies discussed with dates, types, results]
 
 Microbiology:
-- [Date of specimen collection]
-- [Type of test/culture]
-- [Site of specimen collection]
-- [Organism identified, sensitivities, clinical significance]
+[Include any cultures or microbiology results mentioned]
 
-
-**Assessment:**(this is a section title)
-- [Clinical impression]
-- [Differential diagnosis]
-- [Problem prioritization]
-
-**Plan:**(this is a section title)
-- [Treatment recommendations]
-- [Follow-up arrangements]
-- [Further investigations needed]`;
-
-      case 'progress':
-        return `Please follow this EXACT structure:
-
-**Date of assessment:**
-[Current date and time]
-
-**Patient identification:**
-Brief patient demographics and identifiers
-
-**Brief hospital course:**
-- Summary of hospital stay
-- Key events and interventions
-- Treatment provided
-
-**Interval history:**
-- Changes since last assessment
-- New symptoms or concerns
-- Patient-reported improvements or deterioration
-
-**Physical examination:**
-- Current vital signs
-- Focused physical examination
-- Changes from previous examination
-
-**Investigations:**
-- Recent test results
-- Pending investigations
-- Trending of laboratory values
+Others:
+[Any additional tests or investigations discussed]
 
 **Assessment:**
-- Current clinical status
-- Response to treatment
-- Updated problem list
+Provide a clinical assessment based on the presenting symptoms and information gathered. Include:
+- Clinical impression based on symptoms
+- Differential considerations if appropriate
+- Severity assessment
 
 **Plan:**
-- Ongoing treatment modifications with specific dosages and frequencies
-- New interventions
-- Discharge planning considerations`;
+Outline the management plan based on the conversation, including:
+- Further evaluation needed
+- Treatment recommendations discussed
+- Follow-up arrangements
+- Patient education points
+
+Professional medical formatting and structure applied.`;
+
+      case 'progress':
+        return `Please follow this EXACT structure, using ONLY information from the conversation:
+
+**Date of assessment:** ${currentDate}
+
+**Patient identification:**
+[Extract patient details mentioned in conversation - if none, write "[To be completed by healthcare provider]"]
+
+**Brief hospital course:**
+[Only if hospital stay information is mentioned in conversation - otherwise write "[To be completed by healthcare provider]"]
+
+**Interval history:**
+[Extract any changes or updates mentioned by patient in conversation]
+
+**Physical examination:**
+[Only include examination findings mentioned in conversation - if none mentioned, write "[To be completed by healthcare provider]"]
+
+**Investigations:**
+[Only include test results mentioned in conversation - if none mentioned, write "[To be completed by healthcare provider]"]
+
+**Assessment:**
+[Based on information provided in conversation]
+
+**Plan:**
+[Based on what was discussed in conversation - avoid specific medical recommendations unless clearly indicated]
+
+Note: This is an automatically generated template based on patient's verbal report and requires completion by healthcare provider.`;
 
       default:
-        return 'Structure the report with clear sections (Main Complaint, History, Examination, Assessment, Plan).';
+        return `Structure the report with clear sections using ONLY information from the conversation:
+- Main Complaint: [From conversation]
+- History: [From conversation only] 
+- Examination: [Only if mentioned in conversation]
+- Assessment: [Based on conversation]
+- Plan: [Based on conversation]
+- Add "[needs documentation]" for any missing standard information`;
     }
   }
 
   private getArabicNoteStructure(noteType: string): string {
+    const currentDate = new Date().toLocaleDateString('ar-EG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
     switch (noteType) {
       case 'consultation':
-        return `يرجى اتباع هذا الهيكل بالضبط:
+        return `يرجى اتباع هذا الهيكل والتنسيق بالضبط. كل عنوان قسم يجب أن يكون في سطر منفصل مع المحتوى تحته:
 
-**تاريخ الاستشارة:**
-[التاريخ والوقت الحالي]
-
-**سبب الاستشارة:**
-- السبب الأساسي للاستشارة
-- مؤشر الإحالة
+**تفاصيل الاستشارة:**
+تاريخ الاستشارة: ${currentDate}
+موقع المريض: [استخرج موقع المريض أو اسم المرفق من المحادثة]
+الخدمة الاستشارية: [استخرج الخدمة الطبية أو التخصص المعني من المحادثة]
+سبب الاستشارة: [استخرج السبب الرئيسي من المحادثة]
+[إذا كان هناك سرد إضافي حول سياق الاستشارة، أدرجه هنا في أسطر منفصلة]
 
 **تعريف المريض:**
-الآنسة إكس، امرأة تبلغ من العمر 31 عامًا، من النيبال أصلاً، تقيم حاليًا في لندن، أونتاريو، مع زوجها
+[استخرج تفاصيل المريض المذكورة في المحادثة]
 
 **التاريخ المرضي السابق:**
-- الحالات الطبية السابقة
-- التاريخ الجراحي
-- الأحداث الطبية المهمة
-
-**أدوية المنزل:**
-- اذكر كل دواء متبوعًا بالجرعة المحددة والتكرار (مثل: اسم الدواء 500 ملغ مرتين يوميًا)
-- تضمين طريقة الإعطاء عند الضرورة
-- التغييرات الحديثة في الأدوية مع الجرعات
-
-**الحساسية:**
-- حساسية الأدوية المعروفة
-- حساسية الطعام أو البيئة
-- ردود فعل الحساسية
-
-**التاريخ الاجتماعي:**
-- التدخين والكحول وتعاطي المخدرات
-- المهنة وعوامل نمط الحياة
-- التاريخ العائلي إذا كان ذا صلة
+[اذكر فقط التاريخ المرضي المذكور في المحادثة - إذا لم يُذكر شيء، اكتب "[يُملأ من قِبل مقدم الرعاية الصحية]"]
 
 **تاريخ المرض الحالي:**
-اكتب كقصة سردية تصف رحلة المريض مع مرضه الحالي. تضمين الجدول الزمني، تطور الأعراض، الأعراض المصاحبة، وأي تفاصيل ذات صلة في شكل فقرات بدلاً من النقاط. اوصف كيف تطورت الحالة، وتقدمت، وأي عوامل قد تكون ساهمت في العرض الحالي.
+[اكتب قصة سردية بناءً على ما وصفه المريض في المحادثة. اشمل الجدول الزمني والأعراض والتطور كما ذُكر. إذا كانت المعلومات قليلة، اكتب ما هو متاح واذكر أن التاريخ الإضافي مطلوب]
 
 **الفحص البدني:**
-- العلامات الحيوية
-- النتائج البدنية المنتظمة
-- نتائج الفحص ذات الصلة
+[اشمل فقط نتائج الفحص المذكورة في المحادثة - إذا لم تُذكر، اكتب "[يُملأ من قِبل مقدم الرعاية الصحية]"]
 
 **الفحوصات:**
-**الفحوصات المخبرية:**
-- نتائج الفحوصات المخبرية
-- الأعمال المخبرية المعلقة
 
-**التصوير:**
-- التاريخ: [تاريخ التصوير]
-- النوع: [نوع دراسة التصوير]
-- الموقع: [الموقع التشريحي المفحوص]
-- النتيجة: [النتائج التفصيلية والتفسير]
+الفحوصات المخبرية:
+[اذكر النتائج المذكورة في المحادثة]
 
-**علم الأحياء الدقيقة:**
-- التاريخ: [تاريخ جمع العينة]
-- النوع: [نوع الفحص/الزراعة]
-- الموقع: [موقع جمع العينة]
-- النتيجة: [الكائن المحدد، الحساسيات، الأهمية السريرية]
+التصوير الطبي:
+[اشمل أي دراسات تصوير نُوقشت مع التواريخ والأنواع والنتائج]
 
-**أخرى:**
-- فحوصات تشخيصية إضافية
-- تحقيقات متخصصة
+علم الأحياء الدقيقة:
+[اشمل أي نتائج زراعة أو علم أحياء دقيقة ذُكرت]
+
+أخرى:
+[أي فحوصات أو تحقيقات إضافية نُوقشت]
 
 **التقييم:**
-- الانطباع السريري
-- التشخيص التفريقي
-- ترتيب أولويات المشكلة
+[بناءً على الأعراض والمعلومات المقدمة في المحادثة - تجنب التشخيصات المحددة إلا إذا كانت مذكورة بوضوح]
 
 **الخطة:**
-- توصيات العلاج
-- ترتيبات المتابعة
-- التحقيقات الأخرى المطلوبة`;
+[بناءً على ما نُوقش في المحادثة - إذا كانت المعلومات قليلة، اكتب توصيات الرعاية الطبية العامة]
+
+ملاحظة: هذا نموذج تلقائي مبني على تقرير المريض الشفهي ويحتاج لإكمال من قِبل مقدم الرعاية الصحية.`;
 
       case 'progress':
-        return `يرجى اتباع هذا الهيكل بالضبط:
+        return `يرجى اتباع هذا الهيكل بالضبط، استخدم فقط المعلومات الموجودة في المحادثة:
 
-**تاريخ التقييم:**
-[التاريخ والوقت الحالي]
+**تاريخ التقييم:** ${currentDate}
 
 **تعريف المريض:**
-- البيانات الديموغرافية للمريض والمعرفات
-- العمر والجنس والمعرفات ذات الصلة
+[استخرج تفاصيل المريض المذكورة في المحادثة - إذا لم تُذكر، اكتب "[يُملأ من قِبل مقدم الرعاية الصحية]"]
 
 **مسار المستشفى المختصر:**
-- ملخص إقامة المستشفى
-- الأحداث والتدخلات الرئيسية
-- العلاج المقدم
+[فقط إذا ذُكرت معلومات الإقامة في المستشفى في المحادثة - وإلا اكتب "[يُملأ من قِبل مقدم الرعاية الصحية]"]
 
 **التاريخ الفاصل:**
-- التغييرات منذ التقييم الأخير
-- أعراض أو مخاوف جديدة
-- التحسينات أو التدهور المبلغ عنها من المريض
+[استخرج أي تغييرات أو تحديثات ذكرها المريض في المحادثة]
 
 **الفحص البدني:**
-- العلامات الحيوية الحالية
-- الفحص البدني المركز
-- التغييرات من الفحص السابق
+[اشمل فقط نتائج الفحص المذكورة في المحادثة - إذا لم تُذكر، اكتب "[يُملأ من قِبل مقدم الرعاية الصحية]"]
 
 **الفحوصات:**
-- نتائج الاختبار الأخيرة
-- التحقيقات المعلقة
-- اتجاه القيم المخبرية
+[اشمل فقط نتائج الفحوصات المذكورة في المحادثة - إذا لم تُذكر، اكتب "[يُملأ من قِبل مقدم الرعاية الصحية]"]
 
 **التقييم:**
-- الحالة السريرية الحالية
-- الاستجابة للعلاج
-- قائمة المشاكل المحدثة
+[بناءً على المعلومات المقدمة في المحادثة]
 
 **الخطة:**
-- تعديلات العلاج المستمرة
-- تدخلات جديدة
-- اعتبارات تخطيط الخروج`;
+[بناءً على ما نُوقش في المحادثة - تجنب التوصيات الطبية المحددة إلا إذا كانت مذكورة بوضوح]
+
+ملاحظة: هذا نموذج تلقائي مبني على تقرير المريض الشفهي ويحتاج لإكمال من قِبل مقدم الرعاية الصحية.`;
 
       default:
-        return 'قم بتنظيم التقرير بأقسام واضحة (الشكوى الرئيسية، التاريخ المرضي، الفحص، التقييم، الخطة).';
+        return `نظم التقرير بأقسام واضحة باستخدام فقط المعلومات من المحادثة:
+- الشكوى الرئيسية: [من المحادثة]
+- التاريخ المرضي: [من المحادثة فقط]
+- الفحص: [فقط إذا ذُكر في المحادثة]
+- التقييم: [بناءً على المحادثة]
+- الخطة: [بناءً على المحادثة]
+- أضف "[يحتاج لتوثيق]" لأي معلومات قياسية مفقودة`;
     }
   }
 
@@ -828,32 +912,103 @@ Brief patient demographics and identifiers
       return false;
     }
     
-    if (note.length > originalTranscript.length * 5) {
+    if (note.length > originalTranscript.length * 8) {
       console.log('❌ Note too long compared to transcript');
       return false;
     }
     
-    // Check for common hallucination indicators (only if not in original)
-    const suspiciousPatterns = [
-      /patient.*denies.*drug.*use/i,
-      /no.*known.*allergies/i,
-      /vital.*signs.*stable/i,
-      /further.*evaluation.*needed/i,
-      /follow.*up.*in.*clinic/i,
-      /تم.*الفحص.*السريري/i,
-      /العلامات.*الحيوية.*مستقرة/i
+    // Check for severe hallucinations - only flag obvious fabrications
+    const severeHallucinationPatterns = [
+      // Specific medical details not mentioned in transcript
+      /blood pressure.*\d+\/\d+/i, // Specific BP readings
+      /temperature.*\d+\.?\d*[°]?[fc]/i, // Specific temperatures
+      /heart rate.*\d+.*bpm/i, // Specific heart rates
+      /weight.*\d+.*kg|lbs/i, // Specific weights
+      /height.*\d+.*cm|ft/i, // Specific heights
+      
+      // Specific medication names and dosages not mentioned
+      /metformin.*\d+.*mg/i,
+      /lisinopril.*\d+.*mg/i,
+      /aspirin.*\d+.*mg/i,
+      /amoxicillin.*\d+.*mg/i,
+      
+      // Specific test results not mentioned
+      /white.*blood.*cell.*count.*\d+/i,
+      /hemoglobin.*\d+\.?\d*/i,
+      /glucose.*\d+.*mg\/dl/i,
+      /creatinine.*\d+\.?\d*/i,
+      
+      // Specific dates not mentioned
+      /admitted.*on.*\d{1,2}\/\d{1,2}\/\d{4}/i,
+      /discharged.*on.*\d{1,2}\/\d{1,2}\/\d{4}/i
     ];
     
-    const hasHallucination = suspiciousPatterns.some(pattern => 
-      pattern.test(note) && !pattern.test(originalTranscript)
-    );
+    // Only flag as hallucination if the pattern exists in note but has NO similar content in transcript
+    const hasSeveireHallucination = severeHallucinationPatterns.some(pattern => {
+      const foundInNote = pattern.test(note);
+      if (!foundInNote) return false;
+      
+      // Extract the key concept (remove numbers and units for comparison)
+      const conceptPattern = pattern.source.replace(/\\d\+|\\.\\?\\d\*|\[°\]\?|\[fc\]|mg|kg|lbs|cm|ft|bpm|mg\/dl/gi, '');
+      const conceptRegex = new RegExp(conceptPattern, 'i');
+      
+      // If the concept exists in transcript, it's not a hallucination
+      return !conceptRegex.test(originalTranscript);
+    });
     
-    if (hasHallucination) {
-      console.log('❌ Potential hallucination detected in note');
+    if (hasSeveireHallucination) {
+      console.log('❌ Severe hallucination detected in note - fabricated specific medical data');
       return false;
     }
     
-    console.log('✅ Medical note passed validation');
+    // Check for excessive empty template placeholders - only reject if note is mostly empty placeholders
+    const templatePlaceholders = [
+      /\[to be completed by healthcare provider\]/gi,
+      /\[to be documented\]/gi,
+      /\[to be specified\]/gi,
+      /\[if applicable\]/gi,
+      /\[needs documentation\]/gi,
+      /\[يُملأ من قِبل مقدم الرعاية الصحية\]/gi,
+      /\[ليتم توثيقه\]/gi,
+      /\[ليتم تحديده\]/gi,
+      /\[يحتاج لتوثيق\]/gi
+    ];
+    
+    // Count placeholders vs actual content
+    const placeholderMatches = templatePlaceholders.reduce((count, pattern) => {
+      return count + (note.match(pattern) || []).length;
+    }, 0);
+    
+    // Count lines with actual patient content vs placeholder lines
+    const noteLines = note.split('\n').filter(line => line.trim());
+    const contentLines = noteLines.filter(line => {
+      const hasContent = /\w{3,}/.test(line) && !line.includes('[');
+      return hasContent;
+    });
+    
+    const placeholderRatio = placeholderMatches / Math.max(noteLines.length, 1);
+    const contentRatio = contentLines.length / Math.max(noteLines.length, 1);
+    
+    // Only reject if note is mostly placeholders (>60%) and has very little content (<30%)
+    if (placeholderRatio > 0.6 && contentRatio < 0.3) {
+      console.log(`❌ Note has too many empty placeholders (${(placeholderRatio * 100).toFixed(1)}%) and too little content (${(contentRatio * 100).toFixed(1)}%)`);
+      return false;
+    }
+    
+    // Check if note is just a reformatted version of the transcript without medical structure
+    const noteWords = note.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+    const transcriptWords = originalTranscript.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+    
+    // Calculate overlap - if too low, might be hallucinated content
+    const commonWords = noteWords.filter(word => transcriptWords.includes(word));
+    const overlapRatio = commonWords.length / Math.max(noteWords.length, 1);
+    
+    if (overlapRatio < 0.15) {
+      console.log(`❌ Note has too little overlap with transcript (${(overlapRatio * 100).toFixed(1)}%)`);
+      return false;
+    }
+    
+    console.log(`✅ Medical note passed validation (overlap: ${(overlapRatio * 100).toFixed(1)}%)`);
     return true;
   }
 }

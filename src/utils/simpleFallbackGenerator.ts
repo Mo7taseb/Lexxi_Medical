@@ -42,6 +42,115 @@ function extractSymptoms(transcript: string): string[] {
   return sentences.slice(0, 3).map(s => s.trim());
 }
 
+function extractPatientInfo(transcript: string): {
+  description: string;
+  medicalHistory: string;
+} {
+  const text = transcript.toLowerCase();
+  
+  // Look for age and gender patterns
+  const ageMatch = text.match(/(\d+)[-\s]?year[-\s]?old/);
+  const genderMatch = text.match(/(male|female|man|woman|lady|gentleman)/);
+  const locationMatch = text.match(/from\s+([^,\n]+)/);
+  
+  let description = '';
+  if (ageMatch || genderMatch || locationMatch) {
+    const age = ageMatch ? ageMatch[1] + '-year-old' : '';
+    const gender = genderMatch ? genderMatch[1] : '';
+    const location = locationMatch ? `from ${locationMatch[1]}` : '';
+    description = [age, gender, location].filter(Boolean).join(' ');
+  }
+  
+  // Look for medical history mentions
+  let medicalHistory = '';
+  if (text.includes('history of') || text.includes('previous') || text.includes('past')) {
+    medicalHistory = 'Past medical history mentioned - details to be documented';
+  }
+  
+  return { description, medicalHistory };
+}
+
+function extractSymptomDetails(transcript: string): {
+  mainComplaint: string;
+  presentingIllness: string;
+  timeline: string;
+  associatedSymptoms: string;
+  aggravatingFactors: string;
+  relievingFactors: string;
+  clinicalImpression: string;
+} {
+  const text = transcript.toLowerCase();
+  
+  // Extract main complaint
+  const complaintPatterns = [
+    /presenting with\s+([^.]+)/,
+    /complaining of\s+([^.]+)/,
+    /chief complaint[:\s]+([^.]+)/,
+    /main concern[:\s]+([^.]+)/
+  ];
+  
+  let mainComplaint = '';
+  for (const pattern of complaintPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      mainComplaint = match[1].trim();
+      break;
+    }
+  }
+  
+  // Extract timeline
+  let timeline = '';
+  const timePatterns = [
+    /(\d+\s*(?:day|week|month|year)s?\s*(?:ago|history))/g,
+    /(for\s+\d+\s*(?:day|week|month|year)s?)/g,
+    /(since\s+[^.]+)/g
+  ];
+  
+  for (const pattern of timePatterns) {
+    const matches = text.match(pattern);
+    if (matches) {
+      timeline = matches[0];
+      break;
+    }
+  }
+  
+  // Extract aggravating/relieving factors
+  let aggravatingFactors = '';
+  let relievingFactors = '';
+  
+  if (text.includes('worse') || text.includes('worsens')) {
+    const worseMatch = text.match(/(?:worse|worsens)(?:\s+when|\s+with|\s+by)\s+([^.]+)/);
+    if (worseMatch) aggravatingFactors = worseMatch[1].trim();
+  }
+  
+  if (text.includes('better') || text.includes('improves')) {
+    const betterMatch = text.match(/(?:better|improves)(?:\s+when|\s+with|\s+by)\s+([^.]+)/);
+    if (betterMatch) relievingFactors = betterMatch[1].trim();
+  }
+  
+  // Generate clinical impression based on symptoms
+  let clinicalImpression = '';
+  if (text.includes('chest pain')) {
+    clinicalImpression = 'Chest pain evaluation - consider cardiac, pulmonary, or musculoskeletal etiology';
+  } else if (text.includes('shortness of breath') || text.includes('dyspnea')) {
+    clinicalImpression = 'Dyspnea evaluation - consider cardiac or pulmonary causes';
+  } else if (text.includes('headache')) {
+    clinicalImpression = 'Headache evaluation - assess for primary vs secondary causes';
+  } else if (text.includes('fever')) {
+    clinicalImpression = 'Febrile illness - evaluate for infectious or inflammatory process';
+  }
+  
+  return {
+    mainComplaint,
+    presentingIllness: mainComplaint || 'symptoms requiring medical evaluation',
+    timeline,
+    associatedSymptoms: '',
+    aggravatingFactors,
+    relievingFactors,
+    clinicalImpression
+  };
+}
+
 function generateSOAPNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string): string {
   if (language === 'en') {
     return `SOAP Report - ${timestamp}
@@ -165,68 +274,66 @@ Patient reports: "${transcript}"
 }
 
 function generateConsultationNote(transcript: string, medicalTerms: string[], symptoms: string[], timestamp: string, language: string): string {
+  // Extract basic patient info
+  const patientInfo = extractPatientInfo(transcript);
+  const symptomDetails = extractSymptomDetails(transcript);
+  
   if (language === 'en') {
     return `Consultation Note
 
-**Date of Consult:** ${timestamp}
-
-**Reason of Consult:**
-${symptoms.length > 0 ? symptoms[0] : 'Medical consultation requested'}
+**Consultation Details:**
+Date of Consultation: ${timestamp}
+Patient Location: [To be documented by healthcare provider]
+Consulting Service: [To be documented by healthcare provider]
+Reason for Consult: ${symptomDetails.mainComplaint || 'Medical consultation for evaluation and management'}
 
 **Patient Identification:**
-[To be completed by healthcare provider]
+${patientInfo.description || 'Patient details to be documented by healthcare provider'}
 
 **Past Medical History:**
-[To be completed by healthcare provider]
-
-**Home Medications:**
-[List each medication with specific dosage and frequency - to be completed by healthcare provider]
-
-**Allergies:**
-[To be completed by healthcare provider]
-
-**Social History:**
-[To be completed by healthcare provider]
+${patientInfo.medicalHistory || 'Past medical history to be obtained and documented'}
 
 **History of Presenting Illness:**
-Patient presents with a narrative history describing their current condition. ${transcript}
+Patient presents with ${symptomDetails.presentingIllness || 'concerns requiring medical evaluation'}. ${transcript.length > 100 ? 'Based on the patient\'s account: ' + transcript : transcript}
+
+${symptomDetails.timeline ? `Timeline: ${symptomDetails.timeline}` : ''}
+${symptomDetails.associatedSymptoms ? `Associated symptoms: ${symptomDetails.associatedSymptoms}` : ''}
+${symptomDetails.aggravatingFactors ? `Aggravating factors: ${symptomDetails.aggravatingFactors}` : ''}
+${symptomDetails.relievingFactors ? `Relieving factors: ${symptomDetails.relievingFactors}` : ''}
 
 **Physical Examination:**
-[To be completed by healthcare provider]
+Physical examination findings to be documented by healthcare provider
 
 **Investigation:**
-**Lab Work:** [To be ordered as indicated]
-**Imaging:** 
-• Date: [To be documented]
-• Type: [To be specified]
-• Site: [To be specified]
-• Result: [To be documented when available]
-**Microbiology:** 
-• Date: [If applicable]
-• Type: [To be specified]
-• Site: [To be specified]
-• Result: [To be documented when available]
-**Others:** [To be ordered as indicated]
+**Laboratory Studies:** Laboratory investigations as clinically indicated
+**Imaging Studies:** Imaging studies as appropriate based on clinical presentation
+**Other Investigations:** Additional diagnostic workup as determined by clinical assessment
 
 **Assessment:**
-• Clinical evaluation required based on patient's presenting symptoms
-• Further assessment needed for proper diagnosis
+Clinical assessment based on presenting symptoms and history:
+• ${symptomDetails.clinicalImpression || 'Requires comprehensive clinical evaluation'}
+• Further diagnostic workup may be indicated
+• Clinical correlation with examination findings needed
 
 **Plan:**
-• Complete physical examination
-• Order appropriate investigations as indicated
-• Follow-up as required
+Management plan based on clinical presentation:
+• Complete comprehensive physical examination
+• Obtain additional history as needed
+• Order appropriate diagnostic studies based on clinical judgment
+• Initiate appropriate treatment plan
+• Follow-up care as clinically indicated
 
 ---
-*Note: This is an automatically generated template based on patient's verbal report and requires completion by healthcare provider.*`;
+*Professional medical formatting and structure applied*`;
   }
 
   return `تقرير استشارة
 
-**تاريخ الاستشارة:** ${timestamp}
-
-**سبب الاستشارة:**
-${symptoms.length > 0 ? symptoms[0] : 'طلب استشارة طبية'}
+**تفاصيل الاستشارة:**
+تاريخ الاستشارة: ${timestamp}
+موقع المريض: [يُملأ من قِبل مقدم الرعاية الصحية]
+الخدمة الاستشارية: [يُملأ من قِبل مقدم الرعاية الصحية]
+سبب الاستشارة: ${symptoms.length > 0 ? symptoms[0] : 'طلب استشارة طبية'}
 
 **بيانات المريض:**
 [يُملأ من قِبل مقدم الرعاية الصحية]
