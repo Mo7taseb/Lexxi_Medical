@@ -9,17 +9,20 @@
 **Root Cause**: The LLM was generating content on the same line as headers (e.g., "**Date of Consult:** September 12, 2025...")
 
 **Solution**:
+
 - Updated note generation templates to use proper structure with headers on separate lines
 - Modified section parsing patterns to properly capture content
 - Enhanced system prompts to emphasize correct formatting
 
 **Before**:
+
 ```
 **Date of Consult:** September 12, 2025 at 10:01 PM
 **Reason of Consult:** The patient presents with chest pain...
 ```
 
 **After**:
+
 ```
 **Date of Consult:**
 September 12, 2025 at 10:01 PM
@@ -32,22 +35,26 @@ The patient presents with chest pain...
 
 **Problem**: Lab Work, Imaging Studies, Microbiology were appearing as regular text instead of bold, larger subsection headers.
 
-**Root Cause**: 
+**Root Cause**:
+
 - Template formatting was using inline format (`**Lab Work:** content`)
 - CSS styling wasn't being applied to subsection headers
 
 **Solution**:
+
 - Updated investigation template structure to use separate lines for subsections
 - Enhanced CSS styling with `.investigation-subsection` class
 - Improved pattern matching for investigation subsections
 
 **Before**:
+
 ```
 **Lab Work:** Complete Blood Counts (CBCs): Normal
 **Imaging:** None mentioned.
 ```
 
 **After**:
+
 ```
 Lab Work:
 • Complete Blood Counts (CBCs): Normal
@@ -64,6 +71,7 @@ None mentioned.
 ### 3. Template Structure Improvements
 
 **Updated English Template Structure**:
+
 ```
 **Date of Consult:**
 [Date content]
@@ -90,6 +98,7 @@ Others:
 ```
 
 **Updated Arabic Template Structure**:
+
 ```
 **تاريخ الاستشارة:**
 [محتوى التاريخ]
@@ -109,6 +118,7 @@ Others:
 ### 4. Enhanced System Prompts
 
 **Added Critical Formatting Requirements**:
+
 - Each section header should be on its own line with ONLY the section name
 - Content should go on separate lines below each header
 - Do NOT put content in the same line as section headers
@@ -117,35 +127,49 @@ Others:
 ### 5. CSS Styling Enhancements
 
 **Added Investigation Subsection Styling**:
+
 ```css
 .investigation-subsection {
-    margin: 8px 0;
-    font-weight: 600 !important;
-    color: #1e293b !important;
-    font-size: 1.1em;
+  margin: 8px 0;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  font-size: 1.1em;
 }
 ```
 
 **Enhanced Pattern Matching**:
+
 ```typescript
-if (line.match(/^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Others):?\s*$/i)) {
-    formattedLines.push(`<div class="investigation-subsection"><strong style="font-size: 1.1em; font-weight: 600;">${line.replace(/:$/, '')}</strong></div>`);
+if (
+  line.match(
+    /^(Lab\s*work|Laboratory\s*Studies|Imaging|Imaging\s*Studies|Microbiology|Others):?\s*$/i
+  )
+) {
+  formattedLines.push(
+    `<div class="investigation-subsection"><strong style="font-size: 1.1em; font-weight: 600;">${line.replace(
+      /:$/,
+      ""
+    )}</strong></div>`
+  );
 }
 ```
 
 ## Key Technical Changes
 
 ### 1. `simpleLLMRouter.ts`
+
 - Updated note generation templates for proper section structure
 - Enhanced system prompts with explicit formatting requirements
 - Added critical formatting requirements to user prompts
 
 ### 2. `templates.ts`
+
 - Fixed section pattern matching to capture content properly
 - Improved investigation subsection formatting
 - Enhanced section parsing logic
 
 ### 3. `styles.css`
+
 - Added `.investigation-subsection` styling
 - Ensured proper bold and larger font for subsection headers
 

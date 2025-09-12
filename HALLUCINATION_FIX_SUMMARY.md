@@ -17,9 +17,10 @@ The system was experiencing hallucination issues where the LLM was adding medica
 
 **Before**: Rejected any note containing common medical phrases not in the transcript
 **After**: Only rejects notes with specific fabricated medical data:
+
 - Specific vital signs (BP: 120/80, HR: 72 bpm, etc.)
 - Specific medication dosages not mentioned
-- Specific test results not mentioned  
+- Specific test results not mentioned
 - Specific dates not mentioned
 
 ```typescript
@@ -40,13 +41,14 @@ const contentRatio = contentLines.length / Math.max(noteLines.length, 1);
 
 // Only reject if mostly placeholders AND very little content
 if (placeholderRatio > 0.6 && contentRatio < 0.3) {
-    return false;
+  return false;
 }
 ```
 
 ### 3. Enhanced Prompting Strategy
 
 **New System Prompt Features**:
+
 - Explicit instructions to extract ALL relevant information
 - Professional medical narrative writing guidance
 - Clear guidelines about appropriate medical notations
@@ -58,6 +60,7 @@ if (placeholderRatio > 0.6 && contentRatio < 0.3) {
 
 **Before**: Generic templates with minimal guidance
 **After**: Comprehensive templates that:
+
 - Guide proper information extraction
 - Provide clear section-by-section instructions
 - Include examples of appropriate medical language
@@ -66,8 +69,9 @@ if (placeholderRatio > 0.6 && contentRatio < 0.3) {
 ### 5. Enhanced Fallback Generator
 
 **New Features**:
+
 - Intelligent patient information extraction
-- Timeline and symptom detail parsing  
+- Timeline and symptom detail parsing
 - Clinical impression generation based on symptoms
 - Professional medical formatting
 
@@ -79,18 +83,20 @@ function extractSymptomDetails(transcript: string): {
   aggravatingFactors: string;
   relievingFactors: string;
   clinicalImpression: string;
-}
+};
 ```
 
 ## Results
 
 ### Before Fix:
+
 - High hallucination detection rate
 - Frequent fallback to basic templates
 - Notes lacked medical detail and structure
 - Poor user experience with incomplete notes
 
 ### After Fix:
+
 - Accurate hallucination detection (only flagging real fabrications)
 - Comprehensive medical notes with proper structure
 - Better information extraction from transcripts

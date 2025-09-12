@@ -183,7 +183,7 @@
 }
 
 /* Enhanced formatting for consultation details lines */
-.medical-section-content br + strong {
+.medical-section-content br+strong {
     margin-top: 8px;
     display: inline-block;
 }
