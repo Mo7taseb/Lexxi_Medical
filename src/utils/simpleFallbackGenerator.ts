@@ -300,7 +300,11 @@ Patient presents with ${symptomDetails.presentingIllness || 'concerns requiring 
 - Drug allergies to be documented by healthcare provider
 
 **Social history:**
-- Social history details to be obtained and documented
+- Birth country and immigration details to be documented
+- Current living situation to be documented
+- Occupation details to be documented
+- Smoking, alcohol, and drug use history to be documented
+- Travel history to be documented
 
 **Physical examination:**
 - Physical examination findings to be documented by healthcare provider
@@ -374,7 +378,11 @@ Management plan based on clinical presentation:
 - حساسيات الأدوية تُملأ من قِبل مقدم الرعاية الصحية
 
 **التاريخ الاجتماعي:**
-- تفاصيل التاريخ الاجتماعي تُملأ من قِبل مقدم الرعاية الصحية
+- بلد الولادة وتفاصيل الهجرة تُملأ من قِبل مقدم الرعاية الصحية
+- وضع المعيشة الحالي يُملأ من قِبل مقدم الرعاية الصحية
+- تفاصيل المهنة تُملأ من قِبل مقدم الرعاية الصحية
+- تاريخ التدخين والكحول والمخدرات يُملأ من قِبل مقدم الرعاية الصحية
+- تاريخ السفر يُملأ من قِبل مقدم الرعاية الصحية
 
 **الفحص البدني:**
 - نتائج الفحص البدني تُملأ من قِبل مقدم الرعاية الصحية

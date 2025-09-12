@@ -740,7 +740,7 @@ Reason for Consult: [Extract main reason from conversation]
 [List known allergies using bullet points with dashes, or state "- No known drug allergies"]
 
 **Social history:**
-[Include relevant social history details mentioned in conversation using bullet points with dashes - occupation, travel, lifestyle factors, family situation, etc.]
+[Include relevant social history details mentioned in conversation using bullet points with dashes. Do NOT use labels like "Occupation:" or "Smoking history:". Just list the information directly, for example: "- Born in Nepal and moved to Canada 3 years ago", "- Currently living with her husband in London, Ontario", "- Works in a factory", "- No history of smoking, drug use, or alcohol use"]
 
 **Physical examination:**
 [Describe physical examination findings mentioned in conversation using bullet points with dashes. If no examination mentioned, state appropriately.]
@@ -839,7 +839,7 @@ Note: This is an automatically generated template based on patient's verbal repo
 [اذكر الحساسيات المعروفة باستخدام نقاط مع شرطات، أو اكتب "- لا توجد حساسية دوائية معروفة"]
 
 **التاريخ الاجتماعي:**
-[اشمل تفاصيل التاريخ الاجتماعي باستخدام نقاط مع شرطات - المهنة، السفر، عوامل نمط الحياة، الوضع العائلي، إلخ.]
+[اشمل تفاصيل التاريخ الاجتماعي باستخدام نقاط مع شرطات. لا تستخدم تسميات مثل "المهنة:" أو "تاريخ التدخين:". فقط اذكر المعلومات مباشرة، مثل: "- ولدت في نيبال وانتقلت إلى كندا منذ 3 سنوات"، "- تعيش حالياً مع زوجها في لندن، أونتاريو"، "- تعمل في مصنع"، "- لا تدخن ولا تشرب الكحول"]
 
 **الفحص البدني:**
 [اوصف نتائج الفحص البدني باستخدام نقاط مع شرطات. إذا لم يُذكر فحص، اذكر ذلك بشكل مناسب.]
