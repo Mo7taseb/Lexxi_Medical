@@ -757,10 +757,10 @@ Microbiology:
 [List microbiology results using bullet points with dashes, or state "- No microbiology results mentioned"]
 
 **Assessment:**
-[Provide clinical assessment using bullet points with dashes for clinical impression, differential diagnosis, and problem prioritization]
+[Provide clinical assessment using bullet points with dashes. Do NOT use labels like "Clinical impression:" or "Differential diagnosis:". Just list the assessment points directly, for example: "- 31-year-old female with history of tuberculous lymphadenitis, presenting with left supraclavicular lymph node enlargement", "- Differential diagnosis includes tuberculous lymphadenitis, other causes of lymphadenopathy", "- Further investigation needed to determine cause"]
 
 **Plan:**
-[Provide detailed management plan using bullet points with dashes for specific actions and follow-up arrangements]
+[Provide detailed management plan using bullet points with dashes. Do NOT use labels like "Treatment:" or "Follow-up:". Just list the plan actions directly, for example: "- Refer patient to ENT for excisional biopsy", "- Arrange CT thorax to rule out further involvement", "- Send routine labs including liver enzymes", "- Follow-up after investigation results available"]
 - Follow-up arrangements
 - Patient education points
 
@@ -856,10 +856,10 @@ Note: This is an automatically generated template based on patient's verbal repo
 [اذكر نتائج علم الأحياء الدقيقة باستخدام نقاط مع شرطات، أو اكتب "- لم تُذكر نتائج علم أحياء دقيقة"]
 
 **التقييم:**
-[قدم التقييم الإكلينيكي باستخدام نقاط مع شرطات للانطباع الإكلينيكي، التشخيص التفريقي، وترتيب أولويات المشاكل]
+[قدم التقييم الإكلينيكي باستخدام نقاط مع شرطات. لا تستخدم تسميات مثل "الانطباع الإكلينيكي:" أو "التشخيص التفريقي:". فقط اذكر نقاط التقييم مباشرة، مثل: "- أنثى 31 عاماً مع تاريخ التهاب العقد الليمفاوية السلي، تراجع بتضخم عقدة ليمفاوية فوق الترقوة اليسرى"، "- التشخيص التفريقي يشمل التهاب العقد الليمفاوية السلي، أسباب أخرى لتضخم العقد الليمفاوية"، "- حاجة لفحوصات إضافية لتحديد السبب"]
 
 **الخطة:**
-[قدم خطة إدارة مفصلة باستخدام نقاط مع شرطات للإجراءات المحددة وترتيبات المتابعة]
+[قدم خطة الإدارة المفصلة باستخدام نقاط مع شرطات. لا تستخدم تسميات مثل "العلاج:" أو "المتابعة:". فقط اذكر إجراءات الخطة مباشرة، مثل: "- تحويل المريضة لجراحة الأنف والأذن والحنجرة لأخذ خزعة استئصالية"، "- ترتيب فحص CT للصدر لاستبعاد إصابة إضافية"، "- إرسال فحوصات روتينية تشمل إنزيمات الكبد"، "- متابعة بعد ظهور نتائج الفحوصات"]
 
 **تعريف المريض:**
 [استخرج تفاصيل المريض المذكورة في المحادثة]

@@ -321,10 +321,15 @@ Microbiology:
 - No microbiology results mentioned
 
 **Assessment:**
-- Clinical assessment to be documented by healthcare provider
+- Clinical impression based on presenting symptoms and history
+- Differential diagnosis considerations to be documented
+- Further evaluation requirements to be determined by healthcare provider
 
 **Plan:**
-- Management plan to be documented by healthcare provider
+- Complete comprehensive physical examination
+- Obtain additional diagnostic studies as indicated
+- Initiate appropriate treatment based on clinical findings
+- Follow-up arrangements to be scheduled as needed
 
 ${symptomDetails.timeline ? `Timeline: ${symptomDetails.timeline}` : ''}
 ${symptomDetails.associatedSymptoms ? `Associated symptoms: ${symptomDetails.associatedSymptoms}` : ''}
@@ -399,10 +404,15 @@ Management plan based on clinical presentation:
 - لم تُذكر نتائج علم أحياء دقيقة
 
 **التقييم:**
-- التقييم الإكلينيكي يُملأ من قِبل مقدم الرعاية الصحية
+- الانطباع الإكلينيكي بناءً على الأعراض الحالية والتاريخ المرضي
+- اعتبارات التشخيص التفريقي تُملأ من قِبل مقدم الرعاية الصحية
+- متطلبات التقييم الإضافي يحددها مقدم الرعاية الصحية
 
 **الخطة:**
-- خطة العلاج تُملأ من قِبل مقدم الرعاية الصحية
+- إكمال الفحص البدني الشامل
+- الحصول على فحوصات تشخيصية إضافية حسب الحاجة
+- بدء العلاج المناسب بناءً على النتائج الإكلينيكية
+- ترتيب مواعيد المتابعة حسب الحاجة
 
 **الأدوية المنزلية:**
 [قائمة بكل دواء مع الجرعة والتكرار المحدد - يُملأ من قِبل مقدم الرعاية الصحية]
