@@ -67,11 +67,18 @@ export class DiffAnalysisService {
     const originalMap = new Map(originalSections.map(s => [s.id, s]));
     const finalMap = new Map(finalSections.map(s => [s.id, s]));
 
-    // Analyze each section
+    // 🔧 CRITICAL FIX: Only analyze sections that actually exist in both sets
+    // First, identify sections that were added or removed
     const allSectionIds = new Set([
       ...originalSections.map(s => s.id),
       ...finalSections.map(s => s.id)
     ]);
+
+    console.log('🔍 Section diff analysis:', {
+      originalSectionIds: originalSections.map(s => s.id),
+      finalSectionIds: finalSections.map(s => s.id),
+      allSectionIds: Array.from(allSectionIds)
+    });
 
     for (const sectionId of allSectionIds) {
       const original = originalMap.get(sectionId);
@@ -79,6 +86,7 @@ export class DiffAnalysisService {
 
       if (!original && final) {
         // New section added
+        console.log(`📝 New section detected: ${sectionId}`);
         sectionDiffs[sectionId] = {
           additions: [{
             position: 0,
@@ -92,6 +100,7 @@ export class DiffAnalysisService {
         };
       } else if (original && !final) {
         // Section removed
+        console.log(`🗑️ Section removed: ${sectionId}`);
         sectionDiffs[sectionId] = {
           additions: [],
           deletions: [{
@@ -104,14 +113,50 @@ export class DiffAnalysisService {
           similarity: 0
         };
       } else if (original && final) {
-        // Section modified
-        sectionDiffs[sectionId] = this.analyzeMedicalNoteDiff(
-          original.content,
-          final.content,
-          language
-        );
+        // 🔧 CRITICAL: First check if content is actually different
+        const originalContent = this.normalizeText(original.content, language);
+        const finalContent = this.normalizeText(final.content, language);
+        
+        if (originalContent === finalContent) {
+          // Content is identical, assign perfect similarity
+          console.log(`✅ Section unchanged: ${sectionId}`);
+          sectionDiffs[sectionId] = {
+            additions: [],
+            deletions: [],
+            modifications: [],
+            similarity: 1.0 // Perfect similarity for unchanged content
+          };
+        } else {
+          // Content actually changed, perform full diff analysis
+          console.log(`📝 Section modified: ${sectionId}`, {
+            originalLength: original.content.length,
+            finalLength: final.content.length,
+            originalPreview: original.content.substring(0, 100) + '...',
+            finalPreview: final.content.substring(0, 100) + '...'
+          });
+          
+          sectionDiffs[sectionId] = this.analyzeMedicalNoteDiff(
+            original.content,
+            final.content,
+            language
+          );
+        }
       }
     }
+
+    // 🔧 Log final section diff results
+    const changedSections = Object.keys(sectionDiffs).filter(
+      id => sectionDiffs[id].similarity < 0.95
+    );
+    
+    console.log('📊 Section diff results:', {
+      totalSections: Object.keys(sectionDiffs).length,
+      sectionsChanged: changedSections.length,
+      changedSectionIds: changedSections,
+      similarityScores: Object.fromEntries(
+        Object.entries(sectionDiffs).map(([id, diff]) => [id, diff.similarity])
+      )
+    });
 
     return sectionDiffs;
   }
@@ -176,58 +221,79 @@ export class DiffAnalysisService {
   }
 
   /**
-   * Generate word-level diff using simple algorithm
+   * Generate word-level diff using improved algorithm
    */
   private generateWordDiff(original: string, final: string): Array<{
     type: 'equal' | 'insert' | 'delete';
     content: string;
     position: number;
   }> {
-    const originalWords = original.split(/\s+/);
-    const finalWords = final.split(/\s+/);
+    // 🔧 IMPROVED: Filter out empty strings and normalize
+    const originalWords = original.split(/\s+/).filter(word => word.length > 0);
+    const finalWords = final.split(/\s+/).filter(word => word.length > 0);
     
-    // Simple LCS-based diff algorithm
+    // 🔧 IMPROVED: Use phrase-based comparison for better accuracy
     const diff: Array<{ type: 'equal' | 'insert' | 'delete'; content: string; position: number }> = [];
+    
+    // Quick return for identical content
+    if (originalWords.join(' ') === finalWords.join(' ')) {
+      originalWords.forEach((word, index) => {
+        diff.push({ type: 'equal', content: word, position: index });
+      });
+      return diff;
+    }
     
     let i = 0, j = 0, position = 0;
     
     while (i < originalWords.length || j < finalWords.length) {
       if (i >= originalWords.length) {
-        // Remaining words are insertions
-        diff.push({ type: 'insert', content: finalWords[j], position });
-        j++;
+        // Remaining words are insertions - group consecutive insertions
+        const insertions = [];
+        while (j < finalWords.length) {
+          insertions.push(finalWords[j]);
+          j++;
+        }
+        if (insertions.length > 0) {
+          diff.push({ type: 'insert', content: insertions.join(' '), position });
+        }
       } else if (j >= finalWords.length) {
-        // Remaining words are deletions
-        diff.push({ type: 'delete', content: originalWords[i], position });
-        i++;
+        // Remaining words are deletions - group consecutive deletions
+        const deletions = [];
+        while (i < originalWords.length) {
+          deletions.push(originalWords[i]);
+          i++;
+        }
+        if (deletions.length > 0) {
+          diff.push({ type: 'delete', content: deletions.join(' '), position });
+        }
       } else if (originalWords[i] === finalWords[j]) {
-        // Words match
+        // Words match exactly
         diff.push({ type: 'equal', content: originalWords[i], position });
         i++;
         j++;
       } else {
-        // Look ahead to find matches
+        // 🔧 IMPROVED: Look for longer matches first (phrases)
         let foundMatch = false;
-        for (let k = 1; k <= 3 && j + k < finalWords.length; k++) {
-          if (originalWords[i] === finalWords[j + k]) {
-            // Insert the skipped words
-            for (let l = 0; l < k; l++) {
-              diff.push({ type: 'insert', content: finalWords[j + l], position });
-            }
-            j += k;
-            foundMatch = true;
-            break;
-          }
-        }
+        const maxLookAhead = Math.min(5, Math.min(originalWords.length - i, finalWords.length - j));
         
-        if (!foundMatch) {
-          for (let k = 1; k <= 3 && i + k < originalWords.length; k++) {
-            if (originalWords[i + k] === finalWords[j]) {
-              // Delete the skipped words
-              for (let l = 0; l < k; l++) {
-                diff.push({ type: 'delete', content: originalWords[i + l], position });
+        for (let phraseLen = maxLookAhead; phraseLen >= 1 && !foundMatch; phraseLen--) {
+          const originalPhrase = originalWords.slice(i, i + phraseLen).join(' ');
+          
+          for (let k = 0; k <= 3 && j + k + phraseLen <= finalWords.length; k++) {
+            const finalPhrase = finalWords.slice(j + k, j + k + phraseLen).join(' ');
+            
+            if (originalPhrase === finalPhrase) {
+              // Found matching phrase, insert skipped words before it
+              if (k > 0) {
+                const skipped = finalWords.slice(j, j + k).join(' ');
+                diff.push({ type: 'insert', content: skipped, position });
               }
-              i += k;
+              
+              // Add the matching phrase
+              diff.push({ type: 'equal', content: originalPhrase, position });
+              
+              i += phraseLen;
+              j += k + phraseLen;
               foundMatch = true;
               break;
             }
@@ -235,15 +301,40 @@ export class DiffAnalysisService {
         }
         
         if (!foundMatch) {
-          // No match found, treat as substitution
-          diff.push({ type: 'delete', content: originalWords[i], position });
-          diff.push({ type: 'insert', content: finalWords[j], position });
-          i++;
-          j++;
+          // No match found - look for simple word substitution vs insertion/deletion
+          const nextOriginalMatch = finalWords.slice(j).findIndex(word => word === originalWords[i]);
+          const nextFinalMatch = originalWords.slice(i).findIndex(word => word === finalWords[j]);
+          
+          if (nextOriginalMatch !== -1 && nextOriginalMatch <= 2) {
+            // Original word appears soon in final - treat as insertion
+            const insertions = finalWords.slice(j, j + nextOriginalMatch).join(' ');
+            diff.push({ type: 'insert', content: insertions, position });
+            j += nextOriginalMatch;
+          } else if (nextFinalMatch !== -1 && nextFinalMatch <= 2) {
+            // Final word appears soon in original - treat as deletion
+            const deletions = originalWords.slice(i, i + nextFinalMatch).join(' ');
+            diff.push({ type: 'delete', content: deletions, position });
+            i += nextFinalMatch;
+          } else {
+            // Treat as simple substitution (one delete, one insert)
+            diff.push({ type: 'delete', content: originalWords[i], position });
+            diff.push({ type: 'insert', content: finalWords[j], position });
+            i++;
+            j++;
+          }
         }
       }
       position++;
     }
+    
+    console.log('🔍 Word diff generated:', {
+      originalWordCount: originalWords.length,
+      finalWordCount: finalWords.length,
+      diffOperations: diff.length,
+      insertions: diff.filter(d => d.type === 'insert').length,
+      deletions: diff.filter(d => d.type === 'delete').length,
+      equal: diff.filter(d => d.type === 'equal').length
+    });
     
     return diff;
   }
@@ -413,11 +504,41 @@ export class DiffAnalysisService {
       ...diffResult.modifications
     ].filter(change => change.medicalRelevance === 'high').length;
 
-    const addedChars = diffResult.additions.reduce((sum, change) => sum + change.content.length, 0);
-    const removedChars = diffResult.deletions.reduce((sum, change) => sum + change.content.length, 0);
+    // 🔧 IMPROVED: Calculate more realistic character differences
+    // Count unique words rather than raw word-level changes to avoid inflation
+    const addedWords = new Set(
+      diffResult.additions.flatMap(change => change.content.split(/\s+/))
+    );
+    const removedWords = new Set(
+      diffResult.deletions.flatMap(change => change.content.split(/\s+/))
+    );
+    
+    const addedChars = Array.from(addedWords).join(' ').length;
+    const removedChars = Array.from(removedWords).join(' ').length;
+    
+    // 🔧 IMPROVED: More realistic total change count
+    // Count meaningful changes rather than word-level micro-changes
+    const meaningfulChanges = Math.max(
+      1, // Minimum 1 if any changes exist
+      Math.min(
+        additionsCount + deletionsCount + modificationsCount,
+        additionsCount + deletionsCount + (modificationsCount * 2) // Modifications count as both add/remove
+      )
+    );
+    
+    console.log('📊 Change summary calculation:', {
+      rawAdditions: additionsCount,
+      rawDeletions: deletionsCount,
+      rawModifications: modificationsCount,
+      uniqueAddedWords: addedWords.size,
+      uniqueRemovedWords: removedWords.size,
+      meaningfulChanges,
+      addedChars,
+      removedChars
+    });
     
     return {
-      totalChanges: additionsCount + deletionsCount + modificationsCount,
+      totalChanges: meaningfulChanges,
       additionsCount,
       deletionsCount,
       modificationsCount,

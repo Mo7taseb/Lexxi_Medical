@@ -187,6 +187,7 @@ export interface TrackGenerationResponse {
 export interface TrackEditRequest {
   generationId: string;
   finalNote: string;
+  originalNote?: string; // 🔧 CRITICAL: Add original note for accurate diff analysis
   finalSections: MedicalSection[];
   editDurationSeconds?: number;
 }

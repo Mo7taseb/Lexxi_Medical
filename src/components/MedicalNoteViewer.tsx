@@ -34,6 +34,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   const [editedSections, setEditedSections] = useState<{ [key: string]: string }>({});
   const [generationId, setGenerationId] = useState<string | null>(null);
   const [originalCaptured, setOriginalCaptured] = useState(false); // 🔧 PROTECTION: Track if original was captured
+  const [cumulativeEditDuration, setCumulativeEditDuration] = useState(0); // 🔧 NEW: Track total edit time across sessions
 
   // Change tracking hooks
   const { trackGeneration, trackEdit } = useChangeTracking({ consentGiven: true });
@@ -234,13 +235,15 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     }
 
     // 🔧 BEST PRACTICE: Ensure timer is stopped and get accurate duration
-    const editDuration = isRunning ? stopTimer() : duration || 0;
+    const currentSessionDuration = isRunning ? stopTimer() : duration || 0;
+    const totalEditDuration = cumulativeEditDuration + currentSessionDuration;
+    setCumulativeEditDuration(totalEditDuration);
     setIsEditing(false);
 
     console.log('⏱️ Edit session completed:', {
-      duration: editDuration,
+      duration: totalEditDuration,
       wasTimerRunning: isRunning,
-      finalDuration: editDuration
+      finalDuration: totalEditDuration
     });
 
     // Debug logging
@@ -250,7 +253,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       hasChanges: editedNote !== generatedNote,
       editedLength: editedNote?.length,
       originalLength: generatedNote?.length,
-      editDuration
+      currentSessionDuration
     });
 
     // 🔧 CRITICAL FIX: Use original generated note for accurate comparison
@@ -270,7 +273,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       areIdentical: editedNote === originalGeneratedNote
     });
     const hasAnyChange = contentDifferent || trimmedDifferent || lengthDifference > 0;
-    const hasEditActivity = editDuration > 0; // If user spent time editing
+    const hasEditActivity = currentSessionDuration > 0; // If user spent time editing
 
     console.log('🔍 Enhanced change detection:', {
       hasGenerationId,
@@ -281,7 +284,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       trimmedDifferent,
       hasAnyChange,
       hasEditActivity,
-      editDuration
+      currentSessionDuration
     });
 
     // Track if we have generation ID AND (content changed OR user spent time editing)
@@ -301,7 +304,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
           finalNote: editedNote,
           originalNote: originalGeneratedNote, // 🔧 CRITICAL: Pass original note
           finalSections,
-          editDurationSeconds: editDuration
+          editDurationSeconds: currentSessionDuration
         } as any);
 
         if (success) {
@@ -322,7 +325,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
         hasGenerationId,
         hasAnyChange,
         hasEditActivity,
-        editDuration
+        currentSessionDuration
       });
     }
   }, [generationId, editedNote, generatedNote, stopTimer, trackEdit, lastSaveHash, isRunning, duration]);
@@ -353,12 +356,14 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     }
 
     // 🔧 BEST PRACTICE: Ensure timer is stopped and get accurate duration
-    const editDuration = isRunning ? stopTimer() : duration || 0;
+    const currentSessionDuration = isRunning ? stopTimer() : duration || 0;
+    const totalEditDuration = cumulativeEditDuration + currentSessionDuration;
+    setCumulativeEditDuration(totalEditDuration);
 
     console.log('⏱️ Edit session completed with specific content:', {
-      duration: editDuration,
+      duration: totalEditDuration,
       wasTimerRunning: isRunning,
-      finalDuration: editDuration,
+      finalDuration: totalEditDuration,
       contentLength: noteContent.length
     });
 
@@ -380,7 +385,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     });
 
     const hasAnyChange = contentDifferent || trimmedDifferent || lengthDifference > 0;
-    const hasEditActivity = editDuration > 0; // If user spent time editing
+    const hasEditActivity = totalEditDuration > 0; // If user spent time editing
 
     console.log('🔍 Enhanced change detection with specific content:', {
       hasGenerationId,
@@ -391,7 +396,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       trimmedDifferent,
       hasAnyChange,
       hasEditActivity,
-      editDuration
+      editDuration: totalEditDuration
     });
 
     // Track if we have generation ID AND (content changed OR user spent time editing)
@@ -410,8 +415,9 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
         const success = await trackEdit(generationId, {
           finalNote: noteContent, // 🔧 CRITICAL: Use the specific content passed to this function
+          originalNote: originalGeneratedNote, // 🔧 CRITICAL: Pass original note for accurate comparison
           finalSections,
-          editDurationSeconds: editDuration
+          editDurationSeconds: totalEditDuration
         });
 
         if (success) {
@@ -432,7 +438,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
         hasGenerationId,
         hasAnyChange,
         hasEditActivity,
-        editDuration
+        totalEditDuration
       });
     }
   }, [generationId, originalGeneratedNote, stopTimer, trackEdit, lastSaveHash, isRunning, duration, parseNoteToSections]);
