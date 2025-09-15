@@ -87,8 +87,8 @@ export async function POST(request: NextRequest) {
         transcript_redacted: redactedTranscript,
         note_type: noteType,
         language: language || 'ar',
-        generated_note: redactedNote,
-        generated_sections: redactedSections,
+        generated_note: redactedNote, // 🔧 Store redacted for privacy (edit comparison will use frontend original)
+        generated_sections: redactedSections, // 🔧 Store redacted for privacy
         generation_source: generationSource,
         generation_confidence: generationConfidence,
         template_used: templateUsed,

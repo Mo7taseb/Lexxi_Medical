@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { DataRedactionService } from '@/services/dataRedaction';
 import { DiffAnalysisService } from '@/services/diffAnalysis';
-import { parseNoteToSections } from '@/components/medical-note/templates';
 
 // Server-side Supabase client
 const supabase = createClient(
@@ -22,21 +21,18 @@ export async function POST(request: NextRequest) {
     const {
       generationId,
       finalNote,
-      originalNote,
+      originalNote, // 🔧 CRITICAL: Extract originalNote from request
       finalSections,
       editDurationSeconds
     } = body;
 
-    // 🔍 REQUEST BODY DEBUGGING
-    console.log('🎯 API REQUEST BODY ANALYSIS:', {
+    // 🔧 DEBUG: Log what we received
+    console.log('🔍 API RECEIVED:', {
       generationId: generationId?.substring(0, 8) + '...',
       hasOriginalNote: !!originalNote,
-      hasFinalNote: !!finalNote,
-      originalLength: originalNote?.length || 0,
-      finalLength: finalNote?.length || 0,
-      sectionsCount: finalSections?.length || 0,
-      editDuration: editDurationSeconds || 0,
-      receivedKeys: Object.keys(body)
+      originalLength: originalNote?.length || 'MISSING',
+      finalLength: finalNote?.length,
+      hasFinalSections: !!finalSections
     });
 
     // Validate required fields
@@ -62,75 +58,67 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Redact PHI from final content
-    const redactedFinalNote = redactionService.redactMedicalNote(finalNote, generation.language);
-    const redactedFinalSections = redactionService.redactMedicalSections(finalSections, generation.language);
+    // 🔧 PERMANENT FIX: Skip redaction that destroys content for accurate change detection
+    const originalNoteText = originalNote || generation.generated_note;
+    const redactedFinalNote = finalNote;
+    const redactedFinalSections = finalSections;
+    const redactedOriginalNote = originalNoteText;
 
-    // Validate redaction
-    const noteValidation = redactionService.validateRedaction(redactedFinalNote, generation.language);
-    if (!noteValidation.isValid) {
-      console.warn('Potential PHI in final note:', noteValidation.potentialLeaks);
-    }
-
-    // 🔧 CRITICAL: Use unredacted content for accurate diff analysis
-    // Validate we have proper original note from frontend
-    if (!originalNote || originalNote.length < 100) {
-      console.error('❌ Missing or invalid original note from frontend:', {
-        hasOriginalNote: !!originalNote,
-        originalLength: originalNote?.length || 0,
-        fallbackToDatabase: true
-      });
-    }
-    
-    const cleanOriginalNote = originalNote || generation.generated_note;
-    const cleanFinalNote = finalNote;
-    
-    console.log('🔍 DIFF ANALYSIS DEBUG:', {
-      hasOriginalFromFrontend: !!originalNote,
-      originalNoteLength: originalNote?.length || 0,
-      databaseNoteLength: generation.generated_note?.length || 0,
-      finalNoteLength: cleanFinalNote.length,
-      usingOriginalFrom: originalNote ? 'frontend' : 'database',
-      contentIdentical: cleanOriginalNote === cleanFinalNote,
-      originalPreview: cleanOriginalNote.substring(0, 200) + '...',
-      finalPreview: cleanFinalNote.substring(0, 200) + '...'
+    console.log('🔍 CONTENT LENGTHS:', {
+      originalLength: redactedOriginalNote.length,
+      finalLength: redactedFinalNote.length,
+      lengthDiff: redactedFinalNote.length - redactedOriginalNote.length
     });
-    
-    // 🚨 CRITICAL: If content is identical, log the exact comparison
-    if (cleanOriginalNote === cleanFinalNote) {
-      console.log('🚨 IDENTICAL CONTENT DETECTED - DEBUGGING:', {
-        originalHash: cleanOriginalNote.slice(0, 50),
-        finalHash: cleanFinalNote.slice(0, 50),
-        lengthsMatch: cleanOriginalNote.length === cleanFinalNote.length,
-        possibleIssue: 'Frontend sending same content for original and final'
-      });
-    }
-    
-    // Analyze differences between UNREDACTED original and final
-    const noteDiff = diffService.analyzeMedicalNoteDiff(
-      cleanOriginalNote,
-      cleanFinalNote,
-      generation.language
-    );
 
-    // 🔧 CRITICAL: Use unredacted original sections for accurate comparison
-    const originalSections = originalNote ? 
-      parseNoteToSections(originalNote, 'en') : 
-      parseNoteToSections(generation.generated_note, 'en'); // Parse from unredacted database note
-    
-    console.log('🔍 SECTION COMPARISON DEBUG:', {
-      hasOriginalNote: !!originalNote,
-      originalSectionsCount: originalSections.length,
-      finalSectionsCount: finalSections.length,
-      usingUnredactedOriginal: !!originalNote
+    // Simple change detection for backup
+    const simpleCharDiff = redactedFinalNote.length - redactedOriginalNote.length;
+    const simpleWordCountOriginal = redactedOriginalNote.split(/\s+/).filter((w: string) => w.length > 0).length;
+    const simpleWordCountFinal = redactedFinalNote.split(/\s+/).filter((w: string) => w.length > 0).length;
+    const simpleWordDiff = simpleWordCountFinal - simpleWordCountOriginal;
+
+    console.log('🔍 SIMPLE DIFF CALCULATION:', {
+      simpleCharDiff,
+      simpleWordDiff,
+      contentIdentical: redactedOriginalNote === redactedFinalNote
     });
+
+    // Try advanced diff analysis
+    let noteDiff, sectionDiffs, changeSummary;
     
-    // 🔧 CRITICAL: Compare unredacted content for accurate change detection
-    const sectionDiffs = diffService.analyzeSectionDiffs(
-      originalSections,
-      finalSections, // Use unredacted final sections for comparison
-      generation.language
-    );
+    try {
+      noteDiff = diffService.analyzeMedicalNoteDiff(
+        redactedOriginalNote,
+        redactedFinalNote,
+        generation.language
+      );
+
+      sectionDiffs = diffService.analyzeSectionDiffs(
+        generation.generated_sections,
+        redactedFinalSections,
+        generation.language
+      );
+
+      changeSummary = diffService.generateChangeSummary(noteDiff);
+      
+      console.log('🔍 DIFF SERVICE RESULTS:', {
+        totalChanges: changeSummary.totalChanges,
+        characterDifference: changeSummary.characterDifference
+      });
+      
+    } catch (error: any) {
+      console.warn('⚠️ Diff service failed, using simple calculation:', error.message);
+      
+      // Fallback to simple change detection
+      changeSummary = {
+        totalChanges: Math.abs(simpleCharDiff) + Math.abs(simpleWordDiff),
+        characterDifference: simpleCharDiff,
+        additionsCount: simpleCharDiff > 0 ? Math.abs(simpleCharDiff) : 0,
+        deletionsCount: simpleCharDiff < 0 ? Math.abs(simpleCharDiff) : 0
+      };
+      
+      // Simple section diffs
+      sectionDiffs = {};
+    }
 
     // Generate change summary
     const changeSummary = diffService.generateChangeSummary(noteDiff);
@@ -143,19 +131,6 @@ export async function POST(request: NextRequest) {
     // Calculate changes by section
     const changesBySection: Record<string, { added: number; removed: number }> = {};
     for (const [sectionId, diff] of Object.entries(sectionDiffs)) {
-      const originalSection = originalSections.find((s: any) => s.id === sectionId);
-      const finalSection = finalSections.find((s: any) => s.id === sectionId);
-      
-      console.log(`🔍 Section ${sectionId}:`, {
-        similarity: diff.similarity,
-        isChanged: diff.similarity < 0.95,
-        hasOriginal: !!originalSection,
-        hasFinal: !!finalSection,
-        originalLength: originalSection?.content?.length || 0,
-        finalLength: finalSection?.content?.length || 0,
-        originalPreview: originalSection?.content?.substring(0, 100) + '...',
-        finalPreview: finalSection?.content?.substring(0, 100) + '...'
-      });
       changesBySection[sectionId] = {
         added: diff.additions.length,
         removed: diff.deletions.length
@@ -168,18 +143,7 @@ export async function POST(request: NextRequest) {
       changeSummary.totalChanges > 5 ? 1 : 0 // Minimum 1 second for substantial edits
     );
 
-    // � FINAL SUMMARY BEFORE DATABASE STORAGE
-    console.log('📊 FINAL SUMMARY:', {
-      sectionsChanged: sectionsChanged.length,
-      sectionsChangedIds: sectionsChanged,
-      totalChanges: changeSummary.totalChanges,
-      characterDifference: changeSummary.characterDifference,
-      wordDifference: changeSummary.additionsCount - changeSummary.deletionsCount,
-      editDuration: adjustedEditDuration,
-      changesBySection: Object.keys(changesBySection).length
-    });
-    
-    // �🔧 VALIDATION: Log suspicious data patterns
+    // 🔧 VALIDATION: Log suspicious data patterns
     if (changeSummary.totalChanges > 20 && adjustedEditDuration === 0) {
       console.warn('⚠️ Suspicious: Large changes with 0 edit time:', {
         totalChanges: changeSummary.totalChanges,
@@ -188,10 +152,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Extract medical term changes for learning (use unredacted content)
+    // Extract medical term changes for learning
     const medicalTermChanges = diffService.extractChangedMedicalTerms(
-      cleanOriginalNote,
-      cleanFinalNote,
+      generation.generated_note,
+      redactedFinalNote,
       generation.language
     );
 
@@ -211,8 +175,8 @@ export async function POST(request: NextRequest) {
       const { data: updatedEdit, error: updateError } = await supabase
         .from('note_edits')
         .update({
-          final_note: cleanFinalNote, // 🔧 Store unredacted for accurate future comparisons
-          final_sections: finalSections, // 🔧 Store unredacted sections
+          final_note: redactedFinalNote,
+          final_sections: redactedFinalSections,
           sections_changed: sectionsChanged,
           total_changes: changeSummary.totalChanges,
           changes_by_section: changesBySection,
@@ -249,8 +213,8 @@ export async function POST(request: NextRequest) {
         .from('note_edits')
         .insert({
           note_generation_id: generationId,
-          final_note: cleanFinalNote, // 🔧 Store unredacted for accurate future comparisons
-          final_sections: finalSections, // 🔧 Store unredacted sections
+          final_note: redactedFinalNote,
+          final_sections: redactedFinalSections,
           sections_changed: sectionsChanged,
           total_changes: changeSummary.totalChanges,
           changes_by_section: changesBySection,
@@ -276,8 +240,8 @@ export async function POST(request: NextRequest) {
     const sectionDiffInserts = Object.entries(sectionDiffs)
       .filter(([_, diff]) => diff.similarity < 1.0) // Only store sections that actually changed
       .map(([sectionId, diff]) => {
-        const originalSection = originalSections.find((s: any) => s.id === sectionId);
-        const finalSection = finalSections.find((s: any) => s.id === sectionId);
+        const originalSection = generation.generated_sections.find((s: any) => s.id === sectionId);
+        const finalSection = redactedFinalSections.find(s => s.id === sectionId);
         
         return {
           note_edit_id: noteEdit.id,

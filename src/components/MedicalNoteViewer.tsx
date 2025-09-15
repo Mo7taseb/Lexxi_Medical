@@ -29,9 +29,11 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   // State management
   const [isEditing, setIsEditing] = useState(false);
   const [editedNote, setEditedNote] = useState('');
+  const [originalGeneratedNote, setOriginalGeneratedNote] = useState(''); // 🔧 CRITICAL: Store original for comparison
   const [copySuccess, setCopySuccess] = useState(false);
   const [editedSections, setEditedSections] = useState<{ [key: string]: string }>({});
   const [generationId, setGenerationId] = useState<string | null>(null);
+  const [originalCaptured, setOriginalCaptured] = useState(false); // 🔧 PROTECTION: Track if original was captured
 
   // Change tracking hooks
   const { trackGeneration, trackEdit } = useChangeTracking({ consentGiven: true });
@@ -81,20 +83,60 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
   useEffect(() => {
     if (generatedNote && generatedNote !== editedNote) {
       setEditedNote(generatedNote);
+
+      // 🔧 CRITICAL FIX: Capture original note ONLY ONCE per session
+      if (!originalCaptured) {
+        setOriginalGeneratedNote(generatedNote);
+        setOriginalCaptured(true);
+        console.log(`🎯 ORIGINAL NOTE CAPTURED:`, {
+          length: generatedNote.length,
+          preview: generatedNote.substring(0, 200) + '...',
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        console.log(`🔒 ORIGINAL ALREADY CAPTURED:`, {
+          currentLength: originalGeneratedNote?.length || 0,
+          newLength: generatedNote.length,
+          skipReason: 'Preventing corruption'
+        });
+      }
+
       // 🔧 BEST PRACTICE: Reset timer when new note is generated
       if (isRunning) {
         resetTimer();
         console.log('🔄 Timer reset for new note generation');
       }
     }
-  }, [generatedNote, editedNote, isRunning, resetTimer]);
+  }, [generatedNote, editedNote, originalCaptured, isRunning, resetTimer]);
 
-  // Track note generation when a new note is generated
+  // Track note generation when a new note is generated - PRESERVE original
   useEffect(() => {
-    if (generatedNote && transcript && noteType) {
+    if (generatedNote && transcript && noteType && !originalCaptured) {
+      // 🔧 CRITICAL FIX: Only track generation once per session
+      // Use the protected flag to prevent multiple calls
+      setOriginalGeneratedNote(generatedNote);
+      setOriginalCaptured(true);
+      console.log('🆕 FIRST GENERATION - Setting original note:', generatedNote.length, 'characters');
       trackNoteGeneration();
+    } else if (generatedNote && originalCaptured) {
+      // 🔧 NEVER overwrite original note after it's set
+      console.log('📝 PRESERVING ORIGINAL - Already captured, skipping:', {
+        originalLength: originalGeneratedNote.length,
+        newGeneratedLength: generatedNote.length,
+        preservingOriginal: true
+      });
     }
-  }, [generatedNote, transcript, noteType]);
+  }, [generatedNote, transcript, noteType, originalCaptured]);
+
+  // 🔧 BEST PRACTICE: Reset protection flag when transcript changes (new session)
+  useEffect(() => {
+    if (transcript) {
+      console.log('🔄 New transcript detected - Resetting original note protection');
+      setOriginalCaptured(false);
+      setOriginalGeneratedNote('');
+      setGenerationId(null);
+    }
+  }, [transcript]);
 
   // 🔧 BEST PRACTICE: Cleanup timer on component unmount
   useEffect(() => {
@@ -211,13 +253,22 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       editDuration
     });
 
-    // 🔧 FIXED: Enhanced change detection with multiple validation methods
+    // 🔧 CRITICAL FIX: Use original generated note for accurate comparison
     const hasGenerationId = !!generationId;
     const contentLength = editedNote?.length || 0;
-    const originalLength = generatedNote?.length || 0;
+    const originalLength = originalGeneratedNote?.length || 0;
     const lengthDifference = Math.abs(contentLength - originalLength);
-    const contentDifferent = editedNote !== generatedNote;
-    const trimmedDifferent = editedNote?.trim() !== generatedNote?.trim();
+    const contentDifferent = editedNote !== originalGeneratedNote;
+    const trimmedDifferent = editedNote?.trim() !== originalGeneratedNote?.trim();
+
+    // 🔧 DEBUG: Log the actual content being compared
+    console.log('🔍 COMPARISON DEBUG:', {
+      editedPreview: editedNote?.substring(0, 100) + '...',
+      originalPreview: originalGeneratedNote?.substring(0, 100) + '...',
+      editedLength: editedNote?.length,
+      originalLength: originalGeneratedNote?.length,
+      areIdentical: editedNote === originalGeneratedNote
+    });
     const hasAnyChange = contentDifferent || trimmedDifferent || lengthDifference > 0;
     const hasEditActivity = editDuration > 0; // If user spent time editing
 
@@ -241,12 +292,17 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
 
         const finalSections = parseNoteToSections(editedNote, 'en');
 
-        console.log('🎯 Tracking edit with generation ID:', generationId);
+        console.log('🎯 Tracking edit with generation ID:', generationId, {
+          originalLength: originalGeneratedNote.length,
+          finalLength: editedNote.length,
+          lengthDiff: editedNote.length - originalGeneratedNote.length
+        });
         const success = await trackEdit(generationId, {
           finalNote: editedNote,
+          originalNote: originalGeneratedNote, // 🔧 CRITICAL: Pass original note
           finalSections,
           editDurationSeconds: editDuration
-        });
+        } as any);
 
         if (success) {
           console.log('✅ Edit tracked successfully!');
@@ -280,6 +336,107 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     setEditedNote(value);
   }, []);
 
+  // 🔧 NEW: Handle save with specific content (for inline edits)
+  const handleSaveWithContent = useCallback(async (noteContent: string) => {
+    console.log('🎯 handleSaveWithContent called with:', {
+      contentLength: noteContent.length,
+      hasGenerationId: !!generationId,
+      hasOriginalNote: !!originalGeneratedNote
+    });
+
+    // Create a hash to prevent duplicate saves of identical content
+    const currentHash = `${generationId}-${noteContent.length}-${noteContent.slice(0, 50)}`;
+
+    if (currentHash === lastSaveHash) {
+      console.log('🚫 Duplicate save prevented:', currentHash.slice(0, 30) + '...');
+      return;
+    }
+
+    // 🔧 BEST PRACTICE: Ensure timer is stopped and get accurate duration
+    const editDuration = isRunning ? stopTimer() : duration || 0;
+
+    console.log('⏱️ Edit session completed with specific content:', {
+      duration: editDuration,
+      wasTimerRunning: isRunning,
+      finalDuration: editDuration,
+      contentLength: noteContent.length
+    });
+
+    // 🔧 CRITICAL FIX: Use original generated note for accurate comparison
+    const hasGenerationId = !!generationId;
+    const contentLength = noteContent?.length || 0;
+    const originalLength = originalGeneratedNote?.length || 0;
+    const lengthDifference = Math.abs(contentLength - originalLength);
+    const contentDifferent = noteContent !== originalGeneratedNote;
+    const trimmedDifferent = noteContent?.trim() !== originalGeneratedNote?.trim();
+
+    // 🔧 DEBUG: Log the actual content being compared
+    console.log('🔍 SPECIFIC CONTENT COMPARISON DEBUG:', {
+      noteContentPreview: noteContent?.substring(0, 100) + '...',
+      originalPreview: originalGeneratedNote?.substring(0, 100) + '...',
+      noteContentLength: noteContent?.length,
+      originalLength: originalGeneratedNote?.length,
+      areIdentical: noteContent === originalGeneratedNote
+    });
+
+    const hasAnyChange = contentDifferent || trimmedDifferent || lengthDifference > 0;
+    const hasEditActivity = editDuration > 0; // If user spent time editing
+
+    console.log('🔍 Enhanced change detection with specific content:', {
+      hasGenerationId,
+      contentLength,
+      originalLength,
+      lengthDifference,
+      contentDifferent,
+      trimmedDifferent,
+      hasAnyChange,
+      hasEditActivity,
+      editDuration
+    });
+
+    // Track if we have generation ID AND (content changed OR user spent time editing)
+    if (hasGenerationId && (hasAnyChange || hasEditActivity)) {
+      try {
+        // Mark this content as saved to prevent duplicates
+        setLastSaveHash(currentHash);
+
+        console.log('🎯 Tracking edit with generation ID and specific content:', generationId, {
+          originalLength: originalGeneratedNote?.length,
+          finalLength: noteContent.length,
+          lengthDiff: lengthDifference
+        });
+
+        const finalSections = parseNoteToSections(noteContent, 'en');
+
+        const success = await trackEdit(generationId, {
+          finalNote: noteContent, // 🔧 CRITICAL: Use the specific content passed to this function
+          finalSections,
+          editDurationSeconds: editDuration
+        });
+
+        if (success) {
+          console.log('✅ Edit tracked successfully with specific content!');
+        } else {
+          console.warn('❌ Edit tracking failed silently');
+          // Reset hash on failure so we can retry
+          setLastSaveHash('');
+        }
+      } catch (error) {
+        console.error('❌ Failed to track note edit:', error);
+        // Reset hash on error so we can retry
+        setLastSaveHash('');
+      }
+    } else {
+      console.log('⚠️ Edit not tracked (specific content):', {
+        reason: !hasGenerationId ? 'No generation ID' : 'No changes or activity detected',
+        hasGenerationId,
+        hasAnyChange,
+        hasEditActivity,
+        editDuration
+      });
+    }
+  }, [generationId, originalGeneratedNote, stopTimer, trackEdit, lastSaveHash, isRunning, duration, parseNoteToSections]);
+
   // Inline editing handlers
   const handleSectionStartEdit = useCallback((sectionId: string) => {
     console.log('🎯 INLINE EDIT START DEBUG:', {
@@ -289,7 +446,7 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       currentEditedNote: editedNote?.length,
       originalNote: generatedNote?.length
     });
-    
+
     // 🔧 BEST PRACTICE: Start timer for inline edits if not already running
     if (!isRunning) {
       startTimer();
@@ -297,11 +454,23 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
     } else {
       console.log('⏱️ Timer already running, continuing for section:', sectionId);
     }
-  }, [isRunning, startTimer, generationId, editedNote, generatedNote]);  const handleSectionSaveEdit = useCallback((sectionId: string, newContent: string) => {
-    console.log(`🔧 Saving inline edit for section: ${sectionId}`, {
-      newContentLength: newContent.length,
+  }, [isRunning, startTimer, generationId, editedNote, generatedNote]); const handleSectionSaveEdit = useCallback((sectionId: string, newContent: string) => {
+    // 🔍 COMPREHENSIVE SECTION EDIT DEBUGGING
+    const currentSection = formattedNote.sections.find(s => s.id === sectionId);
+    const originalContent = currentSection?.content || '';
+
+    console.log(`🎯 SECTION EDIT DEBUGGING:`, {
       sectionId,
+      sectionTitle: currentSection?.title || 'UNKNOWN',
+      originalContent,
+      newContent,
+      originalLength: originalContent.length,
+      newLength: newContent.length,
+      lengthDiff: newContent.length - originalContent.length,
+      contentIdentical: originalContent === newContent,
       currentGenerationId: generationId,
+      hasOriginalNote: !!originalGeneratedNote,
+      originalNoteLength: originalGeneratedNote?.length || 0,
       isTimerRunning: isRunning
     });
 
@@ -327,23 +496,45 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
       return title + (title ? '\n' : '') + content;
     }).join('\n\n');
 
+    // 🔍 NOTE RECONSTRUCTION DEBUGGING
+    console.log(`🔧 NOTE RECONSTRUCTION:`, {
+      originalNoteLength: editedNote.length,
+      reconstructedNoteLength: reconstructedNote.length,
+      lengthDiff: reconstructedNote.length - editedNote.length,
+      originalNotePreview: editedNote.substring(0, 200) + '...',
+      reconstructedPreview: reconstructedNote.substring(0, 200) + '...',
+      notesIdentical: editedNote === reconstructedNote
+    });
+
     // Update note and trigger tracking in one atomic operation
     setEditedNote(reconstructedNote);
 
     // 🎯 FIXED: Immediate change tracking with proper validation
     console.log('🔄 Processing inline edit for tracking...', {
       sectionId,
-      originalLength: generatedNote.length,
+      originalLength: originalGeneratedNote?.length || 'MISSING',
       newLength: reconstructedNote.length,
-      hasGenerationId: !!generationId
+      hasGenerationId: !!generationId,
+      hasOriginalNote: !!originalGeneratedNote
     });
-    
+
+    // 🔍 CRITICAL TRACKING DECISION DEBUG
+    console.log(`🚨 TRACKING DECISION ANALYSIS:`, {
+      hasGenerationId: !!generationId,
+      hasOriginalNote: !!originalGeneratedNote,
+      originalNoteLength: originalGeneratedNote?.length || 0,
+      reconstructedLength: reconstructedNote.length,
+      contentComparison: reconstructedNote === originalGeneratedNote,
+      originalPreview: originalGeneratedNote?.substring(0, 100) + '...' || 'MISSING',
+      reconstructedPreview: reconstructedNote.substring(0, 100) + '...'
+    });
+
     // Validate we have the necessary data for tracking
-    if (generationId && reconstructedNote !== generatedNote) {
+    if (generationId && originalGeneratedNote && reconstructedNote !== originalGeneratedNote) {
       // Lower threshold for change detection - even 1 character is meaningful
-      const changeSize = Math.abs(reconstructedNote.length - generatedNote.length);
-      const hasChange = changeSize > 0 || reconstructedNote.trim() !== generatedNote.trim();
-      
+      const changeSize = Math.abs(reconstructedNote.length - originalGeneratedNote.length);
+      const hasChange = changeSize > 0 || reconstructedNote.trim() !== originalGeneratedNote.trim();
+
       if (hasChange) {
         console.log('📝 Inline edit change detected - triggering tracking:', {
           sectionId,
@@ -351,11 +542,10 @@ const MedicalNoteViewer: React.FC<MedicalNoteViewerProps> = ({
           generationId: generationId.slice(0, 8) + '...',
           isTimerRunning: isRunning
         });
-        
-        // Use setTimeout to ensure state updates are processed
-        setTimeout(() => {
-          handleSave();
-        }, 50);
+
+        // 🔧 CRITICAL FIX: Use reconstructed note directly instead of waiting for state update
+        console.log('🎯 Triggering tracking with reconstructed note directly');
+        handleSaveWithContent(reconstructedNote);
       } else {
         console.log('⚠️ No substantial changes detected for:', sectionId);
       }

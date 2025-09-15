@@ -42,14 +42,12 @@ const Logo: React.FC<LogoProps> = ({
                     width={width}
                     height={height}
                     className={`logo-responsive transition-all duration-700 ${language === 'ar'
-                            ? 'opacity-0 scale-95 rotate-y-90'
-                            : 'opacity-100 scale-100 rotate-y-0'
+                        ? 'opacity-0 scale-95 rotate-y-90'
+                        : 'opacity-100 scale-100 rotate-y-0'
                         }`}
                     priority={priority}
                     style={{
                         objectFit: 'contain',
-                        width: 'auto',
-                        height: 'auto',
                         maxWidth: '100%',
                         maxHeight: '100%'
                     }}
@@ -62,14 +60,12 @@ const Logo: React.FC<LogoProps> = ({
                     width={width}
                     height={height}
                     className={`logo-perfect-center logo-responsive transition-all duration-700 ${language === 'ar'
-                            ? 'opacity-100 scale-100 rotate-y-0'
-                            : 'opacity-0 scale-95 rotate-y-90'
+                        ? 'opacity-100 scale-100 rotate-y-0'
+                        : 'opacity-0 scale-95 rotate-y-90'
                         }`}
                     priority={priority}
                     style={{
                         objectFit: 'contain',
-                        width: 'auto',
-                        height: 'auto',
                         maxWidth: '100%',
                         maxHeight: '100%'
                     }}

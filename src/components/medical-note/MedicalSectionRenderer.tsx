@@ -25,7 +25,21 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 
     // Handle touch/click to start editing (better for mobile)
     const handleTapToEdit = () => {
-        if (!isInlineEditing || isEditingThis) return;
+        console.log(`[MedicalSectionRenderer] handleTapToEdit called for section: ${section.id}`, {
+            sectionTitle: section.title,
+            isInlineEditing,
+            isEditingThis,
+            hasContent: !!section.content,
+            contentLength: section.content?.length || 0
+        });
+
+        if (!isInlineEditing || isEditingThis) {
+            console.log(`[MedicalSectionRenderer] Tap to edit blocked:`, {
+                isInlineEditing,
+                isEditingThis
+            });
+            return;
+        }
 
         setIsEditingThis(true);
         setEditContent(section.content);
@@ -40,6 +54,16 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 
     // Handle save
     const handleSave = () => {
+        console.log(`🎯 MedicalSectionRenderer.handleSave CALLED:`, {
+            sectionId: section.id,
+            sectionTitle: section.title,
+            originalContent: section.content,
+            editContent: editContent,
+            contentChanged: section.content !== editContent,
+            lengthDiff: editContent.length - section.content.length,
+            hasOnSaveEdit: !!onSaveEdit
+        });
+
         setIsEditingThis(false);
         onSaveEdit?.(section.id, editContent);
     };
@@ -53,9 +77,17 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
 
     // Handle escape key to cancel editing
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        console.log(`[MedicalSectionRenderer] Key pressed in section ${section.id}:`, {
+            key: e.key,
+            ctrlKey: e.ctrlKey,
+            metaKey: e.metaKey
+        });
+
         if (e.key === 'Escape') {
+            console.log(`[MedicalSectionRenderer] Escape pressed - canceling edit for section: ${section.id}`);
             handleCancel();
         } else if (e.key === 'Enter' && e.ctrlKey) {
+            console.log(`[MedicalSectionRenderer] Ctrl+Enter pressed - saving section: ${section.id}`);
             handleSave();
         }
     };
@@ -117,7 +149,14 @@ const MedicalSectionRenderer: React.FC<MedicalSectionRendererProps> = ({
                         <div className="space-y-3">
                             <textarea
                                 value={editContent}
-                                onChange={(e) => setEditContent(e.target.value)}
+                                onChange={(e) => {
+                                    console.log(`[MedicalSectionRenderer] Content changed for section: ${section.id}`, {
+                                        oldLength: editContent.length,
+                                        newLength: e.target.value.length,
+                                        hasChanges: e.target.value !== section.content
+                                    });
+                                    setEditContent(e.target.value);
+                                }}
                                 onKeyDown={handleKeyDown}
                                 className="w-full min-h-[180px] sm:min-h-[200px] max-h-[400px] sm:max-h-[500px] p-4 sm:p-5 border-2 border-blue-300 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-lg sm:text-base leading-relaxed shadow-inner bg-white placeholder-gray-500"
                                 placeholder="Enter medical content here..."

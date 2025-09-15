@@ -154,6 +154,17 @@ export function useChangeTracking(props: UseChangeTrackingProps = {}): ChangeTra
       return false;
     }
 
+    // 🔍 HOOK DEBUGGING - What data are we sending?
+    console.log('🎯 useChangeTracking.trackEdit - SENDING TO API:', {
+      generationId: generationId.substring(0, 8) + '...',
+      hasFinalNote: !!data.finalNote,
+      finalLength: data.finalNote?.length || 0,
+      sectionsCount: data.finalSections?.length || 0,
+      editDuration: data.editDurationSeconds || 0,
+      finalPreview: data.finalNote?.substring(0, 100) + '...' || 'MISSING',
+      sectionTitles: data.finalSections?.map(s => s.title).join(', ') || 'NONE'
+    });
+
     try {
       setIsTracking(true);
 
