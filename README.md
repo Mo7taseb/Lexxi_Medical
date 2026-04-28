@@ -231,26 +231,3 @@ lexxi/
 └── README.md                    # This file
 ```
 
-## 🆘 Support
-
-For issues and questions:
-
-1. Check the console for error messages
-2. Verify your API keys (OpenAI and Groq) are set correctly
-3. Ensure your Groq API key has transcription access
-4. Check that audio file formats are supported (MP3, WAV, M4A, etc.)
-
-## 🔮 Future Enhancements
-
-- [ ] Multiple language support
-- [ ] Voice activity detection
-- [ ] Real-time transcription
-- [ ] Integration with EHR systems
-- [ ] Advanced medical terminology recognition
-- [ ] Multi-speaker identification
-- [ ] Automated backup and sync
-- [ ] Mobile app version
-
----
-
-**Built with ❤️ for the medical community**
