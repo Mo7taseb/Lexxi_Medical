@@ -1,233 +1,158 @@
-# Lexxi Medical - Voice-to-Medical-Note System
+# 🩺 Lexxi Medical - Voice-to-Medical-Note System
 
-🩺 **Lexxi Medical** is an AI-powered web application that converts voice recordings into structured medical notes. It supports both Arabic and English transcription and can generate various types of medical reports (SOAP, Progress Notes, Consultation Notes, etc.).
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-lexxi.vercel.app-blue?style=for-the-badge)](https://lexxi.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+
+**Lexxi Medical** is an AI-powered web application that converts voice recordings into structured medical notes. It supports both Arabic and English transcription and can generate various types of medical reports (SOAP, Progress Notes, Consultation Notes, etc.).
+
+## 🌐 Live Demo
+
+👉 **[https://lexxi.vercel.app/](https://lexxi.vercel.app/)**
+
+Try it out — record your voice or upload an audio file and watch it get transcribed and converted into a professional medical note in seconds.
+
+---
 
 ## 🚀 Features
 
-- **Voice Recording**: Record audio directly in the browser with pause/resume functionality
-- **File Upload**: Upload existing audio files for transcription
-- **Multi-language Support**: Arabic and English transcription
+- **Voice Recording** — Record audio directly in the browser with pause/resume functionality
+- **File Upload** — Upload existing audio files for transcription
+- **Multi-language Support** — Arabic and English transcription with RTL support
 - **Medical Note Types**:
   - SOAP Notes
   - Progress Notes
   - Consultation Notes
   - Discharge Summaries
   - Free-form Notes
-- **AI-Powered**: Uses OpenAI GPT for intelligent note generation
-- **Cloud Transcription**: Ultra-fast Groq Whisper API for accurate transcription (5-15 seconds)
-- **Medical Term Corrections**: Specialized Arabic medical terminology correction
-- **RTL Support**: Full Arabic language support with proper text direction
-- **Professional UI**: Clean, medical-focused interface
+- **AI-Powered** — Uses OpenAI GPT for intelligent note generation
+- **Cloud Transcription** — Ultra-fast Groq Whisper API (5-15 seconds)
+- **Medical Term Corrections** — Specialized Arabic medical terminology correction
+- **PWA Ready** — Installable on mobile devices
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Transcription**: Groq Whisper API (cloud-based)
-- **AI**: OpenAI GPT-3.5/4 for note generation
-- **Icons**: Lucide React
-- **Styling**: Tailwind CSS with RTL support
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS |
+| Backend | Next.js API Routes (Node.js) |
+| Transcription | Groq Whisper API |
+| AI / NLP | OpenAI GPT-3.5 / GPT-4 |
+| Database | Supabase |
+| Deployment | Vercel |
+| Icons | Lucide React |
 
-## 📦 Installation
+---
+
+## 📦 Installation & Setup
 
 ### Prerequisites
 
-1. **Node.js** (v18 or higher)
-2. **Groq API Key** (for transcription)
-3. **OpenAI API Key** (for note generation)
+- **Node.js** v18 or higher
+- **Groq API Key** — [Get one here](https://console.groq.com/)
+- **OpenAI API Key** — [Get one here](https://platform.openai.com/)
 
-### Setup Instructions
+### Steps
 
-1. **Clone and install dependencies**:
-
+1. **Clone the repository**:
    ```bash
-   cd lexxi-medical-app
+   git clone https://github.com/Mo7taseb/Lexxi_Medical.git
+   cd Lexxi_Medical
+   ```
+
+2. **Install dependencies**:
+   ```bash
    npm install
    ```
 
-2. **Environment Configuration**:
+3. **Configure environment variables** — create a `.env.local` file:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key_here
+   GROQ_API_KEY=your_groq_api_key_here
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   ```
 
-   - Copy `.env.local` file
-   - Add your API keys:
-     ```
-     OPENAI_API_KEY=your_openai_api_key_here
-     GROQ_API_KEY=your_groq_api_key_here
-     ```
-
-3. **Run the development server**:
-
+4. **Run the development server**:
    ```bash
    npm run dev
    ```
 
-4. **Open the app**:
-   Navigate to `http://localhost:3000`
+5. **Open the app** at `http://localhost:3000`
 
-## 🎯 Usage Guide
+---
 
-### Step 1: Choose Input Mode
-
-- **Full Conversation**: Record the entire doctor-patient conversation (requires patient consent)
-- **Doctor Summary**: Record only the doctor's summary
-
-### Step 2: Record Audio
-
-- Click "Start Recording" to begin
-- Use pause/resume controls as needed
-- Or upload an existing audio file
-
-### Step 3: Review Transcript
-
-- The system will automatically transcribe your audio using Groq Whisper API
-- Transcription happens in the cloud for ultra-fast processing (5-15 seconds)
-- Medical terminology is automatically corrected for Arabic
-- Edit the transcript if needed
-- Choose between Arabic and English transcription
-
-### Step 4: Select Note Type
-
-- Choose from various medical note formats:
-  - **SOAP Note**: Structured with Subjective, Objective, Assessment, Plan
-  - **Progress Note**: For follow-up appointments
-  - **Consultation Note**: For referrals and consultations
-  - **Discharge Summary**: For hospital discharge
-  - **Free Form**: Custom format
-
-### Step 5: Generate & Review Note
-
-- AI will generate a structured medical note
-- Edit the note if needed
-- Copy or download the final note
-
-## 🔧 Configuration
-
-### Groq Whisper API
-
-The app uses Groq's ultra-fast Whisper API for transcription:
-
-- **Speed**: 5-15 seconds for most audio files
-- **Languages**: Supports Arabic and English
-- **Medical Corrections**: Automatic Arabic medical term correction
-- **Quality**: High accuracy with medical terminology
-
-### OpenAI Configuration
-
-The app uses GPT-3.5-turbo by default. You can modify the model in:
-
-```typescript
-// src/app/api/generate-note/route.ts
-const completion = await openai.chat.completions.create({
-  model: "gpt-3.5-turbo", // or "gpt-4"
-  // ...
-});
-```
-
-## 📁 Project Structure
+## 🎯 How It Works
 
 ```
-lexxi-medical-app/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── transcribe/
-│   │   │   └── generate-note/
-│   │   ├── globals.css
-│   │   └── page.tsx
-│   ├── components/
-│   │   ├── VoiceRecorder.tsx
-│   │   ├── TranscriptionViewer.tsx
-│   │   ├── NoteTypeSelector.tsx
-│   │   └── MedicalNoteViewer.tsx
-│   └── utils/
-│       └── groqWhisper.ts
-├── .env.local
-└── README.md
+1. Choose Input Mode   →   Full conversation or doctor summary only
+2. Record / Upload     →   Record live audio or upload an existing file
+3. Transcription       →   Groq Whisper transcribes in 5-15 seconds
+4. Select Note Type    →   SOAP, Progress, Consultation, Discharge, or Free Form
+5. Generate Note       →   OpenAI GPT generates a structured medical note
+6. Review & Export     →   Edit, copy, or download the final note
 ```
+
+---
 
 ## 🌐 API Endpoints
 
-### POST /api/transcribe
+### `POST /api/transcribe`
+Transcribes an audio file using Groq Whisper API.
+- **Body**: `FormData` with audio file and language
+- **Response**: `{ transcript, transcriptionSource, enhancement? }`
 
-Transcribe audio file to text using Groq Whisper API
-
-- **Body**: FormData with audio file and language
-- **Response**: `{ transcript: string, transcriptionSource: string, enhancement?: object }`
-
-### POST /api/generate-note
-
-Generate medical note from transcript
-
+### `POST /api/generate-note`
+Generates a structured medical note from a transcript.
 - **Body**: `{ transcript: string, noteType: string }`
 - **Response**: `{ note: string }`
 
-## 🔒 Privacy & Security
-
-- **No Data Storage**: Audio and transcripts are processed but not stored
-- **Client-side Processing**: Voice recording happens entirely in the browser
-- **Cloud Processing**: Transcription processed securely via Groq API
-- **Patient Consent**: Built-in consent checkbox for full conversations
-
-## 🚀 Deployment
-
-### Local Development
-
-```bash
-npm run dev
-```
-
-### Production Build
-
-```bash
-npm run build
-npm start
-```
-
-### Deployment Options
-
-- **Vercel**: Recommended for Next.js apps
-- **Docker**: Container-based deployment
-- **Traditional Server**: Node.js hosting
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📝 License
-
-This project is for educational and prototype purposes. Please ensure compliance with healthcare regulations (HIPAA, etc.) before using in production.
+---
 
 ## 📁 Project Structure
 
 ```
 lexxi/
-├── docs/                          # Documentation
-│   ├── GROQ_WHISPER_GUIDE.md     # Groq Whisper integration guide
-│   ├── LLM_INTEGRATION_GUIDE.md  # LLM setup and integration
-│   └── README.md                  # Documentation index
-├── scripts/                       # Utility scripts
-│   ├── generate-favicons.ps1     # Favicon generation script
-│   ├── setup-llm.bat            # LLM setup script
-│   └── README.md                 # Scripts documentation
-├── test-assets/                   # Test audio files
-│   ├── ar2.mp3                   # Arabic test audio
-│   ├── en.mp3                    # English test audio
-│   ├── mix1.mp3                  # Mixed language audio
-│   ├── consultation-voice-note.mp3 # Medical consultation
-│   └── README.md                 # Test assets documentation
-├── public/                        # Static assets
-│   ├── emblem.png                # Main logo/emblem
-│   ├── logo.png                  # Alternative logo
-│   └── favicon_io/               # Favicon files
-├── src/                          # Source code
-│   ├── app/                      # Next.js app directory
-│   ├── components/               # React components
-│   └── utils/                    # Utility functions
-├── package.json                  # Dependencies
-├── next.config.ts               # Next.js configuration
-├── tailwind.config.js           # Tailwind CSS config
-└── README.md                    # This file
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── transcribe/        # Groq Whisper transcription
+│   │   │   └── generate-note/     # OpenAI note generation
+│   │   └── page.tsx               # Main app page
+│   ├── components/                # React components
+│   │   ├── VoiceRecorder.tsx
+│   │   ├── TranscriptionViewer.tsx
+│   │   ├── NoteTypeSelector.tsx
+│   │   └── MedicalNoteViewer.tsx
+│   ├── contexts/                  # Language & session context
+│   ├── services/                  # Change tracking service
+│   └── utils/                     # Groq, LLM router utilities
+├── docs/                          # Integration guides
+├── test-assets/                   # Sample audio files (AR/EN)
+├── public/                        # Static assets & favicons
+├── next.config.ts
+├── tailwind.config.js
+└── README.md
+```
+
+---
+
+## 🔒 Privacy & Security
+
+- **No Data Storage** — Audio and transcripts are processed but never stored
+- **Client-side Recording** — Voice recording happens entirely in the browser
+- **Secure Cloud Processing** — Transcription processed via Groq API
+- **Patient Consent** — Built-in consent checkbox for full conversation mode
+
+---
+
+## 🚀 Deployment
+
+```bash
+# Production build
+npm run build
+npm start
 ```
 
